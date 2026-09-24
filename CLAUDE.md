@@ -109,6 +109,9 @@ independent features, each switched on or off from the toolbar popup:
 - A feature that is off leaves no trace on the page (no style element, no
   listeners).
 - Vanilla JS, zero dependencies.
+- `README.md` is written for WSU lecturers (what each feature does, install
+  and update steps), with only a short developer section at the end.
+  Implementation detail belongs here, not there.
 
 ## Dev workflow
 - Code lives in WSL (`~/wsuMoodleAddon`); Chrome loads an unpacked copy from
@@ -118,6 +121,6 @@ independent features, each switched on or off from the toolbar popup:
   scripts keep running in already-open tabs).
 - Paste cleaner: open `test/paste-test.html` and click "Run samples"; all
   should pass. Headless from WSL:
-  `chrome.exe --headless=new --dump-dom "file://wsl.localhost/<distro>/home/crash/wsuMoodleAddon/test/paste-test.html?auto"`
+  `chrome.exe --headless=new --virtual-time-budget=10000 --dump-dom "file://wsl.localhost/<distro>/home/crash/wsuMoodleAddon/test/paste-test.html?auto"`
   and check the `summary` element.
 - Bump `version` in the manifest for each release.
