@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <title>Paste cleaner test</title>
+  <style>
+    :root {
+      --maroon: #5c1a1b;
+      --gold: #c8892f;
+      --bg: #faf8f7;
+      --panel: #ffffff;
+      --text: #1f1a1a;
+      --muted: #6b6262;
+      --line: #ddd5d2;
+      --pass: #2e7d32;
+      --fail: #c62828;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #171414;
+        --panel: #221e1e;
+        --text: #f1ecea;
+        --muted: #aaa09d;
+        --line: #3a3333;
+        --pass: #66bb6a;
+        --fail: #ef5350;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0 auto;
+      max-width: 1100px;
+      padding: 16px;
+      font: 14px/1.5 system-ui, "Segoe UI", Roboto, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+    h1 { margin: 0 0 4px; color: var(--gold); font-size: 20px; }
+    h2 { margin: 24px 0 8px; font-size: 16px; }
+    p.note { margin: 0 0 12px; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+    .editor, iframe, textarea, pre {
+      width: 100%;
+      min-height: 140px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+      color: var(--text);
+      font: inherit;
+    }
+    .editor:focus { outline: 2px solid var(--gold); }
+    pre { margin: 0; overflow: auto; white-space: pre-wrap; word-break: break-word; font: 12px/1.4 ui-monospace, Consolas, monospace; }
+    label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 13px; }
+    button {
+      padding: 6px 14px;
+      border: 0;
+      border-radius: 6px;
+      background: var(--maroon);
+      color: #fff;
+      font: inherit;
+      cursor: pointer;
+    }
+    #summary { margin-left: 12px; font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
+    th, td { padding: 4px 6px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    td code { white-space: pre-wrap; word-break: break-word; }
+    .pass { color: var(--pass); font-weight: 600; }
+    .fail { color: var(--fail); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Paste cleaner test</h1>
+  <p class="note">Loads <code>../src/paste-clean.js</code> directly, so the extension doesn't need to be installed.
+    Copy something from Word and paste it into either editor.</p>
+
+  <div class="grid">
+    <div>
+      <label for="editor">Contenteditable div (like Atto)</label>
+      <div id="editor" class="editor" contenteditable="true"></div>
+    </div>
+    <div>
+      <label for="frame">Iframe editor (like TinyMCE)</label>
+      <iframe id="frame" title="Iframe editor"
+        srcdoc="<!doctype html><body contenteditable='true' style='font:14px system-ui;margin:8px'></body>"></iframe>
+    </div>
+    <div>
+      <label for="plain">Plain textarea (should be left alone)</label>
+      <textarea id="plain"></textarea>
+    </div>
+    <div>
+      <label>Last paste</label>
+      <pre id="info">Nothing pasted yet.</pre>
+    </div>
+    <div>
+      <label>Raw clipboard HTML</label>
+      <pre id="raw"></pre>
+    </div>
+    <div>
+      <label>Cleaned HTML</label>
+      <pre id="cleaned"></pre>
+    </div>
+  </div>
+
+  <h2>Samples <button id="run" type="button">Run samples</button><span id="summary"></span></h2>
+  <table>
+    <thead><tr><th>Sample</th><th>Result</th><th>Expected</th><th>Got</th></tr></thead>
+    <tbody id="results"></tbody>
+  </table>
+
+  <script src="../src/paste-clean.js"></script>
+  <script>
+    const P = window.WsuPasteClean;
+    const editor = document.getElementById("editor");
+    const frame = document.getElementById("frame");
+
+    // Record what arrives before the cleaner acts (window capture runs before document capture)
+    function record(e) {
+      const data = e.clipboardData;
+      if (!data) return;
+      const html = data.getData("text/html");
+      const text = data.getData("text/plain");
+      document.getElementById("info").textContent =
+        "Types: " + Array.from(data.types).join(", ") +
+        "\nImage file present: " + (P.hasImageFile(data) ? "yes" : "no") +
+        "\nHandled as: " + (P.isImagePaste(data) ? "image paste (passed through untouched)" : "text (cleaned)");
+      document.getElementById("raw").textContent = html || text;
+      document.getElementById("cleaned").textContent = P.isImagePaste(data)
+        ? "(not cleaned: image paste)"
+        : P.clean(html || P.plainToHtml(text));
+    }
+    window.addEventListener("paste", record, true);
+    document.addEventListener("paste", P.onPaste, true);
+    function hookFrame() {
+      frame.contentWindow.addEventListener("paste", record, true);
+      frame.contentDocument.addEventListener("paste", P.onPaste, true);
+    }
+    if (frame.contentDocument && frame.contentDocument.readyState === "complete") hookFrame();
+    frame.addEventListener("load", hookFrame);
+
+    const WORD_HEAD = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>" +
+      "<head><meta name=Generator content='Microsoft Word 15'><style>p.MsoNormal{margin:0cm;font-size:11.0pt}</style>" +
+      "<!--[if gte mso 9]><xml><w:WordDocument><w:View>Normal</w:View></w:WordDocument></xml><![endif]--></head>" +
+      "<body lang=EN-ZA style='tab-interval:36.0pt'><!--StartFragment-->";
+    const WORD_TAIL = "<!--EndFragment--></body></html>";
+    const LIST_P = (marker, text) =>
+      "<p class=MsoListParagraph style='text-indent:-18.0pt;mso-list:l0 level1 lfo1'><![if !supportLists]>" +
+      "<span style='mso-list:Ignore'>" + marker + "<span style='font:7.0pt \"Times New Roman\"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span>" +
+      "<![endif]>" + text + "<o:p></o:p></p>";
+
+    const CLEAN_SAMPLES = [
+      ["Word paragraph with styles and <o:p>",
+        WORD_HEAD + "<p class=MsoNormal style='margin-bottom:0cm'><span lang=EN-ZA style='font-size:12.0pt;color:#333'>Hello <b>world</b></span><o:p></o:p></p>" + WORD_TAIL,
+        "Hello <b>world</b>"],
+      ["Empty and &nbsp;-only paragraphs removed",
+        "<p class=MsoNormal>First</p><p class=MsoNormal><o:p>&nbsp;</o:p></p><p class=MsoNormal>&nbsp;</p><p class=MsoNormal>Second&nbsp;line</p>",
+        "<p>First</p><p>Second line</p>"],
+      ["Single list paragraph: 'A.' marker stripped",
+        WORD_HEAD + LIST_P("A.", "Option text") + WORD_TAIL,
+        "Option text"],
+      ["Single paragraph: '(a)' + tab stripped", "<p>(a)\tAnswer here</p>", "Answer here"],
+      ["Single paragraph: 'a)' stripped", "<p>a)  Answer</p>", "Answer"],
+      ["Single paragraph: '1.' stripped", "<p>1. First point</p>", "First point"],
+      ["Single paragraph: 'iv.' stripped", "<p>iv.&nbsp;&nbsp;Fourth</p>", "Fourth"],
+      ["Single paragraph: bullet stripped", "<p>•\tBulleted</p>", "Bulleted"],
+      ["Single paragraph: marker in its own <b>", "<p><b>1.</b>&nbsp;&nbsp;Bold number</p>", "Bold number"],
+      ["No marker: text left alone", "<p>1990 was a good year</p>", "1990 was a good year"],
+      ["Multi-paragraph MCQ keeps i, ii, iii",
+        WORD_HEAD + "<p class=MsoNormal>Which are true?</p>" + LIST_P("i.", "Foo") + LIST_P("ii.", "Bar") + LIST_P("iii.", "Baz") + WORD_TAIL,
+        "<p>Which are true?</p><p>i. Foo</p><p>ii. Bar</p><p>iii. Baz</p>"],
+      ["Headings and div become <p>",
+        "<div class=WordSection1><h1 style='mso-style:x'>Title</h1><blockquote>Quoted</blockquote><p>Body</p></div>",
+        "<p>Title</p><p>Quoted</p><p>Body</p>"],
+      ["Table keeps colspan, drops the rest",
+        "<table class=MsoTableGrid border=1 style='border-collapse:collapse'><tr><td colspan=2 width=300 style='width:200pt'><p class=MsoNormal>A</p></td></tr>" +
+        "<tr><td rowspan=1><p class=MsoNormal>B</p></td><td><p class=MsoNormal>&nbsp;</p></td></tr></table>",
+        "<table><tbody><tr><td colspan=\"2\"><p>A</p></td></tr><tr><td><p>B</p></td><td></td></tr></tbody></table>"],
+      ["Runs of <br> collapsed, edges removed",
+        "<p>Line one<br><br><br>Line two<br></p><p><br></p><p><br>x</p>",
+        "<p>Line one<br>Line two</p><p>x</p>"],
+      ["Links: href only; unsafe and bookmark links unwrapped",
+        "<p><a href='https://www.wsu.ac.za/' class=x target=_blank>WSU</a> <a name=_Toc1></a><a href='javascript:alert(1)'>bad</a> <a href='#_Toc2'>toc</a></p>",
+        "<a href=\"https://www.wsu.ac.za/\">WSU</a> bad toc"],
+      ["<font>, <span> unwrapped; sub, sup, u, i kept",
+        "<p><font face=Arial color=red>Red</font> H<sub>2</sub>O x<sup>2</sup> <u>under</u> <span style='color:blue'><i>it</i></span></p>",
+        "Red H<sub>2</sub>O x<sup>2</sup> <u>under</u> <i>it</i>"],
+      ["Images and VML dropped",
+        "<p>Before<img src='file:///C:/x.png' width=10>After</p><p><v:shape><v:imagedata src='file:///C:/y.png'></v:imagedata></v:shape></p><p>End</p>",
+        "<p>BeforeAfter</p><p>End</p>"],
+      ["Web images kept (src, alt); file: and data: images dropped",
+        "<p>Photo <img src='https://wiseup.wsu.ac.za/pluginfile.php/1/diagram.png' alt='Diagram' width=100 class=x style='border:0'>" +
+        " <img src='file:///C:/Users/x/image001.png' alt=a> <img src='data:image/png;base64,AAAA'> <img src='ftp://x/y.png'></p><p>Next</p>",
+        "<p>Photo <img src=\"https://wiseup.wsu.ac.za/pluginfile.php/1/diagram.png\" alt=\"Diagram\"></p><p>Next</p>"],
+      ["Paragraph holding only a web image is kept",
+        "<p>Caption</p><p><img src='http://example.org/a.png'></p>",
+        "<p>Caption</p><p><img src=\"http://example.org/a.png\"></p>"],
+      ["Smart tags unwrapped, text kept",
+        "<p>Welcome to <st1:City w:st='on'><st1:place w:st='on'>Mthatha</st1:place></st1:City></p>",
+        "Welcome to Mthatha"],
+      ["Real lists kept, empty items removed",
+        "<ul type=disc><li class=x style='color:red'><span>One</span></li><li><p class=MsoNormal>&nbsp;</p></li></ul>",
+        "<ul><li>One</li></ul>"],
+      ["Leading and trailing whitespace trimmed", "\n\n<p>  Hi  </p>\n", "Hi"]
+    ];
+
+    const PLAIN_SAMPLES = [
+      ["Plain text: paragraphs, line breaks, escaping",
+        "Line 1\nLine 2\n\nPara 2 & <b>", "<p>Line 1<br>Line 2</p><p>Para 2 &amp; &lt;b&gt;</p>"],
+      ["Plain text: single line marker stripped", "a)\tAnswer", "Answer"],
+      ["Plain text: multi-line keeps markers", "i. one\nii. two", "i. one<br>ii. two"]
+    ];
+
+    function placeCaret(el) {
+      const doc = el.ownerDocument;
+      el.focus();
+      const range = doc.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      const sel = doc.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+
+    function firePaste(target, { html, text, image }) {
+      const dt = new DataTransfer();
+      if (image) dt.items.add(new File([new Uint8Array([137, 80, 78, 71])], "shot.png", { type: "image/png" }));
+      if (html) dt.setData("text/html", html);
+      if (text) dt.setData("text/plain", text);
+      const e = new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true });
+      target.dispatchEvent(e);
+      return e;
+    }
+
+    // Each returns [expected, got]
+    const HANDLER_SAMPLES = [
+      ["Handler: image file only (screenshot) → not intercepted", () => {
+        editor.innerHTML = "";
+        placeCaret(editor);
+        const e = firePaste(editor, { image: true });
+        return ["defaultPrevented=false, editor empty", `defaultPrevented=${e.defaultPrevented}, editor ${editor.innerHTML ? "not empty" : "empty"}`];
+      }],
+      ["Handler: image file + blank text/plain → not intercepted", () => {
+        editor.innerHTML = "";
+        placeCaret(editor);
+        const e = firePaste(editor, { text: " \r\n", image: true });
+        return ["defaultPrevented=false, editor empty", `defaultPrevented=${e.defaultPrevented}, editor ${editor.innerHTML ? "not empty" : "empty"}`];
+      }],
+      ["Handler: image file + HTML with <img> (picture from Word) → not intercepted", () => {
+        editor.innerHTML = "";
+        placeCaret(editor);
+        const e = firePaste(editor, {
+          html: WORD_HEAD + "<p class=MsoNormal><img width=200 src='file:///C:/Users/x/image001.png'></p>" + WORD_TAIL,
+          text: "",
+          image: true
+        });
+        return ["defaultPrevented=false, editor empty", `defaultPrevented=${e.defaultPrevented}, editor ${editor.innerHTML ? "not empty" : "empty"}`];
+      }],
+      ["Handler: image file + text-only HTML (Word's picture of the text) → cleaned", () => {
+        editor.innerHTML = "";
+        placeCaret(editor);
+        const e = firePaste(editor, {
+          html: WORD_HEAD + "<p class=MsoNormal><span style='font-size:12pt'>Just&nbsp;text</span><o:p></o:p></p>" + WORD_TAIL,
+          text: "Just text",
+          image: true
+        });
+        const got = editor.innerHTML;
+        editor.innerHTML = "";
+        return ["defaultPrevented=true, Just text", `defaultPrevented=${e.defaultPrevented}, ${got}`];
+      }],
+      ["Handler: image file + plain text only → cleaned", () => {
+        editor.innerHTML = "";
+        placeCaret(editor);
+        const e = firePaste(editor, { text: "a)\tPlain answer", image: true });
+        const got = editor.innerHTML;
+        editor.innerHTML = "";
+        return ["defaultPrevented=true, Plain answer", `defaultPrevented=${e.defaultPrevented}, ${got}`];
+      }],
+      ["Handler: Word HTML without image → cleaned and inserted", () => {
+        editor.innerHTML = "";
+        placeCaret(editor);
+        const e = firePaste(editor, { html: "<p class=MsoNormal><span style='color:red'>Clean&nbsp;me</span><o:p></o:p></p>" });
+        const got = editor.innerHTML;
+        editor.innerHTML = "";
+        return ["defaultPrevented=true, Clean me", `defaultPrevented=${e.defaultPrevented}, ${got}`];
+      }],
+      ["Handler: iframe editor (TinyMCE-style)", () => {
+        const body = frame.contentDocument.body;
+        body.innerHTML = "";
+        placeCaret(body);
+        const e = firePaste(body, { html: "<h2 class=x>Heading</h2><p>Text</p>" });
+        const got = body.innerHTML;
+        body.innerHTML = "";
+        return ["defaultPrevented=true, <p>Heading</p><p>Text</p>", `defaultPrevented=${e.defaultPrevented}, ${got}`];
+      }],
+      ["Handler: <textarea> left alone", () => {
+        const e = firePaste(document.getElementById("plain"), { html: "<p style='x'>Hi</p>", text: "Hi" });
+        return ["defaultPrevented=false", `defaultPrevented=${e.defaultPrevented}`];
+      }]
+    ];
+
+    function runSamples() {
+      const rows = [];
+      for (const [name, input, expected] of CLEAN_SAMPLES) rows.push([name, expected, P.clean(input)]);
+      for (const [name, input, expected] of PLAIN_SAMPLES) rows.push([name, expected, P.clean(P.plainToHtml(input))]);
+      for (const [name, fn] of HANDLER_SAMPLES) {
+        let result;
+        try { result = fn(); } catch (err) { result = ["(no error)", String(err)]; }
+        rows.push([name, ...result]);
+      }
+
+      const tbody = document.getElementById("results");
+      tbody.textContent = "";
+      let passed = 0;
+      for (const [name, expected, got] of rows) {
+        const ok = expected === got;
+        if (ok) passed++;
+        const tr = tbody.insertRow();
+        tr.insertCell().textContent = name;
+        const res = tr.insertCell();
+        res.textContent = ok ? "PASS" : "FAIL";
+        res.className = ok ? "pass" : "fail";
+        for (const text of [expected, got]) {
+          const code = document.createElement("code");
+          code.textContent = text;
+          tr.insertCell().append(code);
+        }
+      }
+      const summary = document.getElementById("summary");
+      summary.textContent = `${passed}/${rows.length} passed`;
+      summary.className = passed === rows.length ? "pass" : "fail";
+    }
+
+    document.getElementById("run").addEventListener("click", runSamples);
+    if (location.search.includes("auto")) window.addEventListener("load", runSamples);
+  </script>
+</body>
+</html>

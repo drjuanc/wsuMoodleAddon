@@ -25,28 +25,45 @@ async function loadIcons() {
   return icons;
 }
 
-async function getEnabled() {
-  const { enabled = true } = await chrome.storage.local.get("enabled");
-  return enabled;
+const NAME = "WSU Moodle Helper";
+
+async function getState() {
+  const { hideChat = true, cleanPaste = true } =
+    await chrome.storage.local.get(["hideChat", "cleanPaste"]);
+  return { hideChat, cleanPaste };
 }
 
-async function render(enabled) {
+// Colour icon if at least one feature is on; badge shows how many
+async function render() {
+  const { hideChat, cleanPaste } = await getState();
+  const count = hideChat + cleanPaste;
   const { on, off } = await loadIcons();
-  await chrome.action.setIcon({ imageData: enabled ? on : off });
-  await chrome.action.setBadgeText({ text: enabled ? "ON" : "OFF" });
-  await chrome.action.setBadgeBackgroundColor({ color: enabled ? "#2e7d32" : "#757575" });
+  const active = [hideChat && "chat widget hidden", cleanPaste && "Word paste cleaning"].filter(Boolean);
+  await chrome.action.setIcon({ imageData: count ? on : off });
+  await chrome.action.setBadgeText({ text: count ? String(count) : "OFF" });
+  await chrome.action.setBadgeBackgroundColor({
+    color: count === 2 ? "#2e7d32" : count === 1 ? "#f59e0b" : "#757575"
+  });
   await chrome.action.setTitle({
-    title: enabled
-      ? "Moodle chat hider: ON (click to switch off)"
-      : "Moodle chat hider: OFF (click to switch on)"
+    title: count ? `${NAME}\nOn: ${active.join(", ")}` : `${NAME}\nBoth features are off`
   });
 }
 
-chrome.action.onClicked.addListener(async () => {
-  const enabled = !(await getEnabled());
-  await chrome.storage.local.set({ enabled });
-  await render(enabled);
-});
+// Up to 1.3 a single "enabled" key controlled everything
+async function migrate() {
+  const { enabled } = await chrome.storage.local.get("enabled");
+  if (enabled === undefined) return;
+  await chrome.storage.local.set({ hideChat: enabled, cleanPaste: enabled });
+  await chrome.storage.local.remove("enabled");
+}
 
-chrome.runtime.onInstalled.addListener(async () => render(await getEnabled()));
-chrome.runtime.onStartup.addListener(async () => render(await getEnabled()));
+chrome.runtime.onInstalled.addListener(async () => {
+  await migrate();
+  await render();
+});
+chrome.runtime.onStartup.addListener(render);
+
+// The popup writes to storage; keep the icon in step
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && ("hideChat" in changes || "cleanPaste" in changes)) render();
+});

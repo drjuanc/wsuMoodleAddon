@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Hide Moodle Chat Widget at WSU LMS",
-  "version": "1.3",
-  "description": "Hides the floating 'Chat to Wale' widget on WSU Moodle. Click the toolbar icon to switch on or off.",
+  "name": "WSU Moodle Helper",
+  "version": "1.4",
+  "description": "Hides the 'Chat to Wale' widget and cleans text pasted from MS Word into Moodle editors at WSU. Each feature can be switched on or off from the toolbar popup.",
   "author": "Dr Juan Carlos Garcia-Alonso",
   "homepage_url": "https://github.com/drjuanc/wsuMoodleAddon",
   "icons": {
@@ -11,7 +11,8 @@
   },
   "permissions": ["storage"],
   "action": {
-    "default_title": "Moodle chat hider",
+    "default_title": "WSU Moodle Helper",
+    "default_popup": "popup.html",
     "default_icon": {
       "48": "icons/icon-48.png",
       "96": "icons/icon-96.png"
@@ -25,6 +26,13 @@
       "matches": ["*://*.wsu.ac.za/*"],
       "js": ["content.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["*://wiseup.wsu.ac.za/*"],
+      "js": ["paste-clean.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_origin_as_fallback": true
     }
   ]
 }
