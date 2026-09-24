@@ -62,7 +62,10 @@
       font: inherit;
       cursor: pointer;
     }
-    #summary { margin-left: 12px; font-weight: 600; }
+    #summary, #copied { margin-left: 12px; font-weight: 600; }
+    .label-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .label-row label { margin: 0; }
+    .label-row button { padding: 2px 10px; font-size: 12px; }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
     th, td { padding: 4px 6px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
     td code { white-space: pre-wrap; word-break: break-word; }
@@ -90,7 +93,10 @@
       <textarea id="plain"></textarea>
     </div>
     <div>
-      <label>Last paste</label>
+      <div class="label-row">
+        <label>Last paste</label>
+        <button id="copy" type="button">Copy raw clipboard</button><span id="copied"></span>
+      </div>
       <pre id="info">Nothing pasted yet.</pre>
     </div>
     <div>
@@ -115,12 +121,22 @@
     const editor = document.getElementById("editor");
     const frame = document.getElementById("frame");
 
-    // Record what arrives before the cleaner acts (window capture runs before document capture)
+    let lastPaste = null;
+
+    // Record what arrives before the cleaner acts (window capture runs before document capture).
+    // Real pastes only, so running the samples does not overwrite them.
     function record(e) {
       const data = e.clipboardData;
-      if (!data) return;
+      if (!data || !e.isTrusted) return;
       const html = data.getData("text/html");
       const text = data.getData("text/plain");
+      lastPaste = {
+        types: Array.from(data.types),
+        items: Array.from(data.items).map((item) => ({ kind: item.kind, type: item.type })),
+        files: Array.from(data.files).map((file) => ({ name: file.name, type: file.type, size: file.size })),
+        html,
+        text
+      };
       document.getElementById("info").textContent =
         "Types: " + Array.from(data.types).join(", ") +
         "\nImage file present: " + (P.hasImageFile(data) ? "yes" : "no") +
@@ -149,6 +165,9 @@
       "<span style='mso-list:Ignore'>" + marker + "<span style='font:7.0pt \"Times New Roman\"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span>" +
       "<![endif]>" + text + "<o:p></o:p></p>";
 
+    const PNG_URL = "data:image/png;base64,iVBORw=="; // the 4 bytes firePaste puts in its image file
+
+    // [name, input, expected, options for clean()]
     const CLEAN_SAMPLES = [
       ["Word paragraph with styles and <o:p>",
         WORD_HEAD + "<p class=MsoNormal style='margin-bottom:0cm'><span lang=EN-ZA style='font-size:12.0pt;color:#333'>Hello <b>world</b></span><o:p></o:p></p>" + WORD_TAIL,
@@ -188,10 +207,52 @@
       ["Images and VML dropped",
         "<p>Before<img src='file:///C:/x.png' width=10>After</p><p><v:shape><v:imagedata src='file:///C:/y.png'></v:imagedata></v:shape></p><p>End</p>",
         "<p>BeforeAfter</p><p>End</p>"],
-      ["Web images kept (src, alt); file: and data: images dropped",
+      ["Web and data:image/png images kept (src, alt); file: and ftp: dropped",
         "<p>Photo <img src='https://wiseup.wsu.ac.za/pluginfile.php/1/diagram.png' alt='Diagram' width=100 class=x style='border:0'>" +
         " <img src='file:///C:/Users/x/image001.png' alt=a> <img src='data:image/png;base64,AAAA'> <img src='ftp://x/y.png'></p><p>Next</p>",
-        "<p>Photo <img src=\"https://wiseup.wsu.ac.za/pluginfile.php/1/diagram.png\" alt=\"Diagram\"></p><p>Next</p>"],
+        "<p>Photo <img src=\"https://wiseup.wsu.ac.za/pluginfile.php/1/diagram.png\" alt=\"Diagram\"> <img src=\"data:image/png;base64,AAAA\"></p><p>Next</p>"],
+      ["data:image/png src kept",
+        "<p>Figure</p><p><img src='data:image/png;base64,iVBORw==' alt='Graph' width=5 v:shapes='_x0000_i1025'></p>",
+        "<p>Figure</p><p><img src=\"data:image/png;base64,iVBORw==\" alt=\"Graph\"></p>"],
+      ["data:text/html and data:image/svg+xml srcs dropped",
+        "<p>A<img src='data:text/html;base64,PGI+aGk8L2I+'>B<img src='data:image/svg+xml;base64,PHN2Zz4='>C</p>",
+        "ABC"],
+      ["One file: img + clipboard image → embedded",
+        WORD_HEAD + "<p class=MsoNormal>Graph:</p><p class=MsoNormal><img width=200 height=100 src='file:///C:/Users/x/AppData/Local/Temp/msohtmlclip1/01/clip_image002.png' alt='Graph' v:shapes='Picture_x0020_1'></p>" + WORD_TAIL,
+        "<p>Graph:</p><p><img src=\"" + PNG_URL + "\" alt=\"Graph\"></p>",
+        { fileImage: PNG_URL }],
+      ["Two file: imgs + clipboard image → both dropped",
+        WORD_HEAD + "<p class=MsoNormal>One <img src='file:///C:/t/clip_image002.png'></p><p class=MsoNormal>Two <img src='file:///C:/t/clip_image004.png'></p>" + WORD_TAIL,
+        "<p>One</p><p>Two</p>",
+        { fileImage: PNG_URL }],
+      ["Autonumbered '3)' stem removed",
+        WORD_HEAD + LIST_P("3)", "Which drug is first-line?") + "<p class=MsoNormal>Choose one answer.</p>" + WORD_TAIL,
+        "<p>Which drug is first-line?</p><p>Choose one answer.</p>"],
+      ["Autonumbered 'A.' to 'D.' options removed",
+        WORD_HEAD + "<p class=MsoNormal>Which drug is first-line?</p>" + LIST_P("A.", "Amoxicillin") + LIST_P("B.", "Ciprofloxacin") +
+        LIST_P("C.", "Doxycycline") + LIST_P("D.", "Metronidazole") + WORD_TAIL,
+        "<p>Which drug is first-line?</p><p>Amoxicillin</p><p>Ciprofloxacin</p><p>Doxycycline</p><p>Metronidazole</p>"],
+      ["Autonumbered '(3)' and 'b)' removed",
+        WORD_HEAD + "<p class=MsoNormal>Stem</p>" + LIST_P("(3)", "Third") + LIST_P("b)", "Second option") + WORD_TAIL,
+        "<p>Stem</p><p>Third</p><p>Second option</p>"],
+      ["Autonumbered i/ii/iii statements kept, question number and options removed",
+        WORD_HEAD + LIST_P("3)", "Which statements are true?") + LIST_P("i.", "Statement one") + LIST_P("ii.", "Statement two") +
+        LIST_P("iii.", "Statement three") + LIST_P("A.", "i and ii only") + LIST_P("B.", "ii and iii only") + WORD_TAIL,
+        "<p>Which statements are true?</p><p>i. Statement one</p><p>ii. Statement two</p><p>iii. Statement three</p><p>i and ii only</p><p>ii and iii only</p>"],
+      ["Autonumbered '(iv)' and 'I.' kept as roman",
+        WORD_HEAD + "<p class=MsoNormal>Stem</p>" + LIST_P("(iv)", "Fourth") + LIST_P("I.", "Ninth letter or first numeral") + WORD_TAIL,
+        "<p>Stem</p><p>(iv) Fourth</p><p>I. Ninth letter or first numeral</p>"],
+      ["Autonumber nested in a styled span removed",
+        "<p class=MsoListParagraph style='mso-list:l1 level1 lfo2'><span lang=EN-ZA style='font-size:12pt'><span style='mso-list:Ignore'>2.<span style='font:7pt'>&nbsp;&nbsp; </span></span></span>Stem</p><p>More</p>",
+        "<p>Stem</p><p>More</p>"],
+      ["Typed '3) Which…' single paragraph stripped", "<p>3) Which drug is first-line?</p>", "Which drug is first-line?"],
+      ["Typed '(3)' single paragraph stripped", "<p>(3)&nbsp;Which drug?</p>", "Which drug?"],
+      ["Typed marker: first paragraph stripped, later ones kept",
+        "<p>3. Which is correct?</p><p>A. Foo</p><p>B. Bar</p>",
+        "<p>Which is correct?</p><p>A. Foo</p><p>B. Bar</p>"],
+      ["Typed roman marker in first paragraph kept",
+        "<p>ii. Second statement</p><p>iii. Third statement</p>",
+        "<p>ii. Second statement</p><p>iii. Third statement</p>"],
       ["Paragraph holding only a web image is kept",
         "<p>Caption</p><p><img src='http://example.org/a.png'></p>",
         "<p>Caption</p><p><img src=\"http://example.org/a.png\"></p>"],
@@ -222,9 +283,12 @@
       sel.addRange(range);
     }
 
+    // image: true for one image file, or a number
     function firePaste(target, { html, text, image }) {
       const dt = new DataTransfer();
-      if (image) dt.items.add(new File([new Uint8Array([137, 80, 78, 71])], "shot.png", { type: "image/png" }));
+      for (let i = 0; i < Number(image || 0); i++) {
+        dt.items.add(new File([new Uint8Array([137, 80, 78, 71])], `shot${i}.png`, { type: "image/png" }));
+      }
       if (html) dt.setData("text/html", html);
       if (text) dt.setData("text/plain", text);
       const e = new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true });
@@ -232,7 +296,19 @@
       return e;
     }
 
-    // Each returns [expected, got]
+    // Resolves once el's content changes (the image read is asynchronous), or after a timeout
+    function changed(el, ms = 2000) {
+      return new Promise((resolve) => {
+        const observer = new MutationObserver(() => { observer.disconnect(); resolve(); });
+        observer.observe(el, { childList: true, subtree: true, characterData: true });
+        setTimeout(() => { observer.disconnect(); resolve(); }, ms);
+      });
+    }
+
+    const WORD_IMG = (n) => WORD_HEAD + Array.from({ length: n }, (_, i) =>
+      `<p class=MsoNormal>Fig ${i + 1} <img width=200 src='file:///C:/Users/x/AppData/Local/Temp/msohtmlclip1/01/clip_image00${2 * i + 2}.png'></p>`).join("") + WORD_TAIL;
+
+    // Each returns (or resolves to) [expected, got]
     const HANDLER_SAMPLES = [
       ["Handler: image file only (screenshot) → not intercepted", () => {
         editor.innerHTML = "";
@@ -246,15 +322,66 @@
         const e = firePaste(editor, { text: " \r\n", image: true });
         return ["defaultPrevented=false, editor empty", `defaultPrevented=${e.defaultPrevented}, editor ${editor.innerHTML ? "not empty" : "empty"}`];
       }],
-      ["Handler: image file + HTML with <img> (picture from Word) → not intercepted", () => {
+      ["Handler: image file + HTML with one file: <img> (picture from Word) → embedded as data:image/png", async () => {
         editor.innerHTML = "";
         placeCaret(editor);
+        const done = changed(editor);
         const e = firePaste(editor, {
           html: WORD_HEAD + "<p class=MsoNormal><img width=200 src='file:///C:/Users/x/image001.png'></p>" + WORD_TAIL,
           text: "",
           image: true
         });
+        await done;
+        const got = editor.innerHTML;
+        editor.innerHTML = "";
+        return [`defaultPrevented=true, <img src="${PNG_URL}">`, `defaultPrevented=${e.defaultPrevented}, ${got}`];
+      }],
+      ["Handler: text before and after the embedded image; caret restored", async () => {
+        editor.innerHTML = "<p>Start end</p>";
+        const doc = document;
+        editor.focus();
+        const range = doc.createRange();
+        range.setStart(editor.firstChild.firstChild, 6); // after "Start "
+        range.collapse(true);
+        doc.getSelection().removeAllRanges();
+        doc.getSelection().addRange(range);
+        const done = changed(editor);
+        firePaste(editor, { html: WORD_IMG(1), image: true });
+        document.getElementById("plain").focus(); // focus wanders while the image is read
+        await done;
+        const got = editor.innerHTML;
+        editor.innerHTML = "";
+        return [`<p>Start Fig 1 <img src="${PNG_URL}">end</p>`, got];
+      }],
+      ["Handler: two file: imgs + one image file → not intercepted", () => {
+        editor.innerHTML = "";
+        placeCaret(editor);
+        const e = firePaste(editor, { html: WORD_IMG(2), image: 1 });
         return ["defaultPrevented=false, editor empty", `defaultPrevented=${e.defaultPrevented}, editor ${editor.innerHTML ? "not empty" : "empty"}`];
+      }],
+      ["Handler: one file: img + two image files → not intercepted", () => {
+        editor.innerHTML = "";
+        placeCaret(editor);
+        const e = firePaste(editor, { html: WORD_IMG(1), image: 2 });
+        return ["defaultPrevented=false, editor empty", `defaultPrevented=${e.defaultPrevented}, editor ${editor.innerHTML ? "not empty" : "empty"}`];
+      }],
+      ["Handler: image read fails → pasted with the image dropped", async () => {
+        const RealReader = window.FileReader;
+        window.FileReader = class {
+          readAsDataURL() { setTimeout(() => this.onerror && this.onerror(), 0); }
+        };
+        try {
+          editor.innerHTML = "";
+          placeCaret(editor);
+          const done = changed(editor);
+          const e = firePaste(editor, { html: WORD_IMG(1), image: true });
+          await done;
+          const got = editor.innerHTML;
+          editor.innerHTML = "";
+          return ["defaultPrevented=true, Fig 1", `defaultPrevented=${e.defaultPrevented}, ${got}`];
+        } finally {
+          window.FileReader = RealReader;
+        }
       }],
       ["Handler: image file + text-only HTML (Word's picture of the text) → cleaned", () => {
         editor.innerHTML = "";
@@ -299,13 +426,13 @@
       }]
     ];
 
-    function runSamples() {
+    async function runSamples() {
       const rows = [];
-      for (const [name, input, expected] of CLEAN_SAMPLES) rows.push([name, expected, P.clean(input)]);
+      for (const [name, input, expected, options] of CLEAN_SAMPLES) rows.push([name, expected, P.clean(input, options)]);
       for (const [name, input, expected] of PLAIN_SAMPLES) rows.push([name, expected, P.clean(P.plainToHtml(input))]);
       for (const [name, fn] of HANDLER_SAMPLES) {
         let result;
-        try { result = fn(); } catch (err) { result = ["(no error)", String(err)]; }
+        try { result = await fn(); } catch (err) { result = ["(no error)", String(err)]; }
         rows.push([name, ...result]);
       }
 
@@ -330,6 +457,27 @@
       summary.textContent = `${passed}/${rows.length} passed`;
       summary.className = passed === rows.length ? "pass" : "fail";
     }
+
+    // Copies the last real paste as JSON, to bring back as a new sample
+    document.getElementById("copy").addEventListener("click", async () => {
+      const status = document.getElementById("copied");
+      if (!lastPaste) {
+        status.textContent = "Paste something first";
+        return;
+      }
+      const json = JSON.stringify(lastPaste, null, 2);
+      try {
+        await navigator.clipboard.writeText(json);
+      } catch {
+        const area = document.createElement("textarea");
+        area.value = json;
+        document.body.append(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+      }
+      status.textContent = `Copied (${json.length.toLocaleString("en-GB")} characters)`;
+    });
 
     document.getElementById("run").addEventListener("click", runSamples);
     if (location.search.includes("auto")) window.addEventListener("load", runSamples);

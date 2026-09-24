@@ -31,18 +31,24 @@ no trace on the page.
 - Turns headings into normal paragraphs, removes empty paragraphs and extra
   line breaks, and changes non-breaking spaces into normal spaces.
 - Keeps table structure, including merged cells.
-- Keeps numbering such as "i.", "ii.", "iii." that Word has turned into text,
-  so MCQ options that refer to it still make sense. The one exception: if you
-  paste a **single** paragraph, a leading "A.", "a)", "(a)", "1.", "i." or "•"
-  is removed.
-- **Image pastes go to Moodle as normal.** A screenshot, or a selection
-  from Word that includes a picture, is passed to Moodle's editor untouched.
-  (When you copy plain text, Word may also add a picture of that text to the
-  clipboard. The cleaner recognises this, ignores the picture and cleans the
-  text.)
-- Inside pasted text, images that are already on the web (`http`/`https`
-  addresses, e.g. copied from another Moodle page) are kept. Images that only
-  exist on your computer or are embedded in the paste are removed.
+- Removes Word's automatic question numbers and option letters ("3)",
+  "3.", "(3)", "A.", "b)"), since Moodle numbers questions and options
+  itself.
+- Keeps roman numerals ("i.", "ii.", "iii."), so MCQ options that refer to
+  statements i, ii and iii still make sense.
+- Numbers you typed yourself: if you paste a **single** paragraph, a leading
+  "A.", "a)", "(a)", "1.", "3)", "(3)", "i." or "•" is removed. In a longer
+  paste, only the first paragraph loses a typed number or letter.
+- **Pictures from Word:** if what you copy from Word contains exactly one
+  picture, the cleaner embeds it in the text, as Moodle's editor does. With
+  more than one picture, the paste goes to Moodle's editor untouched.
+- **Screenshots** and other image-only pastes go to Moodle's editor as
+  normal. (When you copy plain text, Word may also add a picture of that text
+  to the clipboard. The cleaner recognises this, ignores the picture and
+  cleans the text.)
+- Images already on the web (`http`/`https`, e.g. copied from another Moodle
+  page) and embedded PNG, JPEG, GIF or WebP images are kept. Other images are
+  removed.
 - Only Moodle's rich-text editors are affected. Plain text boxes are left
   alone.
 
@@ -67,7 +73,9 @@ features.
 ## Testing the paste cleaner
 Open `test/paste-test.html` in Chrome (no need to install the extension).
 Paste from Word into either editor to see the raw and cleaned HTML, or click
-**Run samples** to run the built-in checks.
+**Run samples** to run the built-in checks. **Copy raw clipboard** copies
+exactly what your last paste contained, which is useful when reporting a
+paste that was not cleaned properly.
 
 ## Developer
 Dr Juan Carlos Garcia-Alonso, Department of Family Medicine and Rural Health,

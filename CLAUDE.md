@@ -22,13 +22,23 @@ independent features, each switched on or off from the toolbar popup:
   alone). Image passthrough (`isImagePaste`): if the clipboard holds an
   image file (`image/*` in `clipboardData.items`/`files`) AND either there is
   no `text/html` and only blank `text/plain`, OR the `text/html` contains an
-  `<img>`, it returns without `preventDefault` and the editor handles the
-  paste (screenshots, pictures copied from Word). An image file alongside
+  `<img>` that is not a pairable Word image (below), it returns without
+  `preventDefault` and the editor handles the paste. An image file alongside
   text-only HTML is Word's rendered picture of the copied text: it is
   ignored and the text is cleaned. Otherwise it cleans
   `text/html` (falling back to `text/plain`), calls `preventDefault()` +
   `stopImmediatePropagation()` and inserts with `execCommand("insertHTML")`
   in the target's own document.
+  - Word image embedding (`pairedImage`): when the HTML has exactly ONE
+    `<img>` with a `file:` src and the clipboard has exactly ONE image file,
+    the file is read with `FileReader` and becomes that img's `data:` src. In
+    every other case `file:` images are dropped (Word may put a render of the
+    whole selection on the clipboard, which must never stand in for one of
+    several images). The read is async: `preventDefault` happens at once, the
+    selection range is saved, then the editing host is refocused and the
+    range restored before inserting. A failed read still inserts the cleaned
+    HTML, without the image. The `File` must be taken during the event: the
+    clipboard is unreadable once the handler returns.
   - Top-frame fallback: an editor that rewrites its iframe with
     `document.open()` wipes listeners added at `document_start`. On window
     `blur` (focus moving into an iframe) the top frame attaches the same
@@ -46,7 +56,10 @@ independent features, each switched on or off from the toolbar popup:
 - `src/icons/` — WSU chevron mark at 48/96/128 px.
 - `test/paste-test.html` — not packaged. Loads `../src/paste-clean.js`
   directly; editors to paste into and a "Run samples" table. `?auto` runs the
-  samples on load (useful headless with `--dump-dom`).
+  samples on load (useful headless with `--dump-dom`; give it
+  `--virtual-time-budget=10000` for the async image samples). "Copy raw
+  clipboard" copies the last real paste (types, items, file names/types/sizes,
+  `text/html`, `text/plain`) as JSON, for turning real Word data into samples.
 
 ## Storage
 - `hideChat` and `cleanPaste` in `chrome.storage.local`, both default `true`.
@@ -65,17 +78,27 @@ independent features, each switched on or off from the toolbar popup:
   All attributes stripped except `href` on links (http/https/mailto/tel/ftp or
   relative; bookmark `#…` and other schemes unwrap the link) and
   `colspan`/`rowspan` > 1 on cells.
-- `<img>` is kept only when `src` is `http:`/`https:`, with just `src` and
-  `alt`. Images with `file:` (Word's local copies), `data:` or any other
-  scheme are dropped. A paragraph holding only a kept image is not "empty".
+- `<img>` is kept only when `src` is `http:`/`https:` or
+  `data:image/(png|jpeg|gif|webp);base64,`, with just `src` and `alt`. Images
+  with `file:` (unless embedded as above), `ftp:`, other `data:` types (incl.
+  SVG) or any other scheme are dropped. A paragraph holding only a kept image
+  is not "empty".
 - `h1`–`h6`, `div`, `blockquote` (and similar blocks) become `<p>`, or are
   unwrapped if they contain other blocks. Everything else is unwrapped.
 - `&nbsp;` → space, whitespace collapsed, empty elements removed, runs of
   `<br>` collapsed, `<br>` at block edges removed, blocks trimmed.
-- Leading list marker (`A.`, `a)`, `(a)`, `1.`, `i.`, `•`, …) is stripped only
-  when the paste is a single paragraph with no `<br>`. Word list paragraphs
-  otherwise stay as plain `<p>` with their literal numbering, because MCQ
-  options often refer to it (i, ii, iii).
+- Word autonumbering (`<span style="mso-list:Ignore">`, read before styles
+  are stripped): the marker and its spacing are removed when it is a number
+  or letter with `.`/`)` or in brackets (`3.`, `3)`, `(3)`, `A.`, `b)`).
+  Roman numerals `i`–`x` (either case, incl. `I`, `V`, `X` in a lettered
+  list) and bullets are kept as text, because MCQ options often refer to
+  statements i, ii, iii.
+- Typed markers (plain text, no `mso-list` span):
+  - single paragraph with no `<br>`: any leading marker (`A.`, `a)`, `(a)`,
+    `1.`, `3)`, `(3)`, `i.`, `•`, …) is stripped;
+  - longer paste: only the FIRST paragraph (if it is the first block) loses
+    a number/letter marker; roman numerals are kept and later paragraphs are
+    untouched.
 - A lone paragraph is inserted inline so it joins the paragraph being typed in.
 
 ## Conventions

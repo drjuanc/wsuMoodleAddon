@@ -27,10 +27,17 @@
   const CONTAINERS = new Set(["BODY", "UL", "OL", "TABLE", "THEAD", "TBODY", "TFOOT", "TR"]);
   const KEEP_EMPTY = new Set(["BR", "IMG", "TABLE", "THEAD", "TBODY", "TFOOT", "TR", "TD", "TH"]);
   const SAFE_SCHEME = /^(https?|mailto|tel|ftp)$/i;
-  const WEB_IMAGE = /^https?:\/\//i;
+  const KEPT_IMAGE = /^(?:https?:\/\/|data:image\/(?:png|jpeg|gif|webp);base64,)/i;
+  const FILE_SRC = /^file:/i;
 
-  // List marker Word left as text: A.  a)  (a)  1.  (1)  i.  (iv)  •  ·  ▪  ◦  §  o
+  // List marker Word left as text: A.  a)  (a)  1.  3)  (3)  i.  (iv)  •  ·  ▪  ◦  §  o
   const MARKER = /^(?:\(?(?:[A-Za-z]|\d{1,3}|[ivxlcdm]{1,6}|[IVXLCDM]{1,6})[.)]|[•·▪◦‣§o])[\t ]+(?=\S)/;
+  // Question numbers and option letters: 3.  3)  (3)  A.  b)  (c)
+  const NUMBER_OR_LETTER = /^\(?(?:\d{1,3}|[A-Za-z])[.)]$/;
+  const NUMBER_MARKER = /^\(?(?:\d{1,3}|[A-Za-z])[.)][\t ]+(?=\S)/;
+  // Statement numbers that MCQ options refer to ("i and iii only"); I, V and X
+  // are treated as roman even in a lettered list
+  const ROMAN = /^\(?(?:i|ii|iii|iv|v|vi|vii|viii|ix|x)[.)]$/i;
 
   function unwrap(el) {
     el.replaceWith(...el.childNodes);
@@ -58,11 +65,12 @@
     }
   }
 
-  // Only images already on the web survive; file: (Word's local copies), data:
-  // and anything else would not display in Moodle or would bloat the page
-  function keepWebImage(img) {
+  // Only web images and embedded PNG/JPEG/GIF/WebP survive; file: (Word's local
+  // copies, unless paired with the clipboard image), other data: types and
+  // anything else would not display in Moodle or are unsafe
+  function keepImage(img) {
     const src = (img.getAttribute("src") || "").trim();
-    if (!WEB_IMAGE.test(src)) {
+    if (!KEPT_IMAGE.test(src)) {
       img.remove();
       return;
     }
@@ -70,6 +78,17 @@
     for (const name of img.getAttributeNames()) img.removeAttribute(name);
     img.setAttribute("src", src);
     if (alt !== null) img.setAttribute("alt", alt);
+  }
+
+  // Word's automatic numbering sits in <span style="mso-list:Ignore">. Question
+  // numbers and option letters are removed (Moodle numbers questions and
+  // options itself); roman numerals and bullets stay as text.
+  function removeAutonumbers(body) {
+    for (const span of Array.from(body.querySelectorAll("[style]"))) {
+      if (!/mso-list\s*:\s*ignore/i.test(span.getAttribute("style")) || !body.contains(span)) continue;
+      const marker = span.textContent.replace(/[\s\u00a0]/g, "");
+      if (NUMBER_OR_LETTER.test(marker) && !ROMAN.test(marker)) span.remove();
+    }
   }
 
   // Depth-first: children are cleaned before their parent is kept, renamed or unwrapped
@@ -89,7 +108,7 @@
         continue;
       }
       if (tag === "IMG") {
-        keepWebImage(child);
+        keepImage(child);
         continue;
       }
       sanitise(child);
@@ -155,6 +174,9 @@
   }
 
   function trimWhitespace(body) {
+    // Removed elements can leave two spaces side by side
+    const texts = body.ownerDocument.createTreeWalker(body, NodeFilter.SHOW_TEXT);
+    for (let t = texts.nextNode(); t; t = texts.nextNode()) t.data = t.data.replace(/ {2,}/g, " ");
     for (const block of blocksOf(body)) {
       // Stop at the first <br> or <img>: the space beside it is between words
       const nodes = inlineNodes(block, true);
@@ -187,15 +209,17 @@
     for (const t of blanks) t.remove();
   }
 
-  // Only for a single paragraph: several paragraphs may be a list whose
-  // numbering is referred to elsewhere (e.g. MCQ options citing i, ii, iii)
+  // Typed markers. A single paragraph loses any leading marker. In a longer
+  // paste only the first paragraph loses a question number or option letter:
+  // the rest may be a list whose numbering is referred to elsewhere (e.g. MCQ
+  // options citing i, ii, iii), and roman numerals are always kept.
   function stripListMarker(body) {
-    const paragraphs = body.querySelectorAll("p").length;
-    if (paragraphs > 1 || body.querySelector("ul, ol, li, table, br")) return;
-    const texts = inlineNodes(body.querySelector("p") || body, false)
-      .filter((n) => n.nodeType === Node.TEXT_NODE);
-    const match = MARKER.exec(texts.map((t) => t.data).join("").slice(0, 40));
-    if (!match) return;
+    const single = body.querySelectorAll("p").length <= 1 && !body.querySelector("ul, ol, li, table, br");
+    const first = single ? body.querySelector("p") || body : body.querySelector("p, ul, ol, table");
+    if (!first || (!single && first.tagName !== "P")) return;
+    const texts = inlineNodes(first, false).filter((n) => n.nodeType === Node.TEXT_NODE);
+    const match = (single ? MARKER : NUMBER_MARKER).exec(texts.map((t) => t.data).join("").slice(0, 40));
+    if (!match || (!single && ROMAN.test(match[0].trim()))) return;
     let n = match[0].length;
     for (const t of texts) {
       const k = Math.min(n, t.data.length);
@@ -205,13 +229,27 @@
     }
   }
 
-  function clean(html) {
+  function parse(html) {
     const source = String(html)
       .replace(/<!--\[if[\s\S]*?<!\[endif\]-->/gi, "") // Word conditional blocks
       .replace(/<!\[(?:if[^\]]*|endif)\]>/gi, "");    // their downlevel-revealed markers
-    const doc = new DOMParser().parseFromString(source, "text/html");
-    const body = doc.body;
+    return new DOMParser().parseFromString(source, "text/html").body;
+  }
 
+  function fileImages(body) {
+    return Array.from(body.querySelectorAll("img"))
+      .filter((img) => FILE_SRC.test((img.getAttribute("src") || "").trim()));
+  }
+
+  // options.fileImage: data URL for the paste's one file: image (see pairedImage)
+  function clean(html, options = {}) {
+    const body = parse(html);
+    if (options.fileImage) {
+      const images = fileImages(body);
+      if (images.length === 1) images[0].setAttribute("src", options.fileImage);
+    }
+
+    removeAutonumbers(body);
     sanitise(body);
     body.normalize();
     tidyBreaks(body);
@@ -237,19 +275,53 @@
       .join("");
   }
 
+  // The same file can be listed in both items and files, so use one or the other
+  function imageFiles(data) {
+    const items = Array.from(data.items || [])
+      .filter((item) => item.kind === "file" && item.type.startsWith("image/"))
+      .map((item) => item.getAsFile())
+      .filter(Boolean);
+    return items.length ? items : Array.from(data.files || []).filter((file) => file.type.startsWith("image/"));
+  }
+
   function hasImageFile(data) {
-    return Array.from(data.items || []).some((item) => item.kind === "file" && item.type.startsWith("image/"))
-      || Array.from(data.files || []).some((file) => file.type.startsWith("image/"));
+    return imageFiles(data).length > 0;
+  }
+
+  // Word's HTML refers to its images by file: paths the page cannot read. Only
+  // when there is exactly one such image and exactly one image file can they
+  // safely be matched: Word may also put a picture of the whole selection on
+  // the clipboard, which must never stand in for one of several images.
+  function pairedImage(data, html) {
+    const files = imageFiles(data);
+    return files.length === 1 && html && fileImages(parse(html)).length === 1 ? files[0] : null;
   }
 
   // A real image paste (screenshot, or a picture copied from Word) is left to
-  // the editor. Word also puts a rendered picture of copied text on the
-  // clipboard; then the HTML has no <img>, so the text is cleaned as normal.
+  // the editor, unless it is a single Word image we can embed ourselves. Word
+  // may also put a rendered picture of copied text on the clipboard; then the
+  // HTML has no <img>, so the text is cleaned as normal.
   function isImagePaste(data) {
     if (!hasImageFile(data)) return false;
     const html = data.getData("text/html");
     const text = data.getData("text/plain");
-    return (!html && !text.trim()) || /<img[\s>\/]/i.test(html);
+    if (!html && !text.trim()) return true;
+    return /<img[\s>\/]/i.test(html) && !pairedImage(data, html);
+  }
+
+  function readAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function cleanPaste(html, text, fileImage) {
+    let out = html ? clean(html, { fileImage }) : "";
+    if (!out && text) out = clean(plainToHtml(text));
+    return out;
   }
 
   function onPaste(e) {
@@ -264,12 +336,34 @@
     const text = data.getData("text/plain");
     if (!html && !text) return;
 
-    let out = html ? clean(html) : "";
-    if (!out && text) out = clean(plainToHtml(text));
-
     e.preventDefault();
     e.stopImmediatePropagation(); // keep TinyMCE's own paste handling out of it
-    if (out) target.ownerDocument.execCommand("insertHTML", false, out);
+    const doc = target.ownerDocument;
+    const insert = (out) => out && doc.execCommand("insertHTML", false, out);
+
+    // Taken now: the clipboard cannot be read once this handler returns
+    const file = pairedImage(data, html);
+    if (!file) {
+      insert(cleanPaste(html, text));
+      return;
+    }
+
+    // Reading the image is asynchronous, so put the caret back afterwards.
+    // If the read fails, the paste still goes in, without the image.
+    const selection = doc.getSelection();
+    const range = selection.rangeCount ? selection.getRangeAt(0).cloneRange() : null;
+    let host = target;
+    while (host.parentElement && host.parentElement.isContentEditable) host = host.parentElement;
+    readAsDataUrl(file)
+      .catch(() => "")
+      .then((url) => {
+        host.focus({ preventScroll: true });
+        if (range) {
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+        insert(cleanPaste(html, text, url));
+      });
   }
 
   const api = { clean, plainToHtml, hasImageFile, isImagePaste, onPaste };
