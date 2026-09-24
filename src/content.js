@@ -1,9 +1,8 @@
 (() => {
   const TEXT = /chat to wale/i;
-  const targets = new Set();
-  let hidden = true;
+  const original = new Map(); // element -> its original inline display value
+  let enabled = true;
 
-  // Outermost fixed/sticky ancestor of a node
   const topFixed = (el) => {
     let found = null;
     for (let n = el; n && n !== document.body; n = n.parentElement) {
@@ -16,53 +15,68 @@
   const overlaps = (a, b) =>
     !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
 
+  const track = (el) => {
+    if (!original.has(el)) {
+      original.set(el, {
+        value: el.style.getPropertyValue("display"),
+        priority: el.style.getPropertyPriority("display")
+      });
+    }
+  };
+
   function scan() {
-    // 1. Find the widget by its label
+    const found = [];
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     let t;
     while ((t = walker.nextNode())) {
       if (TEXT.test(t.nodeValue)) {
         const box = topFixed(t.parentElement);
-        if (box) targets.add(box);
+        if (box) { track(box); found.push(box); }
       }
     }
-    // 2. Catch companion floating buttons overlapping it (the orange tab)
-    const rects = [...targets].map((el) => el.getBoundingClientRect());
+    // Companion floating buttons overlapping the widget (the orange tab)
+    const rects = found.map((el) => el.getBoundingClientRect());
     if (rects.length) {
       document.querySelectorAll("body div, body a, body button, body iframe").forEach((el) => {
-        if (el.id === "wale-toggle" || el.closest("#page-footer, .btn-footer-popover")) return;
+        if (el.closest("#page-footer, .btn-footer-popover")) return;
         if (getComputedStyle(el).position !== "fixed") return;
         const r = el.getBoundingClientRect();
-        if (rects.some((w) => overlaps(r, w))) targets.add(el);
+        if (rects.some((w) => overlaps(r, w))) track(el);
       });
     }
     apply();
   }
 
   function apply() {
-    targets.forEach((el) =>
-      el.style.setProperty("display", hidden ? "none" : "", "important")
-    );
-    toggle.textContent = hidden ? "💬 Show chat" : "✕ Hide chat";
+    original.forEach((orig, el) => {
+      if (enabled) {
+        el.style.setProperty("display", "none", "important");
+      } else if (orig.value) {
+        el.style.setProperty("display", orig.value, orig.priority);
+      } else {
+        el.style.removeProperty("display");
+      }
+    });
   }
 
-  // Small restore pill, bottom-left, out of Moodle's way
-  const toggle = document.createElement("button");
-  toggle.id = "wale-toggle";
-  Object.assign(toggle.style, {
-    position: "fixed", left: "8px", bottom: "8px", zIndex: 2147483647,
-    padding: "4px 10px", fontSize: "12px", borderRadius: "12px",
-    border: "1px solid #999", background: "#fff", opacity: "0.6", cursor: "pointer"
+  // React instantly when the toolbar icon is clicked (in any tab)
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && "enabled" in changes) {
+      enabled = changes.enabled.newValue !== false;
+      enabled ? scan() : apply();
+    }
   });
-  toggle.onclick = () => { hidden = !hidden; apply(); };
-  document.body.appendChild(toggle);
 
-  // Widgets often load late, so keep watching (throttled)
+  // Widgets often load late, so keep watching (throttled, only while ON)
   let timer;
   new MutationObserver(() => {
+    if (!enabled) return;
     clearTimeout(timer);
     timer = setTimeout(scan, 300);
   }).observe(document.body, { childList: true, subtree: true });
 
-  scan();
+  chrome.storage.local.get("enabled").then(({ enabled: e = true }) => {
+    enabled = e;
+    if (enabled) scan();
+  });
 })();

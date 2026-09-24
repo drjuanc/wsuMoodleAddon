@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Hide Moodle Chat Widget",
+  "version": "1.2",
+  "description": "Hides the floating 'Chat to Wale' widget on WSU Moodle. Click the toolbar icon to switch on or off.",
+  "icons": {
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png"
+  },
+  "permissions": ["storage"],
+  "action": {
+    "default_title": "Moodle chat hider",
+    "default_icon": {
+      "48": "icons/icon-48.png",
+      "96": "icons/icon-96.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.wsu.ac.za/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
