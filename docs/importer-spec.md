@@ -49,6 +49,13 @@ JSZip + DOMParser on word/document.xml, numbering.xml and styles.xml. Not mammot
 - "Question" with no options; image or equation; unsupported type.
 - Non-empty paragraph between the last option and the table.
 
+## Preview table
+- Columns: #, Type, Question, Options, Answer, Marks, Tags, Notes. Fixed layout; Question takes the remaining width, #, Type and Marks stay narrow; scrolls sideways below about 56rem.
+- Question: the stem only, from the same stemHtml as the XML, copied element by element from an inert DOMParser parse (p, strong/b, em/i, br, sub, sup); never innerHTML.
+- MCQ: options as `A. text`; Answer is the right letter; Tags joined with `; `.
+- Matching: one table row per pair, the other cells spanning them, so description n sits beside its term. Options: `1.`, `2.`… (kept on one line, at least 2em wide) and the description HTML; Answer: `1 → term`. Distractors follow in a last row under a small "Extra:" label.
+- Excluded questions are greyed out with the reasons in Notes; warnings are listed there too.
+
 ## Matching questions
 - **Detection:** a body-level table with 3 columns (w:tblGrid, else the widest row) between the stem and the 2×2 Marks table makes a matching question.
 - **Stem:** the non-empty paragraph(s) before the grid, numbered or not: either a numbered question start with no options yet, or the unnumbered paragraphs since the previous metadata table (or the start of the document). No stem → flag and exclude.

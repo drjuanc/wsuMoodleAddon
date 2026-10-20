@@ -1,11 +1,15 @@
 # Changelog
 
-## Unreleased
+## 2.1 — 20 October 2026
 - New: the Word importer also imports matching questions, written as a
   three-column table (description, answer letter, term) after the question
-  text. Extra terms become distractors; the preview shows a Type column, the
-  pairs and the distractors, and flags missing, extra or out-of-range
-  letters.
+  text. Extra terms become distractors; the preview flags missing, extra or
+  out-of-range letters.
+- Bold in question text and matching descriptions is kept.
+- Clearer preview: a header row, a Type and a Marks column, and the question
+  text shown with its bold, sub/superscript and line breaks. Matching
+  questions list the numbered descriptions beside their terms, then the
+  distractors.
 
 ## 2.0 — WiSeUp Toolkit
 - New name: WiSeUp Toolkit (was WSU Moodle Helper). The university is now
