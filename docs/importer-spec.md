@@ -2,7 +2,7 @@
 
 ## Scope
 - Input: .docx only. PDF is not supported (text extraction loses font colour).
-- Question types: single-answer MCQ now; matching next. Anything else is listed in the preview as "unsupported type" and excluded from the XML.
+- Question types: single-answer MCQ and matching. Anything else is listed in the preview as "unsupported type" and excluded from the XML.
 - No question editor.
 - Category: by default the XML puts the questions in "From MS Word" under the course's top category (see "Moodle import page"). The lecturer can untick this to use the category selected on the import page.
 
@@ -26,6 +26,7 @@ JSZip + DOMParser on word/document.xml, numbering.xml and styles.xml. Not mammot
 - Join w:t across runs.
 - w:tab, w:cr and non-page w:br → space in options, line break in stems. Ignore w:lastRenderedPageBreak and page breaks.
 - vertAlign subscript/superscript → `<sub>`/`<sup>`. Keep Unicode sub/superscripts as typed.
+- Direct run bold (w:b, not w:val 0/false/off) → `<strong>` in stems and matching descriptions only; never in MCQ options or matching terms. w:bCs on its own is ignored (not visibly bold).
 - HTML-escape `<`, `>`, `&`.
 - Images (w:drawing, w:pict) or equations (m:oMath) in a question → flag and exclude (not supported yet).
 
@@ -48,10 +49,40 @@ JSZip + DOMParser on word/document.xml, numbering.xml and styles.xml. Not mammot
 - "Question" with no options; image or equation; unsupported type.
 - Non-empty paragraph between the last option and the table.
 
+## Preview table
+- Columns: #, Type, Question, Options, Answer, Marks, Tags, Notes. Fixed layout; Question takes the remaining width, #, Type and Marks stay narrow; scrolls sideways below about 56rem.
+- Question: the stem only, from the same stemHtml as the XML, copied element by element from an inert DOMParser parse (p, strong/b, em/i, br, sub, sup); never innerHTML.
+- MCQ: options as `A. text`; Answer is the right letter; Tags joined with `; `.
+- Matching: one table row per pair, the other cells spanning them, so description n sits beside its term. Options: `1.`, `2.`… (kept on one line, at least 2em wide) and the description HTML; Answer: `1 → term`. Distractors follow in a last row under a small "Extra:" label.
+- Excluded questions are greyed out with the reasons in Notes; warnings are listed there too.
+
+## Matching questions
+- **Detection:** a body-level table with 3 columns (w:tblGrid, else the widest row) between the stem and the 2×2 Marks table makes a matching question.
+- **Stem:** the non-empty paragraph(s) before the grid, numbered or not: either a numbered question start with no options yet, or the unnumbered paragraphs since the previous metadata table (or the start of the document). No stem → flag and exclude.
+- **Table cells are never classified.** Paragraphs inside w:tc are never question starts or MCQ options. In the fixture, Column A uses decimal numId 1, the same list as MCQ stems.
+- **Header row:** skip the first row if its middle cell is not a single letter. Never rely on header wording.
+- **Rows:** Column A = description, middle = answer letter, Column B = term.
+- **Letter → term by position** in Column B: count the non-empty Column B cells, A = 1st, B = 2nd… (case-insensitive; a trailing `.` or `)` is allowed). A typed prefix in Column B (`A. Term`, `A) Term`) is stripped from the term, as in the MCQ typed fallback; the mapping stays positional.
+- **Red is not required** on the answer letter.
+- **Distractors:** Column B terms that no letter points to become extra answers (subquestion with empty text).
+- **Descriptions** keep the same formatting as MCQ stems (bold, sub/superscript, line breaks). **Terms** are plain text.
+- **Marks:** as for MCQs (`4` and `4 marks` both give 4).
+- **Flags** (blocking unless marked as a warning):
+  - letter beyond the end of Column B;
+  - more than one letter in a cell, or an answer that is not a letter;
+  - description with no letter;
+  - letter with no description;
+  - fewer than 2 pairs;
+  - duplicate Column B terms (warning: Moodle merges identical choices);
+  - two descriptions pointing at the same term (warning);
+  - non-empty paragraph between the grid and the metadata table (warning).
+- **No shuffling,** as for MCQs.
+
 ## Moodle XML
 - Questions with a blocking flag, or of an unsupported type, are left out.
 - Name = stem text, cut at a word boundary to about 80 characters.
 - multichoice, single answer: right option fraction 100, others 0; default mark from Marks; penalty 0.3333333; answers not shuffled (Word fixes the order and options may refer to each other); numbering abc if every option letter is lower case, otherwise ABCD; no standard instruction; empty feedback.
+- matching: default mark from Marks; penalty 0.3333333; shuffleanswers 0; empty feedback; one `<subquestion format="html">` per pair (description as HTML in `<text>`, term as escaped plain text in `<answer><text>`), then one with empty `<text>` per distractor.
 - Tags from the metadata table.
 - Optional category question first (see below).
 

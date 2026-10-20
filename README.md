@@ -1,7 +1,7 @@
 # WiSeUp Toolkit
 
 WiSeUp Toolkit is a small Chrome extension for iYunivesithi Walter Sisulu's
-Moodle (version 2.0).
+Moodle (version 2.1).
 It does three things, and you can switch each one on or off separately:
 
 1. **Hides the "Chat to Wale" widget.** The floating chat button can cover
@@ -10,7 +10,7 @@ It does three things, and you can switch each one on or off separately:
    editor on WiSeUp, Word's hidden formatting (fonts, colours, spacing, empty
    paragraphs) is removed. The text keeps its simple structure: paragraphs,
    bold, italics, lists, links and tables.
-3. **Imports multiple-choice questions from a Word document.** On the
+3. **Imports multiple-choice and matching questions from a Word document.** On the
    question bank's Import page, choose a .docx, check the preview, then
    click **Import N questions**. The questions go into the category
    "From MS Word" unless you untick that box, in which case they go into the
@@ -103,14 +103,24 @@ numbering):
   option.
 - After the options, add a small table with `Marks:` and, if you want
   tags, `Topic:`, `Task:` and `Bloom:` (one `Label: value` per cell).
-- Only single-answer multiple-choice questions are imported. Questions with
-  pictures or equations are left out.
+- **Matching questions:** write the question text, then a table with three
+  columns: descriptions on the left, the answer letter in the middle and the
+  terms on the right. A header row is optional. The terms may be lettered
+  (Word's lettered numbering or typed `A.`, `B.`, …), but each letter points
+  at a term by its position, so `C` is the third term. Extra terms that no letter
+  points at become distractors. The answer letters need not be red. Put the
+  `Marks:` table after the three-column table, as for multiple-choice.
+- Only single-answer multiple-choice and matching questions are imported.
+  Questions with pictures or equations are left out. Answers are never
+  shuffled.
 
 **Importing**
 1. In your course, open **Question bank → Import**.
 2. In the **Import Word document** box, choose the .docx.
-3. Check the preview. Each question shows its options, right answer and
-   tags; questions that will be left out are greyed out with the reason.
+3. Check the preview. Each question shows its stem, options, right answer,
+   marks and tags (matching questions show the numbered descriptions beside
+   their terms, then the distractors); questions that will be left out are
+   greyed out with the reason.
 4. Leave **Import questions into the category 'From MS Word'** ticked to
    put them in that category (Moodle creates it if needed), or untick it to
    use the category selected in Moodle's General section.

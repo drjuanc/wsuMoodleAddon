@@ -1,5 +1,6 @@
 // Offline tests for src/importer/. Run with: npm test
-// Uses test/mock-test.docx (dummy items, see test/FIXTURES.md) plus small
+// Uses test/mock-test.docx and test/mock-matching.docx (dummy items, see
+// test/FIXTURES.md) plus small
 // .docx files built here for rules the fixture does not exercise.
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
@@ -8,6 +9,7 @@ const JSZip = require("jszip");
 const { DOMParser } = require("@xmldom/xmldom");
 const { parseDocx } = require("../src/importer/docx-parse.js");
 const { buildMoodleXml } = require("../src/importer/moodle-xml.js");
+const { previewModel } = require("../src/importer/preview.js");
 
 const deps = { JSZip, DOMParser };
 const tests = [];
@@ -93,10 +95,11 @@ const NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/mai
   'xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"';
 
 const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-// run(text, {color, align, rStyle})
+// run(text, {color, align, rStyle, rPr}); rPr is extra raw XML, e.g. "<w:b/>"
 const run = (text, o = {}) => {
   const rPr = [
     o.rStyle ? `<w:rStyle w:val="${o.rStyle}"/>` : "",
+    o.rPr || "",
     o.color ? `<w:color w:val="${o.color}"/>` : "",
     o.align ? `<w:vertAlign w:val="${o.align}"/>` : ""
   ].join("");
@@ -247,6 +250,209 @@ test("flags: no red, two red, one option, no table, bad marks, stray text, image
   const { included, skipped } = buildMoodleXml(questions);
   assert.deepEqual(included, [6, 9]);
   assert.deepEqual(skipped, [1, 2, 3, 4, 5, 7, 8]);
+});
+
+test("bold: kept in stems and descriptions, not in options or terms; w:bCs alone ignored", async () => {
+  const B = { rPr: "<w:b/>" };
+  const { questions } = await docx([
+    para([run("Which is "), run("NOT", B), run(" a "), run("cell", { rPr: "<w:bCs/>" }),
+      run(" organelle", { rPr: '<w:b w:val="0"/>' }), run("?")], { num: Q }),
+    para([run("Nucleus", B)], { num: OPT }),
+    para([run("Wall", { color: "FF0000" })], { num: OPT }),
+    meta(),
+    para([run("Match the "), run("bold", B), "<w:r><w:br/></w:r>", run("parts", B)]),
+    grid([HEADER, [[run("Powerhouse", B)], "A", [run("Mitochondrion", B)]], ["Control", "B", "Nucleus"]]),
+    meta()
+  ].join(""));
+  const [mcq, match] = questions;
+  assert.deepEqual(questions.map(codes), [[], []]);
+  assert.equal(mcq.stemHtml, "<p>Which is <strong>NOT</strong> a cell organelle?</p>");
+  assert.deepEqual(mcq.options.map(o => o.html), ["Nucleus", "Wall"]);
+  assert.equal(match.stemHtml, "<p>Match the <strong>bold</strong><br><strong>parts</strong></p>");
+  assert.deepEqual(match.pairs.map(p => [p.html, p.answer]), [["<p><strong>Powerhouse</strong></p>", "Mitochondrion"], ["<p>Control</p>", "Nucleus"]]);
+  const { xml } = buildMoodleXml(questions);
+  assert.ok(xml.includes("<![CDATA[<p>Which is <strong>NOT</strong>"));
+  assert.ok(xml.includes("<text>Mitochondrion</text>"));
+});
+
+// ---- matching: mock-matching.docx ----
+
+const xmlErrors = xml => {
+  const errors = [];
+  const doc = new DOMParser({ onError: (level, msg) => errors.push(`${level}: ${msg}`) })
+    .parseFromString(xml, "application/xml");
+  return { doc, errors };
+};
+
+test("mock-matching.docx: types, header skipped, pairs, distractors, marks, flags", async () => {
+  const data = fs.readFileSync(path.join(__dirname, "mock-matching.docx"));
+  const { questions, notes } = await parseDocx(data, deps);
+
+  assert.deepEqual(questions.map(q => q.type), ["matching", "multichoice", "multichoice", "matching"]);
+  assert.deepEqual(notes, []);
+  assert.deepEqual(questions.map(q => q.marks), [4, 1, 1, 4]); // "4 marks", "1", "1", "4"
+  assert.deepEqual(questions.map(q => q.excluded), [false, false, false, false]);
+  assert.deepEqual(questions.map(codes), [["duplicate-term"], [], [], []]);
+  assert.match(questions[0].flags[0].message, /Sino-Atrial Node/);
+
+  // Header rows ("COLUMN A … ANSWER …", "Heart's structures | Answer | Changes") skipped
+  const [q1, , , q4] = questions;
+  assert.ok(q1.pairs.every(p => !/COLUMN|Description/.test(p.text)));
+  assert.match(q1.stemText, /^Match the description in Column A/);
+  assert.deepEqual(q1.pairs.map(p => p.answer),
+    ["Autorhythmic fibres", "Sino-Atrial Node", "Action Potential", "Purkinje Fibers."]);
+  assert.match(q1.pairs[0].text, /^Specialized cardiac muscle cells/);
+  assert.match(q1.pairs[0].html, /^<p>Specialized.*<\/p>$/);
+  assert.deepEqual(q1.extras, ["Cardiac conduction system", "Atrioventricular Node", "Sino-Atrial Node"]);
+
+  assert.match(q4.stemText, /ventricular ejection\.$/);
+  assert.equal(q4.stemHtml, "<p>Match the changes in the heart's structures (Open/close or Increase/decrease) " +
+    "with what happens during <strong>ventricular ejection</strong>.</p>");
+  // MCQ stems in the fixture carry w:bCs only, which is not bold
+  assert.ok(!questions[1].stemHtml.includes("<strong>"));
+  assert.deepEqual(q4.pairs.map(p => [p.text, p.answer]), [
+    ["Volume", "Decrease"],
+    ["Pressure", "Increase"],
+    ["Atrioventricular valves (tricuspid and mitral)", "Close"],
+    ["Semi-lunar valves (pulmonary and aortic)", "Open"]
+  ]);
+  assert.deepEqual(q4.extras, []);
+
+  // The MCQs between them: stems use numId 1, like Column A, and are unaffected
+  assert.deepEqual(questions[1].options.filter(o => o.correct).map(o => o.letter), ["A"]);
+  assert.deepEqual(questions[2].options.filter(o => o.correct).map(o => o.letter), ["B"]);
+});
+
+test("mock-matching.docx: Moodle XML", async () => {
+  const data = fs.readFileSync(path.join(__dirname, "mock-matching.docx"));
+  const { questions } = await parseDocx(data, deps);
+  const { xml, included } = buildMoodleXml(questions);
+  assert.deepEqual(included, [1, 2, 3, 4]);
+
+  const { doc, errors } = xmlErrors(xml);
+  assert.deepEqual(errors, []);
+  const qs = Array.from(doc.getElementsByTagName("question"));
+  assert.deepEqual(qs.map(q => q.getAttribute("type")), ["matching", "multichoice", "multichoice", "matching"]);
+
+  const subs = q => Array.from(q.getElementsByTagName("subquestion")).map(s => [
+    s.getElementsByTagName("text")[0].textContent,
+    s.getElementsByTagName("answer")[0].getElementsByTagName("text")[0].textContent
+  ]);
+  const s1 = subs(qs[0]);
+  assert.equal(s1.length, 7);
+  assert.deepEqual(s1.map(s => s[1]), ["Autorhythmic fibres", "Sino-Atrial Node", "Action Potential",
+    "Purkinje Fibers.", "Cardiac conduction system", "Atrioventricular Node", "Sino-Atrial Node"]);
+  assert.deepEqual(s1.map(s => s[0] === ""), [false, false, false, false, true, true, true]);
+  assert.ok(s1[2][0].includes("neurons &amp; muscle cells"));
+  assert.equal(subs(qs[3]).length, 4);
+
+  for (const q of [qs[0], qs[3]]) {
+    assert.equal(q.getElementsByTagName("defaultgrade")[0].textContent, "4");
+    assert.equal(q.getElementsByTagName("shuffleanswers")[0].textContent, "0");
+    assert.equal(q.getElementsByTagName("answernumbering").length, 0);
+    for (const f of ["correctfeedback", "partiallycorrectfeedback", "incorrectfeedback"]) {
+      assert.equal(q.getElementsByTagName(f)[0].textContent.trim(), "");
+    }
+  }
+  assert.deepEqual(Array.from(qs[3].getElementsByTagName("tag")).map(t => t.textContent),
+    ["Cardiac Cycle", "Phases", "Application"]);
+});
+
+// ---- matching: synthetic grids ----
+
+// grid([[description, letter, term], …]); rows can be cell XML too
+const grid = rows => {
+  const cell = c => `<w:tc>${para(c)}</w:tc>`;
+  const trs = rows.map(r => `<w:tr>${r.map(cell).join("")}</w:tr>`).join("");
+  return `<w:tbl><w:tblGrid><w:gridCol/><w:gridCol/><w:gridCol/></w:tblGrid>${trs}</w:tbl>`;
+};
+const HEADER = ["Description", "Answer", "Term"];
+
+test("matching: typed letter prefixes, numbered stem, escaping, sub/superscript", async () => {
+  const { questions } = await docx([
+    para("Match them", { num: Q }),
+    grid([
+      HEADER,
+      [[run("H"), run("2", { align: "subscript" }), run("O")], "b", "A. Oxygen & co"],
+      ["Salt", "A)", "B) <NaCl>"],
+      ["", "", "C. Spare"]
+    ]),
+    meta("2 marks")
+  ].join(""));
+  const [q] = questions;
+  assert.equal(q.type, "matching");
+  assert.deepEqual(codes(q), []);
+  assert.equal(q.marks, 2);
+  assert.equal(q.stemHtml, "<p>Match them</p>");
+  assert.deepEqual(q.pairs.map(p => [p.html, p.answer]), [["<p>H<sub>2</sub>O</p>", "<NaCl>"], ["<p>Salt</p>", "Oxygen & co"]]);
+  assert.deepEqual(q.extras, ["Spare"]);
+  const { xml } = buildMoodleXml(questions);
+  assert.deepEqual(xmlErrors(xml).errors, []);
+  assert.ok(xml.includes("<text>&lt;NaCl&gt;</text>"));
+  assert.ok(xml.includes("<text>Oxygen &amp; co</text>"));
+});
+
+test("matching flags: letter out of range, empty letter, two letters, no description, too few pairs, same term", async () => {
+  const two = [["one", "A", "Alpha"], ["two", "B", "Beta"]];
+  const { questions } = await docx([
+    para("Out of range"), grid([HEADER, ...two, ["three", "D", "Gamma"]]), meta(),
+    para("Empty letter"), grid([HEADER, ...two, ["three", "", "Gamma"]]), meta(),
+    para("Two letters"), grid([HEADER, ...two, ["three", "A, C", "Gamma"]]), meta(),
+    para("No description"), grid([HEADER, ...two, ["", "C", "Gamma"]]), meta(),
+    para("Too few"), grid([HEADER, ["one", "A", "Alpha"], ["", "", "Beta"]]), meta(),
+    para("Same term"), grid([HEADER, ...two, ["three", "a", "Gamma"]]), meta(),
+    grid([HEADER, ...two]), meta()
+  ].join(""));
+  assert.deepEqual(questions.map(codes), [
+    ["letter-out-of-range"],
+    ["no-letter"],
+    ["several-letters"],
+    ["no-description"],
+    ["too-few-pairs"],
+    ["same-term"],
+    ["no-stem"]
+  ]);
+  assert.deepEqual(questions[5].extras, ["Gamma"]);
+  const { included } = buildMoodleXml(questions);
+  assert.deepEqual(included, [6]);
+});
+
+// ---- preview table ----
+
+test("preview: matching pairs numbered, distractors, marks, stem HTML; MCQ unchanged", async () => {
+  const data = fs.readFileSync(path.join(__dirname, "mock-matching.docx"));
+  const { questions } = await parseDocx(data, deps);
+  const [m1, mcq, , m4] = questions.map(previewModel);
+
+  assert.equal(m1.type, "Matching");
+  assert.equal(m1.marks, "4");
+  assert.equal(m1.stemHtml, questions[0].stemHtml);
+  assert.deepEqual(m1.pairs.map(p => p.label), ["1.", "2.", "3.", "4."]);
+  assert.deepEqual(m1.pairs.map(p => p.html), questions[0].pairs.map(p => p.html));
+  assert.deepEqual(m1.pairs.map(p => p.answer), ["1 → Autorhythmic fibres", "2 → Sino-Atrial Node",
+    "3 → Action Potential", "4 → Purkinje Fibers."]);
+  assert.deepEqual(m1.extras, ["Cardiac conduction system", "Atrioventricular Node", "Sino-Atrial Node"]);
+  assert.equal(m1.excluded, false);
+  assert.equal(m1.warnings.length, 1);
+  assert.ok(m4.stemHtml.includes("<strong>ventricular ejection</strong>"));
+  assert.deepEqual(m4.extras, []);
+
+  assert.equal(mcq.type, "MCQ");
+  assert.equal(mcq.marks, "1");
+  assert.equal(mcq.answer, "A");
+  assert.equal(mcq.tags, questions[1].tags.join("; "));
+  assert.ok(!mcq.tags.startsWith("Tags:"));
+  assert.equal(mcq.options.length, questions[1].options.length);
+  assert.match(mcq.options[0], /^A\. \S/);
+  assert.equal(mcq.pairs, undefined);
+});
+
+test("preview: unsupported type and missing marks", () => {
+  const m = previewModel({ number: 3, type: "essay", stemHtml: "<p>Discuss</p>", marks: null, tags: [], flags: [], excluded: false });
+  assert.equal(m.excluded, true);
+  assert.deepEqual(m.reasons, ["Unsupported question type"]);
+  assert.equal(m.marks, "");
+  assert.equal(m.type, "essay");
 });
 
 (async () => {

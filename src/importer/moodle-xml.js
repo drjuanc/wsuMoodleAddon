@@ -75,6 +75,40 @@
         `${i}</answer>`
       );
     }
+    return finish(q, lines);
+  }
+
+  // Never shuffled; distractors are subquestions with empty text
+  function matching(q) {
+    const i = "    ";
+    const lines = [
+      `  <question type="matching">`,
+      `${i}<name>\n${i}  <text>${escapeXml(questionName(q))}</text>\n${i}</name>`,
+      htmlText("questiontext", q.stemHtml, i),
+      emptyHtml("generalfeedback", i),
+      `${i}<defaultgrade>${q.marks}</defaultgrade>`,
+      `${i}<penalty>0.3333333</penalty>`,
+      `${i}<hidden>0</hidden>`,
+      `${i}<idnumber></idnumber>`,
+      `${i}<shuffleanswers>0</shuffleanswers>`,
+      emptyHtml("correctfeedback", i),
+      emptyHtml("partiallycorrectfeedback", i),
+      emptyHtml("incorrectfeedback", i)
+    ];
+    const subquestion = (text, answer) => lines.push(
+      `${i}<subquestion format="html">`,
+      `${i}  <text>${text}</text>`,
+      `${i}  <answer>\n${i}    <text>${escapeXml(answer)}</text>\n${i}  </answer>`,
+      `${i}</subquestion>`
+    );
+    for (const p of q.pairs) subquestion(cdata(p.html), p.answer);
+    for (const t of q.extras) subquestion("", t);
+    return finish(q, lines);
+  }
+
+  // Tags and the closing tag, shared by both question types
+  function finish(q, lines) {
+    const i = "    ";
     if (q.tags.length) {
       lines.push(`${i}<tags>`);
       for (const t of q.tags) lines.push(`${i}  <tag><text>${escapeXml(t)}</text></tag>`);
@@ -83,6 +117,8 @@
     lines.push(`  </question>`);
     return lines.join("\n");
   }
+
+  const WRITERS = { multichoice, matching };
 
   // Returns { xml, included, skipped }; included and skipped hold question
   // numbers. Options: shuffleAnswers (default false, as Word fixes the order
@@ -93,12 +129,12 @@
     const skipped = [];
     const parts = opts.category ? [category(opts.category)] : [];
     for (const q of questions) {
-      if (q.excluded || q.type !== "multichoice") {
+      if (q.excluded || !WRITERS[q.type]) {
         skipped.push(q.number);
         continue;
       }
       included.push(q.number);
-      parts.push(multichoice(q, opts));
+      parts.push(WRITERS[q.type](q, opts));
     }
     const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<quiz>\n${parts.join("\n")}\n</quiz>\n`;
     return { xml, included, skipped };

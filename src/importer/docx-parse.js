@@ -1,5 +1,5 @@
-// Reads a .docx of single-answer MCQs into plain question objects for the
-// preview and the Moodle XML generator. Rules: docs/importer-spec.md.
+// Reads a .docx of single-answer MCQs and matching questions into plain
+// question objects for the preview and the Moodle XML generator. Rules: docs/importer-spec.md.
 // Loaded as a classic script (content script, after lib/jszip.min.js) or
 // required from Node for the offline tests; JSZip and DOMParser can be passed
 // in for Node, otherwise the globals are used.
@@ -12,6 +12,9 @@
   // Typed fallback when a paragraph has no list numbering
   const TYPED_QUESTION = /^\s*(\d{1,3})[.)]\s*/;
   const TYPED_OPTION = /^\s*([A-Ha-h])[.)]\s+/;
+  // Matching grid: typed prefix on a Column B term; a lone answer letter
+  const TYPED_TERM = /^\s*([A-Za-z])[.)]\s+/;
+  const SINGLE_LETTER = /^[A-Za-z][.)]?$/;
 
   const KNOWN_LABELS = new Set(["marks", "topic", "task", "bloom"]);
   const TAG_LABELS = ["topic", "task", "bloom"];
@@ -22,7 +25,9 @@
   // lecturer sees in the preview.
   const BLOCKING = new Set([
     "no-options", "too-few-options", "no-correct", "several-correct",
-    "no-table", "no-marks", "bad-marks", "image", "equation"
+    "no-table", "no-marks", "bad-marks", "image", "equation",
+    "no-stem", "no-letter", "no-description", "bad-letter", "several-letters",
+    "letter-out-of-range", "too-few-pairs"
   ]);
 
   // ---- XML helpers ----
@@ -154,8 +159,9 @@
     return runs;
   }
 
-  // Splits a paragraph into segments of {text, html, red, brk}; brk marks a
-  // tab or line break, rendered as a space in options and <br> in stems
+  // Splits a paragraph into segments of {text, html, red, bold, brk}; brk
+  // marks a tab or line break, rendered as a space in options and <br> in
+  // stems. Bold is kept in stems only.
   function readParagraph(p, ctx) {
     const pPr = child(p, "pPr");
     const pStyle = val(child(pPr, "pStyle"));
@@ -169,6 +175,9 @@
       const red = isRed(color);
       const align = val(child(rPr, "vertAlign"));
       const tag = align === "subscript" ? "sub" : align === "superscript" ? "sup" : null;
+      // Direct w:b only; w:bCs alone is not visibly bold
+      const b = child(rPr, "b");
+      const bold = !!b && !["0", "false", "off"].includes(val(b));
 
       for (const c of children(r)) {
         const name = c.localName;
@@ -176,7 +185,7 @@
           const text = c.textContent;
           if (!text) continue;
           const html = tag ? `<${tag}>${escapeHtml(text)}</${tag}>` : escapeHtml(text);
-          segments.push({ text, html, red });
+          segments.push({ text, html, red, bold });
         } else if (name === "tab" || name === "cr" || (name === "br" && c.getAttributeNS(W, "type") !== "page")) {
           segments.push({ text: " ", html: "", red, brk: true });
         } else if (name === "noBreakHyphen") {
@@ -266,8 +275,17 @@
     return html.replace(/^(?:\s|<br>)+|(?:\s|<br>)+$/g, "");
   }
 
+  // Consecutive bold segments share one <strong>; a line break closes it
   function stemParagraphHtml(segments) {
-    const html = segments.map(s => (s.brk ? "<br>" : s.html)).join("");
+    let html = "";
+    let open = false;
+    for (const s of segments) {
+      const bold = !!s.bold && !s.brk;
+      if (bold !== open) html += bold ? "<strong>" : "</strong>";
+      open = bold;
+      html += s.brk ? "<br>" : s.html;
+    }
+    if (open) html += "</strong>";
     return trimHtml(html.replace(/^\s+|\s+$/g, ""));
   }
 
@@ -330,16 +348,19 @@
   }
 
   function finishQuestion(q) {
-    const opts = q.options;
-    if (!q.sawOptions) flag(q, "no-options", "No options found");
-    else if (opts.length < 2) flag(q, "too-few-options", `Only ${opts.length} option`);
+    const matching = q.type === "matching";
+    const opts = q.options || [];
+    if (!matching) {
+      if (!q.sawOptions) flag(q, "no-options", "No options found");
+      else if (opts.length < 2) flag(q, "too-few-options", `Only ${opts.length} option`);
 
-    const correct = opts.filter(o => o.correct).length;
-    if (q.sawOptions && correct === 0) flag(q, "no-correct", "No option is marked in red");
-    if (correct > 1) flag(q, "several-correct", `${correct} options are marked in red`);
+      const correct = opts.filter(o => o.correct).length;
+      if (q.sawOptions && correct === 0) flag(q, "no-correct", "No option is marked in red");
+      if (correct > 1) flag(q, "several-correct", `${correct} options are marked in red`);
+    }
 
     if (!q.sawTable) {
-      flag(q, "no-table", "No metadata table after the options");
+      flag(q, "no-table", `No metadata table after the ${matching ? "grid" : "options"}`);
     } else if (q.meta.marks == null || q.meta.marks === "") {
       flag(q, "no-marks", "No Marks in the metadata table");
     } else {
@@ -359,11 +380,13 @@
     }
 
     // Moodle's answernumbering: ABCD or abc, from the document's option letters
-    q.numbering = opts.length && opts.every(o => o.letterCase === "lower") ? "abc" : "ABCD";
-    opts.forEach((o, i) => {
-      o.letter = String.fromCharCode(65 + i);
-      delete o.letterCase;
-    });
+    if (!matching) {
+      q.numbering = opts.length && opts.every(o => o.letterCase === "lower") ? "abc" : "ABCD";
+      opts.forEach((o, i) => {
+        o.letter = String.fromCharCode(65 + i);
+        delete o.letterCase;
+      });
+    }
 
     q.excluded = q.flags.some(f => f.blocking);
     delete q.state;
@@ -383,6 +406,97 @@
     if (par.equation) flag(q, "equation", "Contains an equation (not supported yet)");
   }
 
+  // ---- matching grid ----
+
+  // Column count from w:tblGrid, else the widest row
+  function columnCount(tbl) {
+    const cols = children(child(tbl, "tblGrid"), "gridCol").length;
+    if (cols) return cols;
+    return Math.max(0, ...children(tbl, "tr").map(tr => children(tr, "tc").length));
+  }
+
+  function plainText(pars) {
+    return pars.map(p => p.segments.map(s => s.text).join("")).join(" ").replace(/\s+/g, " ").trim();
+  }
+
+  function setStem(q) {
+    q.stemHtml = q.stemParts.map(p => `<p>${stemParagraphHtml(p.segments)}</p>`).join("");
+    q.stemText = q.stemParts.map(p => plainText([p])).join(" ");
+  }
+
+  // Non-empty paragraphs of a cell; never classified as stems or options
+  function cellParagraphs(tc, q, ctx) {
+    const out = [];
+    for (const p of children(tc, "p")) {
+      const par = readParagraph(p, ctx);
+      if (isEmpty(par)) continue;
+      checkMedia(q, par);
+      out.push(par);
+    }
+    return out;
+  }
+
+  // Columns: description | answer letter | term. Letters point at the
+  // non-empty Column B cells by position; unused terms become extras.
+  function readGrid(tbl, q, ctx) {
+    const rows = children(tbl, "tr").map((tr, i) => {
+      const tcs = children(tr, "tc");
+      return { n: i + 1, cells: [0, 1, 2].map(c => (tcs[c] ? cellParagraphs(tcs[c], q, ctx) : [])) };
+    });
+    // Header: first row whose middle cell is not a single letter
+    if (rows.length && !SINGLE_LETTER.test(plainText(rows[0].cells[1]))) rows.shift();
+
+    const terms = [];
+    for (const { cells: [, , b] } of rows) {
+      if (!b.length) continue;
+      const text = plainText(b);
+      terms.push(b[0].numFmt ? text : text.replace(TYPED_TERM, ""));
+    }
+
+    const uses = terms.map(() => 0);
+    for (const { n, cells: [a, mid] } of rows) {
+      const answer = plainText(mid);
+      if (!a.length) {
+        if (answer) flag(q, "no-description", `Row ${n}: letter "${answer}" has no description`);
+        continue;
+      }
+      const letters = answer.replace(/[\s.,;:\/&()]+/g, "");
+      if (!letters) {
+        flag(q, "no-letter", `Row ${n}: description has no answer letter`);
+        continue;
+      }
+      if (!/^[A-Za-z]+$/.test(letters)) {
+        flag(q, "bad-letter", `Row ${n}: answer is not a letter: "${answer}"`);
+        continue;
+      }
+      if (letters.length > 1) {
+        flag(q, "several-letters", `Row ${n}: more than one letter: "${answer}"`);
+        continue;
+      }
+      const index = letters.toUpperCase().charCodeAt(0) - 65;
+      if (index >= terms.length) {
+        flag(q, "letter-out-of-range", `Row ${n}: letter ${letters.toUpperCase()}, but Column B has only ${terms.length} terms`);
+        continue;
+      }
+      uses[index]++;
+      q.pairs.push({
+        html: a.map(p => `<p>${stemParagraphHtml(p.segments)}</p>`).join(""),
+        text: plainText(a),
+        answer: terms[index]
+      });
+    }
+
+    q.extras = terms.filter((t, i) => !uses[i]);
+    if (q.pairs.length < 2) flag(q, "too-few-pairs", `Only ${q.pairs.length} pair${q.pairs.length === 1 ? "" : "s"}`);
+    const seen = new Set();
+    terms.forEach((t, i) => {
+      const key = t.toLowerCase();
+      if (seen.has(key)) flag(q, "duplicate-term", `Column B lists "${t}" more than once (Moodle merges identical choices)`);
+      seen.add(key);
+      if (uses[i] > 1) flag(q, "same-term", `${uses[i]} descriptions point at "${t}"`);
+    });
+  }
+
   // ---- entry points ----
 
   // Parses the three XML parts of a .docx. Returns { questions, notes }.
@@ -400,6 +514,9 @@
     const notes = [];
     let preamble = 0;
     let q = null;
+    // Unnumbered text since the start or the last table: the stem of a
+    // matching question if a grid follows
+    let loose = [];
 
     const start = () => {
       if (q) questions.push(finishQuestion(q));
@@ -423,12 +540,27 @@
 
     for (const block of blocksOf(body)) {
       if (block.localName === "tbl") {
-        if (!q) continue;
-        if (q.state !== "table") {
+        if (columnCount(block) === 3 && (!q || q.state === "stem" || q.state === "table")) {
+          if (!q || q.state === "table") {
+            if (!q) preamble -= loose.length;
+            start();
+            loose.forEach(par => checkMedia(q, par));
+            q.stemParts = loose;
+            setStem(q);
+          }
+          q.type = "matching";
+          q.pairs = [];
+          q.extras = [];
+          delete q.options;
+          if (!q.stemParts.length) flag(q, "no-stem", "No question text before the grid");
+          readGrid(block, q, ctx);
+          q.state = "grid";
+        } else if (q && q.state !== "table") {
           q.sawTable = true;
           q.state = "table";
           readTable(block, q);
         }
+        loose = [];
         continue;
       }
 
@@ -438,16 +570,20 @@
 
       if (par.kind === "question") {
         start();
+        loose = [];
       } else if (!q) {
         preamble++;
+        if (par.kind === "text") loose.push(par);
         continue;
       }
 
       if (par.kind === "question" || (par.kind === "text" && q.state === "stem")) {
         checkMedia(q, par);
         q.stemParts.push(par);
-        q.stemHtml = q.stemParts.map(p => `<p>${stemParagraphHtml(p.segments)}</p>`).join("");
-        q.stemText = q.stemParts.map(p => p.segments.map(s => s.text).join("").replace(/\s+/g, " ").trim()).join(" ");
+        setStem(q);
+      } else if (q.state === "grid") {
+        checkMedia(q, par);
+        flag(q, "text-before-table", "Text between the grid and the table");
       } else if (par.kind === "option") {
         checkMedia(q, par);
         if (q.state === "after") flag(q, "options-split", "Text between options");
@@ -467,8 +603,10 @@
         checkMedia(q, par);
         q.state = "after";
         flag(q, "text-before-table", "Text between the last option and the table");
+      } else if (q.state === "table" && par.kind === "text") {
+        // Ignored unless a grid follows
+        loose.push(par);
       }
-      // Text after the table and before the next question is ignored
     }
     if (q) questions.push(finishQuestion(q));
 
