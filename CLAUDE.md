@@ -11,7 +11,7 @@ Manifest V3 browser extension (Chrome + Firefox) for WiSeUp, WSU's Moodle 4.3. H
 - UK English in code comments, UI text and docs.
 
 ## Dev loop
-Copy src/ to /mnt/c/Users/drjua/wale-ext/, then reload the extension in chrome://extensions.
+Copy src/ to /mnt/c/Users/drjua/wsuMoodleAddon-dev/, then reload the extension in chrome://extensions.
 
 ## Read when relevant
 - Importer spec (before any importer work): docs/importer-spec.md

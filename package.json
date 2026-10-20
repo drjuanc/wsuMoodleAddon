@@ -1,0 +1,12 @@
+{
+  "name": "wsu-moodle-addon",
+  "private": true,
+  "description": "Dev tooling only. Nothing here is loaded by the extension; src/lib/ holds the bundled copies.",
+  "scripts": {
+    "test": "node test/importer.test.js"
+  },
+  "devDependencies": {
+    "@xmldom/xmldom": "0.9.12",
+    "jszip": "3.10.1"
+  }
+}
