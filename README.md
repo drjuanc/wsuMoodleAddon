@@ -1,6 +1,7 @@
-# IWS Moodle Helper
+# WiSeUp Toolkit
 
-A small Chrome extension for iYunivesithi Walter Sisulu's Moodle (version 2.0).
+WiSeUp Toolkit is a small Chrome extension for iYunivesithi Walter Sisulu's
+Moodle (version 2.0).
 It does three things, and you can switch each one on or off separately:
 
 1. **Hides the "Chat to Wale" widget.** The floating chat button can cover
@@ -108,8 +109,8 @@ your computer.
 
 **Updating to a new version**
 1. Copy the new `src` folder over the old one in the same Windows folder.
-2. In `chrome://extensions`, click the reload button (↻) on the IWS Moodle
-   Helper card.
+2. In `chrome://extensions`, click the reload button (↻) on the WiSeUp
+   Toolkit card.
 3. Close any Moodle tabs that are open and open them again. Tabs that were
    already open keep running the old version.
 

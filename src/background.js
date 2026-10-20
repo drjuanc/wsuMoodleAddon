@@ -25,7 +25,7 @@ async function loadIcons() {
   return icons;
 }
 
-const NAME = "IWS Moodle Helper";
+const NAME = "WiSeUp Toolkit";
 
 async function getState() {
   const { hideChat = true, cleanPaste = true, importDocx = true } =
