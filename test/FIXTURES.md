@@ -45,11 +45,10 @@ the sanitised versions described here may be committed.
   input format. Structure analysis: `docs/findings-docx.md`.
 - **Captured:** 20 October 2026.
 - **Moodle:** n/a (input document); its target is Moodle 4.3.3+.
-- **Redacted:** nothing yet.
-- **Status:** not committed. Still to decide: whether the items are real.
-  `docProps/core.xml` holds the author's full name (`dc:creator`,
-  `cp:lastModifiedBy`); remove it before any commit.
-  - mock-test.docx: dummy items (no real exam content), safe to publish. Personal metadata removed with Word's Document Inspector.
+- **Redacted:** personal metadata removed with Word's Document Inspector
+  (`dc:creator` and `cp:lastModifiedBy` in `docProps/core.xml` are empty).
+- **Status:** committed. Dummy items (no real exam content), safe to
+  publish.
 
 ## `paste-test.html`
 

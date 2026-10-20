@@ -3,7 +3,7 @@
 Question: can a content script attach a file to the question import page's
 file picker on WiSeUp (Moodle 4.3.3+), in Chrome and in Firefox?
 
-Code: `spikes/attach/` (throwaway; not part of `src/`).
+Code: was in `spikes/attach/` (throwaway; removed before the v2.0 merge, still in the git history).
 
 ## 1. Research: how Moodle 4.3 handles drag-and-drop on a filepicker
 
@@ -214,5 +214,3 @@ Fill in ✅ / ❌ / – and paste key `[spike]` lines into Notes.
 | Firefox | A (isolated) | | | | |
 | Firefox | A-MAIN | | | | |
 | Firefox | B | | | | |
-
-Browser versions tested: Chrome ______ · Firefox ______
