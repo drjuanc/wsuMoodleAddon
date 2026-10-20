@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.2 — 20 October 2026
 - New: the Word importer also imports essay questions: a numbered question
   with no lettered options. The red memo after it goes into Moodle's
   information for graders, keeping bullet lists and tables. An answer

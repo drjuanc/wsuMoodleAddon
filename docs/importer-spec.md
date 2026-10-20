@@ -19,7 +19,7 @@ JSZip + DOMParser on word/document.xml, numbering.xml and styles.xml. Not mammot
 - From a question start to the next question start.
 - Stem = lead-in (see below), question paragraph, plus following non-empty, non-numbered, non-red paragraphs before the first option.
 - Options = consecutive option paragraphs.
-- Metadata = first w:tbl after the options.
+- Metadata = first w:tbl after the options; in an essay (no options), the first table with a known `Label:` cell.
 - Empty paragraphs ignored.
 - **Lead-in (all question types):** the non-empty, unnumbered paragraph(s) directly before a stem, with no empty paragraph or table in between, go in front of the stem (e.g. "Scenario: …"). Red paragraphs are never a lead-in (see "Stray red text").
 - **Before question 1** a lead-in is taken only from the last paragraph that starts with "Scenario" or "Case" (any case, colon optional, bold or not). Every other non-empty paragraph before question 1 is ignored, with the info note "N lines before the first question ignored".
@@ -28,7 +28,7 @@ JSZip + DOMParser on word/document.xml, numbering.xml and styles.xml. Not mammot
 - Join w:t across runs.
 - w:tab, w:cr and non-page w:br → space in options, line break in stems. Ignore w:lastRenderedPageBreak and page breaks.
 - vertAlign subscript/superscript → `<sub>`/`<sup>`. Keep Unicode sub/superscripts as typed.
-- Direct run bold (w:b, not w:val 0/false/off) → `<strong>` in stems and matching descriptions only; never in MCQ options or matching terms. w:bCs on its own is ignored (not visibly bold).
+- Direct run bold (w:b, not w:val 0/false/off) → `<strong>` in stems, matching descriptions and essay memos only; never in MCQ options or matching terms. w:bCs on its own is ignored (not visibly bold).
 - HTML-escape `<`, `>`, `&`.
 - Images (w:drawing, w:pict) or equations (m:oMath) in a question → flag and exclude (not supported yet).
 

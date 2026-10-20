@@ -1,7 +1,7 @@
 # WiSeUp Toolkit
 
 WiSeUp Toolkit is a small Chrome extension for iYunivesithi Walter Sisulu's
-Moodle (version 2.1).
+Moodle (version 2.2).
 It does three things, and you can switch each one on or off separately:
 
 1. **Hides the "Chat to Wale" widget.** The floating chat button can cover
