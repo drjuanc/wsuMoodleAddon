@@ -477,10 +477,11 @@
     return { questions, notes };
   }
 
-  // Parses a .docx given as an ArrayBuffer, Uint8Array, Blob or File
+  // Parses a .docx given as a base64 string (as the content script passes it),
+  // ArrayBuffer, Uint8Array, Blob or File
   async function parseDocx(data, deps = {}) {
     const Zip = deps.JSZip || globalThis.JSZip;
-    const zip = await Zip.loadAsync(data);
+    const zip = await Zip.loadAsync(data, { base64: typeof data === "string" });
     const read = name => (zip.file(name) ? zip.file(name).async("string") : null);
     const document = await read("word/document.xml");
     if (!document) throw new Error("Not a Word document (no word/document.xml)");

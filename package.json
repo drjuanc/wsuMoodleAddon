@@ -1,5 +1,6 @@
 {
   "name": "wsu-moodle-addon",
+  "version": "2.0.0",
   "private": true,
   "description": "Dev tooling only. Nothing here is loaded by the extension; src/lib/ holds the bundled copies.",
   "scripts": {

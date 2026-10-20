@@ -70,6 +70,23 @@ test("mock-test.docx: Moodle XML", async () => {
   });
 });
 
+test("mock-test.docx: Moodle XML with a category", async () => {
+  const data = fs.readFileSync(path.join(__dirname, "mock-test.docx"));
+  const { questions } = await parseDocx(data, deps);
+  const { xml, included } = buildMoodleXml(questions, { category: "$course$/top/From MS Word" });
+  assert.equal(included.length, 8);
+
+  const errors = [];
+  const doc = new DOMParser({ onError: (level, msg) => errors.push(`${level}: ${msg}`) })
+    .parseFromString(xml, "application/xml");
+  assert.deepEqual(errors, []);
+  const qs = Array.from(doc.getElementsByTagName("question"));
+  assert.equal(qs.length, 9);
+  assert.equal(qs[0].getAttribute("type"), "category");
+  assert.equal(qs[0].getElementsByTagName("category")[0].textContent.trim(), "$course$/top/From MS Word");
+  assert.ok(qs.slice(1).every(q => q.getAttribute("type") === "multichoice"));
+});
+
 // ---- synthetic documents ----
 
 const NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" ' +

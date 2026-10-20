@@ -1,6 +1,7 @@
 // Turns the questions from docx-parse.js into Moodle XML for the question
-// bank import page. No <category> is written: the category chosen on the
-// import page is used. Questions with a blocking flag are left out.
+// bank import page. A <category> question is written only if opts.category is
+// given; otherwise the category chosen on the import page is used. Questions
+// with a blocking flag are left out.
 (() => {
   const NAME_LENGTH = 80;
 
@@ -32,6 +33,19 @@
 
   function emptyHtml(tag, indent) {
     return `${indent}<${tag} format="html">\n${indent}  <text></text>\n${indent}</${tag}>`;
+  }
+
+  // Moodle switches to (and creates) this category when "Get category from
+  // file" is ticked, e.g. "$course$/top/From MS Word"
+  function category(path) {
+    const i = "    ";
+    return [
+      `  <question type="category">`,
+      `${i}<category>\n${i}  <text>${escapeXml(path)}</text>\n${i}</category>`,
+      emptyHtml("info", i),
+      `${i}<idnumber></idnumber>`,
+      `  </question>`
+    ].join("\n");
   }
 
   function multichoice(q, opts) {
@@ -72,11 +86,12 @@
 
   // Returns { xml, included, skipped }; included and skipped hold question
   // numbers. Options: shuffleAnswers (default false, as Word fixes the order
-  // and options may refer to each other, e.g. "Both A and B").
+  // and options may refer to each other, e.g. "Both A and B"); category (a
+  // Moodle category path, written before the questions).
   function buildMoodleXml(questions, opts = {}) {
     const included = [];
     const skipped = [];
-    const parts = [];
+    const parts = opts.category ? [category(opts.category)] : [];
     for (const q of questions) {
       if (q.excluded || q.type !== "multichoice") {
         skipped.push(q.number);
