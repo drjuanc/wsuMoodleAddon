@@ -117,10 +117,10 @@ numbering):
 **Importing**
 1. In your course, open **Question bank → Import**.
 2. In the **Import Word document** box, choose the .docx.
-3. Check the preview. Each question shows its options, right answer and
-   tags (matching questions show each description → term pair and the
-   distractors); questions that will be left out are greyed out with the
-   reason.
+3. Check the preview. Each question shows its stem, options, right answer,
+   marks and tags (matching questions show the numbered descriptions beside
+   their terms, then the distractors); questions that will be left out are
+   greyed out with the reason.
 4. Leave **Import questions into the category 'From MS Word'** ticked to
    put them in that category (Moodle creates it if needed), or untick it to
    use the category selected in Moodle's General section.

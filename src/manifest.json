@@ -37,7 +37,7 @@
     },
     {
       "matches": ["https://wiseup.wsu.ac.za/question/bank/importquestions/import.php*"],
-      "js": ["lib/jszip.min.js", "importer/docx-parse.js", "importer/moodle-xml.js", "importer/importer.js"],
+      "js": ["lib/jszip.min.js", "importer/docx-parse.js", "importer/moodle-xml.js", "importer/preview.js", "importer/importer.js"],
       "run_at": "document_idle",
       "world": "ISOLATED"
     },

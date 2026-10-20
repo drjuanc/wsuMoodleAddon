@@ -9,6 +9,7 @@ const JSZip = require("jszip");
 const { DOMParser } = require("@xmldom/xmldom");
 const { parseDocx } = require("../src/importer/docx-parse.js");
 const { buildMoodleXml } = require("../src/importer/moodle-xml.js");
+const { previewModel } = require("../src/importer/preview.js");
 
 const deps = { JSZip, DOMParser };
 const tests = [];
@@ -414,6 +415,44 @@ test("matching flags: letter out of range, empty letter, two letters, no descrip
   assert.deepEqual(questions[5].extras, ["Gamma"]);
   const { included } = buildMoodleXml(questions);
   assert.deepEqual(included, [6]);
+});
+
+// ---- preview table ----
+
+test("preview: matching pairs numbered, distractors, marks, stem HTML; MCQ unchanged", async () => {
+  const data = fs.readFileSync(path.join(__dirname, "mock-matching.docx"));
+  const { questions } = await parseDocx(data, deps);
+  const [m1, mcq, , m4] = questions.map(previewModel);
+
+  assert.equal(m1.type, "Matching");
+  assert.equal(m1.marks, "4");
+  assert.equal(m1.stemHtml, questions[0].stemHtml);
+  assert.deepEqual(m1.pairs.map(p => p.label), ["1.", "2.", "3.", "4."]);
+  assert.deepEqual(m1.pairs.map(p => p.html), questions[0].pairs.map(p => p.html));
+  assert.deepEqual(m1.pairs.map(p => p.answer), ["1 → Autorhythmic fibres", "2 → Sino-Atrial Node",
+    "3 → Action Potential", "4 → Purkinje Fibers."]);
+  assert.deepEqual(m1.extras, ["Cardiac conduction system", "Atrioventricular Node", "Sino-Atrial Node"]);
+  assert.equal(m1.excluded, false);
+  assert.equal(m1.warnings.length, 1);
+  assert.ok(m4.stemHtml.includes("<strong>ventricular ejection</strong>"));
+  assert.deepEqual(m4.extras, []);
+
+  assert.equal(mcq.type, "MCQ");
+  assert.equal(mcq.marks, "1");
+  assert.equal(mcq.answer, "A");
+  assert.equal(mcq.tags, questions[1].tags.join("; "));
+  assert.ok(!mcq.tags.startsWith("Tags:"));
+  assert.equal(mcq.options.length, questions[1].options.length);
+  assert.match(mcq.options[0], /^A\. \S/);
+  assert.equal(mcq.pairs, undefined);
+});
+
+test("preview: unsupported type and missing marks", () => {
+  const m = previewModel({ number: 3, type: "essay", stemHtml: "<p>Discuss</p>", marks: null, tags: [], flags: [], excluded: false });
+  assert.equal(m.excluded, true);
+  assert.deepEqual(m.reasons, ["Unsupported question type"]);
+  assert.equal(m.marks, "");
+  assert.equal(m.type, "essay");
 });
 
 (async () => {

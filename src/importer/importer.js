@@ -14,7 +14,7 @@
   const CATEGORY_NAME = "From MS Word";
   // dropper.js allows 15 s for the picker plus 30 s for the upload
   const ATTACH_TIMEOUT_MS = 50000;
-  const { docx, moodleXml } = globalThis.wsuImporter;
+  const { docx, moodleXml, preview: { previewModel } } = globalThis.wsuImporter;
 
   // Moodle's own file row and Import button: hidden while our preview is
   // shown, never removed, as dropper.js drops onto the picker inside the
@@ -44,39 +44,94 @@
     });
   }
 
-  const TYPE_NAMES = { multichoice: "MCQ", matching: "Matching" };
+  // The parser's HTML (escaped text in p, strong, br, sub and sup) is copied
+  // element by element from an inert parse, so nothing else can reach the page
+  const SAFE_TAGS = new Set(["P", "STRONG", "B", "EM", "I", "BR", "SUB", "SUP"]);
+  function safeHtml(html) {
+    const frag = document.createDocumentFragment();
+    const copy = (from, to) => {
+      for (const n of from.childNodes) {
+        if (n.nodeType === Node.TEXT_NODE) to.append(n.data);
+        else if (n.nodeType !== Node.ELEMENT_NODE) continue;
+        else if (!SAFE_TAGS.has(n.tagName)) copy(n, to);
+        else {
+          const e = document.createElement(n.tagName);
+          if (n.tagName === "P") e.style.margin = "0";
+          to.append(e);
+          copy(n, e);
+        }
+      }
+    };
+    copy(new DOMParser().parseFromString(html, "text/html").body, frag);
+    return frag;
+  }
 
-  function previewRow(q) {
-    const options = q.options || [];
-    const correct = options.filter((o) => o.correct).map((o) => o.letter).join(", ");
-    const reasons = q.flags.filter((f) => f.blocking).map((f) => f.message);
-    const warnings = q.flags.filter((f) => !f.blocking).map((f) => f.message);
-    const supported = q.type in TYPE_NAMES;
-    if (!supported) reasons.unshift("Unsupported question type");
-    const excluded = q.excluded || !supported;
+  const COLUMNS = [
+    ["#", "3.5rem"], ["Type", "5.5rem"], ["Question", ""], ["Options", "20%"],
+    ["Answer", "14%"], ["Marks", "4rem"], ["Tags", "11%"], ["Notes", "12%"]
+  ];
 
+  function previewTable(questions) {
+    return el("table", { className: "table table-sm table-bordered mb-0", style: "table-layout: fixed; min-width: 56rem; overflow-wrap: anywhere" },
+      el("colgroup", {}, ...COLUMNS.map(([, width]) => el("col", { style: width ? `width: ${width}` : "" }))),
+      el("thead", {}, el("tr", {}, ...COLUMNS.map(([name]) => el("th", { scope: "col", textContent: name })))),
+      el("tbody", {}, ...questions.flatMap(previewRows)));
+  }
+
+  // One row per question, except that a matching question gets one row per
+  // pair (plus one for the distractors) so each description sits beside its
+  // term; the other cells span those rows
+  function previewRows(q) {
+    const m = previewModel(q);
     const notes = el("td");
-    if (excluded) notes.append(el("div", { className: "font-weight-bold", textContent: `Excluded: ${reasons.join("; ")}` }));
-    for (const w of warnings) notes.append(el("div", { className: "text-warning", textContent: `⚠ ${w}` }));
+    if (m.excluded) notes.append(el("div", { className: "font-weight-bold", textContent: `Excluded: ${m.reasons.join("; ")}` }));
+    for (const w of m.warnings) notes.append(el("div", { className: "text-warning", textContent: `⚠ ${w}` }));
 
-    const row = el("tr", {},
-      el("td", { textContent: `Q${q.number}` }),
-      el("td", { textContent: TYPE_NAMES[q.type] || q.type }),
-      el("td", {},
-        el("div", { textContent: q.stemText }),
-        ...(q.pairs || []).map((p) => el("div", { className: "ml-3", textContent: `${p.text} → ${p.answer}` })),
-        ...(q.extras || []).map((t) => el("div", { className: "ml-3", textContent: `extra: ${t}` }))
-      ),
-      el("td", {}, ...options.map((o) => el("div", { textContent: `${o.letter}. ${o.text}` }))),
-      el("td", { textContent: correct ? `Right answer: ${correct}` : "" }),
-      el("td", { textContent: q.tags.length ? `Tags: ${q.tags.join("; ")}` : "" }),
-      notes
-    );
-    if (excluded) {
-      row.classList.add("text-muted");
-      row.style.opacity = "0.6";
+    let lines;
+    if (m.pairs) {
+      lines = m.pairs.map((p) => [
+        // The table's overflow-wrap would otherwise split "1." when the
+        // description wraps; 2em fits "10." so the descriptions line up
+        el("td", {}, el("div", { className: "d-flex" },
+          el("span", { className: "mr-1", style: "flex: 0 0 auto; min-width: 2em; white-space: nowrap", textContent: p.label }),
+          el("div", { style: "flex: 1 1 auto; min-width: 0" }, safeHtml(p.html)))),
+        el("td", { textContent: p.answer })
+      ]);
+      if (m.extras.length) {
+        lines.push([el("td"), el("td", {},
+          el("div", { className: "small text-muted", textContent: "Extra:" }),
+          ...m.extras.map((t) => el("div", { textContent: t })))]);
+      }
+      if (!lines.length) lines.push([el("td"), el("td")]);
+    } else {
+      lines = [[
+        el("td", {}, ...m.options.map((t) => el("div", { textContent: t }))),
+        el("td", { textContent: m.answer })
+      ]];
     }
-    return row;
+
+    const span = (cell) => Object.assign(cell, { rowSpan: lines.length });
+    const rows = lines.map((cells, i) => {
+      if (i) cells.forEach((c) => (c.style.borderTopStyle = "dotted"));
+      return el("tr", {}, ...cells);
+    });
+    rows[0].prepend(...[
+      el("td", { textContent: m.number }),
+      el("td", { textContent: m.type }),
+      el("td", {}, safeHtml(m.stemHtml))
+    ].map(span));
+    rows[0].append(...[
+      el("td", { textContent: m.marks }),
+      el("td", { textContent: m.tags }),
+      notes
+    ].map(span));
+    if (m.excluded) {
+      for (const row of rows) {
+        row.classList.add("text-muted");
+        row.style.opacity = "0.6";
+      }
+    }
+    return rows;
   }
 
   // Clicks Import and calls onBlocked if Moodle's form validation (or the
@@ -147,9 +202,7 @@
         const { questions, notes } = await docx.parseDocx(await readBase64(file));
         const { included } = moodleXml.buildMoodleXml(questions);
         if (questions.length) {
-          preview.append(el("div", { className: "table-responsive" },
-            el("table", { className: "table table-sm table-bordered mb-0" },
-              el("tbody", {}, ...questions.map(previewRow)))));
+          preview.append(el("div", { className: "table-responsive" }, previewTable(questions)));
         }
         const summary = [
           `${included.length} of ${questions.length} questions will be imported.`,
