@@ -153,11 +153,11 @@ To switch worlds, change one line in `manifest.json`:
 Use a sandbox course only.
 
 1. **Chrome, load:** in WSL run
-   `mkdir -p /mnt/c/Users/drjua/wale-ext-spike && cp -r ~/wsuMoodleAddon/spikes/attach/. /mnt/c/Users/drjua/wale-ext-spike/`.
+   `mkdir -p /mnt/c/Users/drjua/wsuMoodleAddon-spike && cp -r ~/wsuMoodleAddon/spikes/attach/. /mnt/c/Users/drjua/wsuMoodleAddon-spike`.
    Then go to `chrome://extensions` → Developer mode → Load unpacked →
-   `C:\Users\drjua\wale-ext-spike`.
+   `C:\Users\drjua\wsuMoodleAddon-spike`.
 2. **Firefox, load:** go to `about:debugging#/runtime/this-firefox` → Load
-   Temporary Add-on → `C:\Users\drjua\wale-ext-spike\manifest.json`. In
+   Temporary Add-on → `C:\Users\drjua\wsuMoodleAddon-spike\manifest.json`. In
    `about:addons` → the spike → Permissions, check that access to
    `wiseup.wsu.ac.za` is allowed (MV3 host permissions can be off by
    default).

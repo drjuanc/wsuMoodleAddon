@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "WSU spike: attach XML",
+  "version": "0.0.1",
+  "description": "Throwaway proof of concept: attach a generated Moodle XML file to the question import file picker.",
+  "content_scripts": [
+    {
+      "matches": ["https://wiseup.wsu.ac.za/question/bank/importquestions/import.php*"],
+      "js": ["spike.js"],
+      "run_at": "document_idle",
+      "world": "ISOLATED"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "wsu-spike-attach@drjuanc.github.io",
+      "strict_min_version": "128.0"
+    }
+  }
+}

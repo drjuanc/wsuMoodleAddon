@@ -52,6 +52,5 @@ JSZip + DOMParser on word/document.xml, numbering.xml and styles.xml. Not mammot
 - Format: tick #id_format_xml; nothing is pre-selected.
 - File picker: hidden #id_newfile holds the draft item id. Drag-and-drop handlers are bound to #file_info_<client_id>; client_id changes per load and is in the inline M.form_filepicker.init(...) options. `.dndupload-target` is only the visual highlight.
 - Handlers exist only if the body has the class dndsupported. Moodle calling preventDefault() on drop means the drop was accepted.
-- Attach method: pending the spike results (docs/spike-attach.md).
-- Category: #id_category, in the collapsed "General" section. Leave "Get category/context from file" untouched.
-- Do not click Import (auto-submit decision pending).
+- Attach method: two content scripts. importer.js (isolated world) does all the work; dropper.js (main world) receives the XML and dispatches dragenter/dragover/drop on #file_info_<client_id>. Tested working in Chrome and Firefox (isolated-world drop fails in Firefox). Minimum: Chrome 111, Firefox 128.
+- The extension ticks Moodle XML and attaches the file, then stops. The lecturer clicks Import.
