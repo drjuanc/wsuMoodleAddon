@@ -44,9 +44,11 @@
     });
   }
 
-  // The parser's HTML (escaped text in p, strong, br, sub and sup) is copied
-  // element by element from an inert parse, so nothing else can reach the page
-  const SAFE_TAGS = new Set(["P", "STRONG", "B", "EM", "I", "BR", "SUB", "SUP"]);
+  // The parser's HTML (escaped text in p, strong, br, sub, sup, lists and
+  // tables) is copied element by element from an inert parse, without
+  // attributes, so nothing else can reach the page
+  const SAFE_TAGS = new Set(["P", "STRONG", "B", "EM", "I", "BR", "SUB", "SUP",
+    "UL", "OL", "LI", "TABLE", "TBODY", "TR", "TD"]);
   function safeHtml(html) {
     const frag = document.createDocumentFragment();
     const copy = (from, to) => {
@@ -57,6 +59,9 @@
         else {
           const e = document.createElement(n.tagName);
           if (n.tagName === "P") e.style.margin = "0";
+          if (n.tagName === "UL" || n.tagName === "OL") e.style.cssText = "margin: 0; padding-left: 1.2em";
+          if (n.tagName === "TABLE") e.style.cssText = "width: 100%; border-collapse: collapse";
+          if (n.tagName === "TD") e.style.cssText = "border: 1px solid #ccc; padding: 0 0.25em; min-width: 1.5em";
           to.append(e);
           copy(n, e);
         }
@@ -64,6 +69,12 @@
     };
     copy(new DOMParser().parseFromString(html, "text/html").body, frag);
     return frag;
+  }
+
+  // Answer tables: whole words (the preview table breaks anywhere), and a
+  // sideways scroll if they do not fit the column
+  function tableHtml(html) {
+    return el("div", { style: "overflow-x: auto; overflow-wrap: normal; word-break: normal" }, safeHtml(html));
   }
 
   const COLUMNS = [
@@ -78,9 +89,9 @@
       el("tbody", {}, ...questions.flatMap(previewRows)));
   }
 
-  // One row per question, except that a matching question gets one row per
-  // pair (plus one for the distractors) so each description sits beside its
-  // term; the other cells span those rows
+  // One row per question (an essay shows its memo under Answer), except that
+  // a matching question gets one row per pair (plus one for the distractors)
+  // so each description sits beside its term; the other cells span those rows
   function previewRows(q) {
     const m = previewModel(q);
     const notes = el("td");
@@ -103,6 +114,11 @@
           ...m.extras.map((t) => el("div", { textContent: t })))]);
       }
       if (!lines.length) lines.push([el("td"), el("td")]);
+    } else if (m.memoHtml != null) {
+      lines = [[
+        el("td"),
+        el("td", {}, m.memoHtml ? tableHtml(m.memoHtml) : el("span", { className: "small text-muted", textContent: "No memo" }))
+      ]];
     } else {
       lines = [[
         el("td", {}, ...m.options.map((t) => el("div", { textContent: t }))),
@@ -118,7 +134,9 @@
     rows[0].prepend(...[
       el("td", { textContent: m.number }),
       el("td", { textContent: m.type }),
-      el("td", {}, safeHtml(m.stemHtml))
+      el("td", {}, safeHtml(m.stemHtml), m.templateHtml ? el("div", { className: "mt-1" },
+        el("div", { className: "small text-muted", textContent: "Response template:" }),
+        tableHtml(m.templateHtml)) : null)
     ].map(span));
     rows[0].append(...[
       el("td", { textContent: m.marks }),

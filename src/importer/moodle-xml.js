@@ -106,7 +106,31 @@
     return finish(q, lines);
   }
 
-  // Tags and the closing tag, shared by both question types
+  // Answered in Moodle's editor, which starts with any answer table; the
+  // memo goes to the grader information
+  function essay(q) {
+    const i = "    ";
+    const lines = [
+      `  <question type="essay">`,
+      `${i}<name>\n${i}  <text>${escapeXml(questionName(q))}</text>\n${i}</name>`,
+      htmlText("questiontext", q.stemHtml, i),
+      emptyHtml("generalfeedback", i),
+      `${i}<defaultgrade>${q.marks}</defaultgrade>`,
+      `${i}<penalty>0</penalty>`,
+      `${i}<hidden>0</hidden>`,
+      `${i}<idnumber></idnumber>`,
+      `${i}<responseformat>editor</responseformat>`,
+      `${i}<responserequired>1</responserequired>`,
+      `${i}<responsefieldlines>10</responsefieldlines>`,
+      `${i}<attachments>0</attachments>`,
+      `${i}<attachmentsrequired>0</attachmentsrequired>`,
+      q.graderInfoHtml ? htmlText("graderinfo", q.graderInfoHtml, i) : emptyHtml("graderinfo", i),
+      q.responseTemplateHtml ? htmlText("responsetemplate", q.responseTemplateHtml, i) : emptyHtml("responsetemplate", i)
+    ];
+    return finish(q, lines);
+  }
+
+  // Tags and the closing tag, shared by all question types
   function finish(q, lines) {
     const i = "    ";
     if (q.tags.length) {
@@ -118,7 +142,7 @@
     return lines.join("\n");
   }
 
-  const WRITERS = { multichoice, matching };
+  const WRITERS = { multichoice, matching, essay };
 
   // Returns { xml, included, skipped }; included and skipped hold question
   // numbers. Options: shuffleAnswers (default false, as Word fixes the order

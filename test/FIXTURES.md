@@ -65,6 +65,32 @@ the sanitised versions described here may be committed.
 - **Status:** committed. Dummy items (no real exam content), safe to
   publish.
 
+## `mock-essay.docx`
+
+- **Source:** `test/private/mock-essay.docx` (kept untouched), a mock essay
+  test written in Microsoft Word (16.0) in the planned input format.
+  Structure analysis was done on the private copy.
+- **Captured:** 20 October 2026.
+- **Moodle:** n/a (input document); its target is Moodle 4.3.3+.
+- **Structure kept exactly:** the front-page block (title lines, date line,
+  instructions), 6 questions in the same order (Q1, Q2, Q4, Q5, Q6 essays;
+  Q3 the MCQ also in `mock-test.docx`), the bold "Scenario:" lead-ins,
+  Q1's red bullet memo (EE0000), Q2's 2×3 answer table (red FF0000
+  answers), the stray red note after Q4's table, Q6's empty paragraphs with
+  red paragraph marks, the 3×2 and 2×2 metadata tables with their label
+  quirks, and all styles, numbering and run formatting.
+- **Redacted / removed:**
+  - all front-page text and all question, scenario, memo and table-value
+    text → short dummy text (run by run, so the formatting is unchanged);
+    Module values → `TEST`;
+  - the logo picture, its `C:\Users\…` description, `word/media/image1.jpeg`,
+    its relationship and the jpeg content type;
+  - `docProps/custom.xml` (Grammarly id), its relationship and content-type
+    override;
+  - `dc:creator`, `cp:lastModifiedBy` and `Company` are empty.
+- **Status:** committed. Dummy items (no real exam content), safe to
+  publish.
+
 ## `paste-test.html`
 
 Already committed before this file existed (v1.4 paste cleaner). Not

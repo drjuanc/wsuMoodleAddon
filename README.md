@@ -10,7 +10,7 @@ It does three things, and you can switch each one on or off separately:
    editor on WiSeUp, Word's hidden formatting (fonts, colours, spacing, empty
    paragraphs) is removed. The text keeps its simple structure: paragraphs,
    bold, italics, lists, links and tables.
-3. **Imports multiple-choice and matching questions from a Word document.** On the
+3. **Imports multiple-choice, matching and essay questions from a Word document.** On the
    question bank's Import page, choose a .docx, check the preview, then
    click **Import N questions**. The questions go into the category
    "From MS Word" unless you untick that box, in which case they go into the
@@ -110,7 +110,17 @@ numbering):
   at a term by its position, so `C` is the third term. Extra terms that no letter
   points at become distractors. The answer letters need not be red. Put the
   `Marks:` table after the three-column table, as for multiple-choice.
-- Only single-answer multiple-choice and matching questions are imported.
+- **Essay questions:** a numbered question with no lettered options. Put
+  the model answer (memo) in **red** after the question; it goes into
+  Moodle's "Information for graders". Bulleted memos stay bulleted. If the
+  memo is a table, the students get that table, with the red answers
+  blanked out, in their answer box to fill in. A question without a memo is fine. Keep "(3 marks)" in the question
+  if you like; the marks still come from the table.
+- **Scenarios:** a paragraph such as "Scenario: …" directly above a
+  question (no empty line in between) is put in front of that question.
+  Other text above question 1 (title, instructions) is ignored.
+- The table may also have `SubT:` and `Module:`; they become tags too.
+- Only single-answer multiple-choice, matching and essay questions are imported.
   Questions with pictures or equations are left out. Answers are never
   shuffled.
 
@@ -119,7 +129,7 @@ numbering):
 2. In the **Import Word document** box, choose the .docx.
 3. Check the preview. Each question shows its stem, options, right answer,
    marks and tags (matching questions show the numbered descriptions beside
-   their terms, then the distractors); questions that will be left out are
+   their terms, then the distractors; essays show the memo); questions that will be left out are
    greyed out with the reason.
 4. Leave **Import questions into the category 'From MS Word'** ticked to
    put them in that category (Moodle creates it if needed), or untick it to

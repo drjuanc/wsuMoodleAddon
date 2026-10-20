@@ -1,4 +1,4 @@
-// Reads a .docx of single-answer MCQs and matching questions into plain
+// Reads a .docx of single-answer MCQs, matching and essay questions into plain
 // question objects for the preview and the Moodle XML generator. Rules: docs/importer-spec.md.
 // Loaded as a classic script (content script, after lib/jszip.min.js) or
 // required from Node for the offline tests; JSZip and DOMParser can be passed
@@ -15,16 +15,20 @@
   // Matching grid: typed prefix on a Column B term; a lone answer letter
   const TYPED_TERM = /^\s*([A-Za-z])[.)]\s+/;
   const SINGLE_LETTER = /^[A-Za-z][.)]?$/;
+  // Essay text that looks like options typed without list numbering
+  const TYPED_OPTION_LINE = /^\s*[A-Ha-h][.)]\s+\S/;
+  // Before question 1, only a lead-in starting like this is kept
+  const SCENARIO = /^\s*(?:scenario|case)\b/i;
 
-  const KNOWN_LABELS = new Set(["marks", "topic", "task", "bloom"]);
-  const TAG_LABELS = ["topic", "task", "bloom"];
+  const KNOWN_LABELS = new Set(["marks", "topic", "task", "bloom", "subt", "module"]);
+  const TAG_LABELS = ["topic", "task", "bloom", "subt", "module"];
   const MAX_TAG_LENGTH = 50;
   const MARKS = /^(\d+(?:\.\d+)?)(?:\s*marks?)?$/i;
 
   // Flags that keep a question out of the XML. The rest are warnings the
   // lecturer sees in the preview.
   const BLOCKING = new Set([
-    "no-options", "too-few-options", "no-correct", "several-correct",
+    "too-few-options", "no-correct", "several-correct",
     "no-table", "no-marks", "bad-marks", "image", "equation",
     "no-stem", "no-letter", "no-description", "bad-letter", "several-letters",
     "letter-out-of-range", "too-few-pairs"
@@ -293,6 +297,63 @@
     return segments.map(s => (s.brk ? " " : s.html)).join("").replace(/\s+/g, " ").trim();
   }
 
+  // Drops whitespace-only segments and line breaks at both ends, e.g. the
+  // spaces typed before a memo line
+  function trimSegments(segments) {
+    const blank = s => s.brk || !s.text.trim();
+    let a = 0;
+    let b = segments.length;
+    while (a < b && blank(segments[a])) a++;
+    while (b > a && blank(segments[b - 1])) b--;
+    return segments.slice(a, b);
+  }
+
+  // Red by run colour; whitespace does not count
+  function isRedParagraph(par) {
+    return redShare(par.segments) >= 0.5;
+  }
+
+  // A table inside an essay, twice: blank (red text removed, for the
+  // response template) and full (for the grader)
+  function answerTable(tbl, q, ctx) {
+    let red = false;
+    const html = keepRed => {
+      const rows = children(tbl, "tr").map(tr => {
+        const cells = children(tr, "tc").map(tc => {
+          const pars = children(tc, "p").map(p => readParagraph(p, ctx));
+          const inner = pars.map(par => {
+            if (keepRed) checkMedia(q, par);
+            if (par.segments.some(s => s.red && s.text.trim())) red = true;
+            const segs = trimSegments(par.segments.filter(s => keepRed || !s.red));
+            return segs.length ? `<p>${stemParagraphHtml(segs)}</p>` : "";
+          }).join("");
+          return `<td>${inner}</td>`;
+        });
+        return `<tr>${cells.join("")}</tr>`;
+      });
+      return `<table border="1">${rows.join("")}</table>`;
+    };
+    return { table: { full: html(true), blank: html(false) }, red };
+  }
+
+  // Memo paragraphs and tables as HTML; bullet paragraphs become a list
+  function memoHtml(parts) {
+    let html = "";
+    let list = false;
+    for (const p of parts) {
+      const bullet = !p.table && p.numFmt === "bullet";
+      if (bullet !== list) html += bullet ? "<ul>" : "</ul>";
+      list = bullet;
+      if (p.table) html += p.table.full;
+      else {
+        const inner = stemParagraphHtml(trimSegments(p.segments));
+        html += bullet ? `<li>${inner}</li>` : `<p>${inner}</p>`;
+      }
+    }
+    if (list) html += "</ul>";
+    return html;
+  }
+
   function redShare(segments) {
     let red = 0;
     let all = 0;
@@ -323,6 +384,15 @@
       .replace(/^bloom(?:['’]s|s)$/, "bloom");
   }
 
+  // A table with at least one known "Label:" cell is a metadata table
+  function isMetaTable(tbl) {
+    return Array.from(tbl.getElementsByTagNameNS(W, "tc")).some(tc => {
+      const text = cellText(tc);
+      const colon = text.indexOf(":");
+      return colon > 0 && KNOWN_LABELS.has(normaliseLabel(text.slice(0, colon)));
+    });
+  }
+
   function readTable(tbl, q) {
     const seen = new Set();
     for (const tr of children(tbl, "tr")) {
@@ -348,19 +418,36 @@
   }
 
   function finishQuestion(q) {
+    // A numbered stem with no lettered options and no grid is an essay
+    if (q.type === "multichoice" && !q.sawOptions) q.type = "essay";
     const matching = q.type === "matching";
+    const essay = q.type === "essay";
     const opts = q.options || [];
-    if (!matching) {
-      if (!q.sawOptions) flag(q, "no-options", "No options found");
-      else if (opts.length < 2) flag(q, "too-few-options", `Only ${opts.length} option`);
+    if (q.type === "multichoice") {
+      if (opts.length < 2) flag(q, "too-few-options", `Only ${opts.length} option`);
 
       const correct = opts.filter(o => o.correct).length;
-      if (q.sawOptions && correct === 0) flag(q, "no-correct", "No option is marked in red");
+      if (correct === 0) flag(q, "no-correct", "No option is marked in red");
       if (correct > 1) flag(q, "several-correct", `${correct} options are marked in red`);
+      if (q.memoParts.length) flag(q, "red-before-options", "Red text before the options (left out)");
+    }
+    if (essay) {
+      // Answer tables leave the question text for the response template
+      q.responseTemplateHtml = q.stemParts.filter(p => p.table).map(p => p.table.blank).join("");
+      q.stemParts = q.stemParts.filter(p => !p.table);
+      setStem(q);
+      q.graderInfoHtml = memoHtml(q.memoParts);
+      const lines = [...q.stemParts, ...q.memoParts]
+        .filter(p => !p.table)
+        .flatMap(p => p.segments.map(s => (s.brk ? "\n" : s.text)).join("").split("\n"));
+      if (lines.filter(l => TYPED_OPTION_LINE.test(l)).length >= 2) {
+        flag(q, "typed-options", "Looks like an MCQ with unnumbered options");
+      }
+      delete q.options;
     }
 
     if (!q.sawTable) {
-      flag(q, "no-table", `No metadata table after the ${matching ? "grid" : "options"}`);
+      flag(q, "no-table", `No metadata table after the ${matching ? "grid" : essay ? "question" : "options"}`);
     } else if (q.meta.marks == null || q.meta.marks === "") {
       flag(q, "no-marks", "No Marks in the metadata table");
     } else {
@@ -372,7 +459,8 @@
     const seen = new Set();
     for (const label of TAG_LABELS) {
       const tag = (q.meta[label] || "").replace(/\s+/g, " ").trim();
-      if (!tag || seen.has(tag.toLowerCase())) continue;
+      // A placeholder such as "-" is not a tag
+      if (!/[\p{L}\p{N}]/u.test(tag) || seen.has(tag.toLowerCase())) continue;
       seen.add(tag.toLowerCase());
       q.tags.push(tag);
       if (tag.includes(",")) flag(q, "tag-comma", `Tag contains a comma: "${tag}"`);
@@ -380,7 +468,7 @@
     }
 
     // Moodle's answernumbering: ABCD or abc, from the document's option letters
-    if (!matching) {
+    if (q.type === "multichoice") {
       q.numbering = opts.length && opts.every(o => o.letterCase === "lower") ? "abc" : "ABCD";
       opts.forEach((o, i) => {
         o.letter = String.fromCharCode(65 + i);
@@ -393,6 +481,7 @@
     delete q.sawOptions;
     delete q.sawTable;
     delete q.stemParts;
+    delete q.memoParts;
     return q;
   }
 
@@ -419,9 +508,11 @@
     return pars.map(p => p.segments.map(s => s.text).join("")).join(" ").replace(/\s+/g, " ").trim();
   }
 
+  // Stem parts are paragraphs or answer tables ({ table }); a table shows
+  // without its red text
   function setStem(q) {
-    q.stemHtml = q.stemParts.map(p => `<p>${stemParagraphHtml(p.segments)}</p>`).join("");
-    q.stemText = q.stemParts.map(p => plainText([p])).join(" ");
+    q.stemHtml = q.stemParts.map(p => (p.table ? p.table.blank : `<p>${stemParagraphHtml(p.segments)}</p>`)).join("");
+    q.stemText = q.stemParts.filter(p => !p.table).map(p => plainText([p])).join(" ");
   }
 
   // Non-empty paragraphs of a cell; never classified as stems or options
@@ -434,6 +525,17 @@
       out.push(par);
     }
     return out;
+  }
+
+  // A 3-column table is a matching grid only if some row below the header
+  // has a single letter in the middle column
+  function isGrid(tbl) {
+    if (columnCount(tbl) !== 3) return false;
+    const mids = children(tbl, "tr").map(tr => {
+      const tc = children(tr, "tc")[1];
+      return tc ? cellText(tc) : "";
+    });
+    return mids.some(t => SINGLE_LETTER.test(t));
   }
 
   // Columns: description | answer letter | term. Letters point at the
@@ -517,6 +619,9 @@
     // Unnumbered text since the start or the last table: the stem of a
     // matching question if a grid follows
     let loose = [];
+    // Unnumbered text directly before the next stem (no empty paragraph or
+    // table in between): its lead-in, e.g. a scenario
+    let leadIn = [];
 
     const start = () => {
       if (q) questions.push(finishQuestion(q));
@@ -526,6 +631,7 @@
         stemHtml: "",
         stemText: "",
         stemParts: [],
+        memoParts: [],
         options: [],
         marks: null,
         tags: [],
@@ -540,7 +646,8 @@
 
     for (const block of blocksOf(body)) {
       if (block.localName === "tbl") {
-        if (columnCount(block) === 3 && (!q || q.state === "stem" || q.state === "table")) {
+        const essayPart = q && (q.state === "stem" || q.state === "memo");
+        if (isGrid(block) && (!q || q.state === "stem" || q.state === "table")) {
           if (!q || q.state === "table") {
             if (!q) preamble -= loose.length;
             start();
@@ -555,32 +662,70 @@
           if (!q.stemParts.length) flag(q, "no-stem", "No question text before the grid");
           readGrid(block, q, ctx);
           q.state = "grid";
+        } else if (essayPart && !isMetaTable(block)) {
+          // Answer table: blank in the response template (in the stem
+          // until the question turns out to be an essay), full in the memo
+          const { table, red } = answerTable(block, q, ctx);
+          q.stemParts.push({ table });
+          setStem(q);
+          if (red) {
+            q.memoParts.push({ table });
+            q.state = "memo";
+          }
         } else if (q && q.state !== "table") {
           q.sawTable = true;
           q.state = "table";
           readTable(block, q);
         }
         loose = [];
+        leadIn = [];
         continue;
       }
 
       const par = readParagraph(block, ctx);
-      if (isEmpty(par)) continue;
+      if (isEmpty(par)) {
+        leadIn = [];
+        continue;
+      }
       classify(par);
 
       if (par.kind === "question") {
+        // Before question 1 only a scenario or case counts as a lead-in
+        let lead = [];
+        if (!q) {
+          const i = leadIn.map(p => SCENARIO.test(p.text)).lastIndexOf(true);
+          if (i >= 0) lead = leadIn.slice(i);
+          preamble -= lead.length;
+        } else if (q.state === "table") {
+          lead = leadIn;
+        }
         start();
+        lead.forEach(p => checkMedia(q, p));
+        q.stemParts.push(...lead);
         loose = [];
+        leadIn = [];
       } else if (!q) {
         preamble++;
-        if (par.kind === "text") loose.push(par);
+        if (par.kind === "text") {
+          loose.push(par);
+          leadIn.push(par);
+        }
         continue;
       }
 
-      if (par.kind === "question" || (par.kind === "text" && q.state === "stem")) {
+      if (par.kind === "question" || (par.kind === "text" && q.state === "stem" && !isRedParagraph(par))) {
         checkMedia(q, par);
         q.stemParts.push(par);
         setStem(q);
+      } else if (par.kind === "text" && (q.state === "stem" || q.state === "memo")) {
+        // Red text after the stem is the memo (essay grader information)
+        checkMedia(q, par);
+        if (isRedParagraph(par)) {
+          q.memoParts.push(par);
+          q.state = "memo";
+        } else {
+          flag(q, "text-before-table", "Text after the memo that is not red (left out)");
+        }
       } else if (q.state === "grid") {
         checkMedia(q, par);
         flag(q, "text-before-table", "Text between the grid and the table");
@@ -604,13 +749,27 @@
         q.state = "after";
         flag(q, "text-before-table", "Text between the last option and the table");
       } else if (q.state === "table" && par.kind === "text") {
-        // Ignored unless a grid follows
-        loose.push(par);
+        if (isRedParagraph(par)) {
+          // Stray red text, e.g. a reviewer's note: never a lead-in
+          const text = plainText([par]);
+          flag(q, "stray-red", `Red text after the metadata table ignored: "${text.length > 60 ? `${text.slice(0, 60)}…` : text}"`);
+          leadIn = [];
+        } else {
+          // Ignored unless a grid or a stem follows
+          loose.push(par);
+          leadIn.push(par);
+        }
       }
     }
     if (q) questions.push(finishQuestion(q));
 
-    if (preamble) notes.push({ code: "preamble-skipped", message: `Preamble skipped (${preamble} paragraphs)`, count: preamble });
+    if (preamble) {
+      notes.push({
+        code: "preamble-skipped",
+        message: `${preamble} line${preamble === 1 ? "" : "s"} before the first question ignored`,
+        count: preamble
+      });
+    }
     if (!questions.length) notes.push({ code: "no-questions", message: "No numbered questions found" });
     return { questions, notes };
   }
