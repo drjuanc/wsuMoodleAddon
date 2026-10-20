@@ -1,7 +1,7 @@
 # Importer spec (living document)
 
 ## Scope
-- Input: .docx only. PDF is not supported in v1 (text extraction loses font colour).
+- Input: .docx only. PDF is not supported (text extraction loses font colour).
 - Question types: single-answer MCQ now; matching next. Anything else is listed in the preview as "unsupported type" and excluded from the XML.
 - No question editor.
 - Category: by default the XML puts the questions in "From MS Word" under the course's top category (see "Moodle import page"). The lecturer can untick this to use the category selected on the import page.
@@ -27,7 +27,7 @@ JSZip + DOMParser on word/document.xml, numbering.xml and styles.xml. Not mammot
 - w:tab, w:cr and non-page w:br → space in options, line break in stems. Ignore w:lastRenderedPageBreak and page breaks.
 - vertAlign subscript/superscript → `<sub>`/`<sup>`. Keep Unicode sub/superscripts as typed.
 - HTML-escape `<`, `>`, `&`.
-- Images (w:drawing, w:pict) or equations (m:oMath) in a question → flag and exclude in v1.
+- Images (w:drawing, w:pict) or equations (m:oMath) in a question → flag and exclude (not supported yet).
 
 ## Correct answer
 - Run colour w:color/@w:val; fall back to character style, then paragraph style. Ignore the paragraph-mark rPr.
@@ -48,12 +48,19 @@ JSZip + DOMParser on word/document.xml, numbering.xml and styles.xml. Not mammot
 - "Question" with no options; image or equation; unsupported type.
 - Non-empty paragraph between the last option and the table.
 
+## Moodle XML
+- Questions with a blocking flag, or of an unsupported type, are left out.
+- Name = stem text, cut at a word boundary to about 80 characters.
+- multichoice, single answer: right option fraction 100, others 0; default mark from Marks; penalty 0.3333333; answers not shuffled (Word fixes the order and options may refer to each other); numbering abc if every option letter is lower case, otherwise ABCD; no standard instruction; empty feedback.
+- Tags from the metadata table.
+- Optional category question first (see below).
+
 ## Moodle import page (WiSeUp, Moodle 4.3.3+)
 - Detect by body#page-question-bank-importquestions-import. The form id is randomised per load.
 - Format: tick #id_format_xml; nothing is pre-selected.
 - File picker: hidden #id_newfile holds the draft item id. Drag-and-drop handlers are bound to #file_info_<client_id>; client_id changes per load and is in the inline M.form_filepicker.init(...) options. `.dndupload-target` is only the visual highlight.
 - Handlers exist only if the body has the class dndsupported. Moodle calling preventDefault() on drop means the drop was accepted.
-- Attach method: two content scripts. importer.js (isolated world) does all the work; dropper.js (main world) receives the XML and dispatches dragenter/dragover/drop on #file_info_<client_id>. Tested working in Chrome and Firefox (isolated-world drop fails in Firefox). Minimum: Chrome 111, Firefox 128.
+- Attach method: two content scripts. importer.js (isolated world) does all the work; dropper.js (main world) receives the XML and dispatches dragenter/dragover/drop on #file_info_<client_id>. Tested working in Chrome and Firefox (isolated-world drop fails in Firefox). Main-world content scripts need Chrome 111 and Firefox 128; the manifest requires Chrome 121 and Firefox 128.
 - Before a .docx is parsed, the box shows only its heading and the file chooser. The button and checkbox appear with the preview.
 - While the preview is shown, Moodle's file row (#fitem_id_newfile) and Import button row (#fitem_id_submitbutton) get display:none. They are never removed: dropper.js drops onto the picker and the submit clicks #id_submitbutton. They are shown again if parsing fails, if the attach fails, if Moodle's form validation blocks the submit, if another file is chosen, or if the importer switch is turned off.
 - dropper.js must not test the picker's visibility with offsetParent, which is null while its row is hidden.

@@ -14,7 +14,7 @@ It does three things, and you can switch each one on or off separately:
    question bank's Import page, choose a .docx, check the preview, then
    click **Import N questions**. The questions go into the category
    "From MS Word" unless you untick that box, in which case they go into the
-   category selected on the page.
+   category selected on the page. See "Importing questions from Word" below.
 
 ## Switching features on and off
 Click the extension's icon in the Chrome toolbar. A small window opens with
@@ -94,6 +94,35 @@ numbering):
   loses a number or letter at its start (not a roman numeral). The other
   paragraphs are left as they are.
 
+## Importing questions from Word
+**Preparing the document**
+- Number the questions with Word's numbering (`1.`, `2.`, …) and the
+  options with lettered numbering (`A.`, `B.`, … or `a.`, `b.`, …). Typed
+  `1.` and `A.` also work.
+- Colour the right answer **red**. Each question needs exactly one red
+  option.
+- After the options, add a small table with `Marks:` and, if you want
+  tags, `Topic:`, `Task:` and `Bloom:` (one `Label: value` per cell).
+- Only single-answer multiple-choice questions are imported. Questions with
+  pictures or equations are left out.
+
+**Importing**
+1. In your course, open **Question bank → Import**.
+2. In the **Import Word document** box, choose the .docx.
+3. Check the preview. Each question shows its options, right answer and
+   tags; questions that will be left out are greyed out with the reason.
+4. Leave **Import questions into the category 'From MS Word'** ticked to
+   put them in that category (Moodle creates it if needed), or untick it to
+   use the category selected in Moodle's General section.
+5. Click **Import N questions**. The extension attaches the file and
+   clicks Moodle's Import button for you; Moodle then shows its usual
+   import summary.
+
+While the preview is shown, Moodle's own file box and Import button are
+hidden. They come back if anything goes wrong, so you can always import an
+XML file the normal way. The document never leaves your computer: it is
+read and converted inside the browser.
+
 ## Installing and updating
 The extension is not in the Chrome Web Store. It is loaded from a folder on
 your computer.
@@ -115,13 +144,34 @@ your computer.
    already open keep running the old version.
 
 If you are upgrading from 1.3, your previous on/off choice is copied to
-both switches.
+the chat and paste switches; the importer switch starts on.
 
-Works in Chrome, Edge and Brave. The extension collects no data and needs
-only permission to store its two settings.
+Works in Chrome, Edge and Brave (version 121 or later), and in Firefox (see
+below). The extension
+collects no data and needs only permission to store its three settings.
+
+## Installing in Firefox
+Needs Firefox 128 or later.
+
+**For a quick try (temporary):**
+1. Download this repository.
+2. In Firefox, go to `about:debugging`, then **This Firefox**.
+3. Click **Load Temporary Add-on…** and choose `manifest.json` inside the
+   `src` folder.
+
+A temporary add-on is removed when Firefox restarts, so you have to load it
+again each time.
+
+**Permanent install:** Firefox only installs add-ons permanently if they are
+signed by Mozilla. That needs a signed `.xpi` file from
+addons.mozilla.org (AMO); there is none yet.
 
 ## For developers
-Open `test/paste-test.html` in Chrome; the extension does not need to be
+**Question importer:** run `npm install` once, then `npm test` for the
+offline tests of the .docx parser and Moodle XML generator
+(`test/importer.test.js`). The rules are in `docs/importer-spec.md`.
+
+**Paste cleaner:** open `test/paste-test.html` in Chrome; the extension does not need to be
 installed. It has:
 - two editors (TinyMCE-style iframe and Atto-style editable box): paste into
   either to see the raw and cleaned HTML;
