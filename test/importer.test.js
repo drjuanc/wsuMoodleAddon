@@ -1,6 +1,6 @@
 // Offline tests for src/importer/. Run with: npm test
-// Uses test/mock-test.docx and test/mock-matching.docx (dummy items, see
-// test/FIXTURES.md) plus small
+// Uses test/mock-test.docx, test/mock-matching.docx and test/mock-essay.docx
+// (dummy items, see test/FIXTURES.md) plus small
 // .docx files built here for rules the fixture does not exercise.
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
@@ -243,13 +243,13 @@ test("flags: no red, two red, one option, no table, bad marks, stray text, image
     ["no-table"],
     ["bad-marks"],
     ["text-before-table"],
-    ["no-options"],
+    [], // a numbered stem with no options is now an essay
     ["image"],
     ["tag-comma"]
   ]);
   const { included, skipped } = buildMoodleXml(questions);
-  assert.deepEqual(included, [6, 9]);
-  assert.deepEqual(skipped, [1, 2, 3, 4, 5, 7, 8]);
+  assert.deepEqual(included, [6, 7, 9]);
+  assert.deepEqual(skipped, [1, 2, 3, 4, 5, 8]);
 });
 
 test("bold: kept in stems and descriptions, not in options or terms; w:bCs alone ignored", async () => {
@@ -448,11 +448,184 @@ test("preview: matching pairs numbered, distractors, marks, stem HTML; MCQ uncha
 });
 
 test("preview: unsupported type and missing marks", () => {
-  const m = previewModel({ number: 3, type: "essay", stemHtml: "<p>Discuss</p>", marks: null, tags: [], flags: [], excluded: false });
+  const m = previewModel({ number: 3, type: "numerical", stemHtml: "<p>Discuss</p>", marks: null, tags: [], flags: [], excluded: false });
   assert.equal(m.excluded, true);
   assert.deepEqual(m.reasons, ["Unsupported question type"]);
   assert.equal(m.marks, "");
-  assert.equal(m.type, "essay");
+  assert.equal(m.type, "numerical");
+});
+
+// ---- essay: mock-essay.docx ----
+
+const essayFixture = () => parseDocx(fs.readFileSync(path.join(__dirname, "mock-essay.docx")), deps);
+
+test("mock-essay.docx: types, header note, scenarios, memos, answer table, stray red, tags", async () => {
+  const { questions, notes } = await essayFixture();
+
+  assert.deepEqual(questions.map(q => q.type), ["essay", "essay", "multichoice", "essay", "essay", "essay"]);
+  assert.deepEqual(questions.map(q => q.excluded), [false, false, false, false, false, false]);
+  assert.deepEqual(questions.map(q => q.marks), [3, 2, 1, 2, 3, 2]);
+  // Front page: 7 non-empty lines, none of them a scenario
+  assert.deepEqual(notes, [{ code: "preamble-skipped", message: "7 lines before the first question ignored", count: 7 }]);
+  assert.deepEqual(questions.map(codes), [[], [], [], ["stray-red"], [], []]);
+  assert.match(questions[3].flags[0].message, /^Red text after the metadata table ignored: "Reviewer note/);
+
+  const [q1, q2, mcq, q4, q5, q6] = questions;
+  // Scenarios go in front of the following stem; "(n marks)" stays
+  assert.match(q1.stemHtml, /^<p>List three \(3\) common signs.*<strong>\(3 marks\)<\/strong><\/p>$/);
+  assert.match(q2.stemHtml, /^<p><strong>Scenario:<\/strong> A five-year-old.*<sup>0<\/sup>C\. He is otherwise well\.<\/p><p>Use the table below/);
+  assert.match(q4.stemHtml, /^<p><strong>Scenario<\/strong>: A newborn.*<\/p><p>State the term/);
+  assert.match(q5.stemText, /^Scenario: A four-year-old girl.*State three \(3\) simple home care/);
+  assert.match(q6.stemText, /^Scenario: A seven-year-old boy.*Mention the most likely diagnosis/);
+  assert.equal(mcq.stemHtml, "<p>Which muscle contracts during inhalation to increase the volume of the thoracic cavity</p>");
+
+  // Q1: red bullets (EE0000) → list, then the red mark note
+  assert.equal(q1.graderInfoHtml, "<ul><li>Dry mouth,</li><li>Sunken eyes,</li><li>Reduced urine output,</li>" +
+    "<li>Lethargy,</li><li>Fast heart rate,</li><li>No tears when crying.</li></ul><p>(one mark, any 3)</p>");
+  // Q2: question text is the stem only; the answer table goes blank to the
+  // response template and full to the grader
+  assert.match(q2.stemHtml, /<p>Use the table below.*<strong>\(2 marks\)<\/strong><\/p>$/);
+  assert.ok(!q2.stemHtml.includes("<table"));
+  assert.ok(q2.responseTemplateHtml.startsWith("<table border=\"1\">"));
+  assert.ok(q2.responseTemplateHtml.includes("<td><p><strong>Relieve the fever</strong></p></td>"));
+  assert.ok(q2.responseTemplateHtml.includes("<td><p><strong>Drug name</strong></p></td><td></td><td></td>"));
+  assert.ok(!/Paracetamol|Amoxicillin/.test(q2.responseTemplateHtml));
+  assert.equal(q1.responseTemplateHtml, "");
+  assert.ok(q2.graderInfoHtml.startsWith("<table border=\"1\">"));
+  assert.ok(q2.graderInfoHtml.includes("<td><p>Paracetamol or ibuprofen</p></td><td><p>Amoxicillin [if bacterial]</p></td>"));
+  // Q4 (leading bold red spaces) and Q5 (red runs, black paragraph mark)
+  assert.equal(q4.graderInfoHtml, "<p>Low birth weight</p>");
+  assert.equal(q5.graderInfoHtml, "<p>Fluids (1) and rest (1) and saline nose drops (1).</p>");
+  // Q6: only empty paragraphs with red paragraph marks
+  assert.equal(q6.graderInfoHtml, "");
+
+  // MCQ unaffected
+  assert.deepEqual(mcq.options.filter(o => o.correct).map(o => o.letter), ["A"]);
+  assert.equal(mcq.options.length, 4);
+
+  // 3×2 tables: SubT and Module become tags; "-" is not a tag
+  assert.deepEqual(q1.tags, ["Dehydration", "Recognition", "Comprehension", "Signs", "TEST"]);
+  assert.deepEqual(q6.tags, ["Eczema", "Assessment", "Analysis", "TEST"]);
+  assert.deepEqual(mcq.tags, ["Respiration", "Breathing mechanism", "Understanding"]);
+});
+
+test("mock-essay.docx: Moodle XML", async () => {
+  const { questions } = await essayFixture();
+  const { xml, included } = buildMoodleXml(questions);
+  assert.deepEqual(included, [1, 2, 3, 4, 5, 6]);
+
+  const { doc, errors } = xmlErrors(xml);
+  assert.deepEqual(errors, []);
+  const qs = Array.from(doc.getElementsByTagName("question"));
+  assert.deepEqual(qs.map(q => q.getAttribute("type")), ["essay", "essay", "multichoice", "essay", "essay", "essay"]);
+  const get = (q, tag) => q.getElementsByTagName(tag)[0];
+  const essays = qs.filter(q => q.getAttribute("type") === "essay");
+  const fields = { penalty: "0", responseformat: "editor", responserequired: "1", responsefieldlines: "10",
+    attachments: "0", attachmentsrequired: "0" };
+  essays.forEach((q, i) => {
+    for (const [tag, value] of Object.entries(fields)) assert.equal(get(q, tag).textContent, value, `${tag} in essay ${i + 1}`);
+    assert.equal(get(q, "graderinfo").getAttribute("format"), "html");
+    assert.equal(get(q, "responsetemplate").getAttribute("format"), "html");
+    if (i !== 1) assert.equal(get(q, "responsetemplate").textContent.trim(), "");
+    assert.equal(get(q, "generalfeedback").textContent.trim(), "");
+  });
+  assert.deepEqual(essays.map(q => get(q, "defaultgrade").textContent), ["3", "2", "2", "3", "2"]);
+  assert.ok(get(essays[0], "graderinfo").textContent.includes("<ul><li>Dry mouth,</li>"));
+  assert.ok(!get(essays[1], "questiontext").textContent.includes("<table"));
+  assert.ok(get(essays[1], "responsetemplate").textContent.includes("<td></td>"));
+  assert.ok(!get(essays[1], "responsetemplate").textContent.includes("Amoxicillin"));
+  assert.ok(get(essays[1], "graderinfo").textContent.includes("Amoxicillin"));
+  assert.equal(get(essays[4], "graderinfo").textContent.trim(), "");
+  assert.deepEqual(Array.from(essays[0].getElementsByTagName("tag")).map(t => t.textContent),
+    ["Dehydration", "Recognition", "Comprehension", "Signs", "TEST"]);
+});
+
+test("preview: essay memo, no memo, empty options", async () => {
+  const { questions } = await essayFixture();
+  const [m1, m2, mcq, , , m6] = questions.map(previewModel);
+  assert.equal(m1.type, "Essay");
+  assert.deepEqual(m1.options, []);
+  assert.equal(m1.memoHtml, questions[0].graderInfoHtml);
+  assert.equal(m1.stemHtml, questions[0].stemHtml);
+  assert.equal(m6.memoHtml, "");
+  assert.equal(m1.templateHtml, "");
+  assert.equal(m2.templateHtml, questions[1].responseTemplateHtml);
+  assert.equal(m6.excluded, false);
+  assert.equal(mcq.memoHtml, undefined);
+  assert.equal(mcq.answer, "A");
+});
+
+// ---- essay: synthetic documents ----
+
+test("essay: scenario lead-in before question 1, other lead-ins, header ignored", async () => {
+  const { questions, notes } = await docx([
+    para("Header line"),
+    para(""),
+    para("Instructions"),
+    para([run("case", { rPr: "<w:b/>" }), run(" 1 A man with a cough.")]),
+    para("Describe the cause.", { num: Q }),
+    meta(),
+    para("Not a lead-in: an empty paragraph follows"),
+    para(""),
+    para("Lead-in after a table"),
+    para("Second question", { num: Q }),
+    para("a", { num: OPT }),
+    para(run("b", { color: "FF0000" }), { num: OPT }),
+    meta()
+  ].join(""));
+  assert.deepEqual(notes.map(n => n.message), ["2 lines before the first question ignored"]);
+  assert.equal(questions[0].type, "essay");
+  assert.equal(questions[0].stemHtml, "<p><strong>case</strong> 1 A man with a cough.</p><p>Describe the cause.</p>");
+  assert.equal(questions[1].type, "multichoice");
+  assert.equal(questions[1].stemHtml, "<p>Lead-in after a table</p><p>Second question</p>");
+  assert.deepEqual(questions.map(codes), [[], []]);
+});
+
+test("essay: typed options warning; red text before MCQ options", async () => {
+  const br = "<w:r><w:br/></w:r>";
+  const { questions } = await docx([
+    para([run("Which is right?"), br, run("A. one"), br, run("B) two")], { num: Q }),
+    meta(),
+    para([run("Only one typed-looking line:"), br, run("A. maybe")], { num: Q }),
+    para([run("Answer: "), run("see notes", { color: "FF0000" })]),
+    meta(),
+    para("MCQ", { num: Q }),
+    para(run("Hint", { color: "FF0000" })),
+    para(run("a", { color: "FF0000" }), { num: OPT }),
+    para("b", { num: OPT }),
+    meta()
+  ].join(""));
+  assert.deepEqual(questions.map(q => q.type), ["essay", "essay", "multichoice"]);
+  assert.deepEqual(questions.map(codes), [["typed-options"], [], ["red-before-options"]]);
+  assert.equal(questions[0].flags[0].message, "Looks like an MCQ with unnumbered options");
+  assert.equal(questions[0].excluded, false);
+  assert.equal(questions[2].stemHtml, "<p>MCQ</p>");
+});
+
+test("matching grid needs a single letter in the middle column", async () => {
+  const { questions } = await docx([
+    para("Fill in the table", { num: Q }),
+    grid([["Drug", "Dose", "Route"], ["Paracetamol", [run("15 mg/kg", { color: "FF0000" })], [run("oral", { color: "FF0000" })]]]),
+    meta("2"),
+    para("Table with no red", { num: Q }),
+    grid([["Drug", "Dose"], ["Aspirin", "Low"]]),
+    meta(),
+    para("Match them"),
+    grid([HEADER, ["one", "A", "Alpha"], ["two", "B.", "Beta"]]),
+    meta()
+  ].join(""));
+  assert.deepEqual(questions.map(q => q.type), ["essay", "essay", "matching"]);
+  assert.deepEqual(questions.map(codes), [[], [], []]);
+  const [essay, plain, match] = questions;
+  // No red: the table still goes to the response template, nothing to graderinfo
+  assert.equal(plain.stemHtml, "<p>Table with no red</p>");
+  assert.match(plain.responseTemplateHtml, /<td><p>Aspirin<\/p><\/td><td><p>Low<\/p><\/td>/);
+  assert.equal(plain.graderInfoHtml, "");
+  assert.equal(essay.stemHtml, "<p>Fill in the table</p>");
+  assert.ok(essay.responseTemplateHtml.endsWith("<tr><td><p>Paracetamol</p></td><td></td><td></td></tr></table>"));
+  assert.ok(essay.graderInfoHtml.includes("<td><p>15 mg/kg</p></td><td><p>oral</p></td>"));
+  assert.equal(essay.marks, 2);
+  assert.deepEqual(match.pairs.map(p => p.answer), ["Alpha", "Beta"]);
 });
 
 (async () => {

@@ -1,10 +1,13 @@
 # wsuMoodleAddon
 
-Manifest V3 browser extension (Chrome + Firefox) for WiSeUp, the Moodle 4.3 of IWS (iYunivesithi Walter Sisulu). Hides the "Chat to Wale" widget, cleans Word pastes into TinyMCE, and imports single-answer MCQs and matching questions from .docx into the question bank.
+Manifest V3 browser extension (Chrome + Firefox) for WiSeUp, the Moodle 4.3 of IWS (iYunivesithi Walter Sisulu). Hides the "Chat to Wale" widget, cleans Word pastes into TinyMCE, and imports single-answer MCQs, matching and essay questions from .docx into the question bank.
 
 Display name: "WiSeUp Toolkit". The repo, package name (wsu-moodle-addon), gecko id, storage keys and code identifiers keep "wsu"; do not rename them.
 
-Next planned work: short answer questions, on branch `feature/short-answer`.
+Next planned work:
+- Short answer questions, on branch `feature/short-answer`.
+- Question names should come from the stem, not the scenario lead-in.
+- Consider a warning when an MCQ's options lost their numbering and it became an essay.
 
 ## Rules
 - Exam content never leaves the browser: no network calls, LLMs, CDNs, remote code or eval. Bundle libraries locally; ask before adding any dependency.

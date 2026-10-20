@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.2 — 20 October 2026
+- New: the Word importer also imports essay questions: a numbered question
+  with no lettered options. The red memo after it goes into Moodle's
+  information for graders, keeping bullet lists and tables. An answer
+  table goes into the students' answer box with the red answers left empty.
+- A "Scenario: …" paragraph directly above a question is put in front of
+  it, for every question type. Text above question 1 is ignored, with a note.
+- SubT and Module in the metadata table become tags; 3×2 tables are fine.
+- A three-column table counts as a matching grid only if it has answer
+  letters in the middle column.
+- Warnings for stray red text after a metadata table and for essays that
+  look like MCQs with typed options.
+
 ## 2.1 — 20 October 2026
 - New: the Word importer also imports matching questions, written as a
   three-column table (description, answer letter, term) after the question
