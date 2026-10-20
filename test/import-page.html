@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+
+<html  dir="ltr" lang="en" xml:lang="en">
+<head>
+    <title>Import questions from file | WiSeUp</title>
+    <link rel="shortcut icon" href="https://wiseup.wsu.ac.za/pluginfile.php/1/core_admin/favicon/64x64/1779385749/favicon.ico" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="moodle, Import questions from file | WiSeUp" />
+<link rel="stylesheet" type="text/css" href="https://wiseup.wsu.ac.za/theme/yui_combo.php?rollup/3.18.1/yui-moodlesimple-min.css" /><script id="firstthemesheet" type="text/css">/** Required in order to fix style inclusion problems in IE with YUI **/</script><link rel="stylesheet" type="text/css" href="https://wiseup.wsu.ac.za/theme/styles.php/wsu/1779385749_1710279766/all" />
+<script>
+//<![CDATA[
+var M = {}; M.yui = {};
+M.pageloadstarttime = new Date();
+M.cfg = {"wwwroot":"https:\/\/wiseup.wsu.ac.za","homeurl":{},"sesskey":"XXXXXXXXXX","sessiontimeout":"36000","sessiontimeoutwarning":"3600","themerev":"1779385749","slasharguments":1,"theme":"wsu","iconsystemmodule":"core\/icon_system_fontawesome","jsrev":"1779385749","admin":"admin","svgicons":true,"usertimezone":"Africa\/Johannesburg","language":"en","courseId":139588,"courseContextId":1105074,"contextid":1105074,"contextInstanceId":139588,"langrev":1779385749,"templaterev":"1779385749"};var yui1ConfigFn = function(me) {if(/-skin|reset|fonts|grids|base/.test(me.name)){me.type='css';me.path=me.path.replace(/\.js/,'.css');me.path=me.path.replace(/\/yui2-skin/,'/assets/skins/sam/yui2-skin')}};
+var yui2ConfigFn = function(me) {var parts=me.name.replace(/^moodle-/,'').split('-'),component=parts.shift(),module=parts[0],min='-min';if(/-(skin|core)$/.test(me.name)){parts.pop();me.type='css';min=''}
+if(module){var filename=parts.join('-');me.path=component+'/'+module+'/'+filename+min+'.'+me.type}else{me.path=component+'/'+component+'.'+me.type}};
+YUI_config = {"debug":false,"base":"https:\/\/wiseup.wsu.ac.za\/lib\/yuilib\/3.18.1\/","comboBase":"https:\/\/wiseup.wsu.ac.za\/theme\/yui_combo.php?","combine":true,"filter":null,"insertBefore":"firstthemesheet","groups":{"yui2":{"base":"https:\/\/wiseup.wsu.ac.za\/lib\/yuilib\/2in3\/2.9.0\/build\/","comboBase":"https:\/\/wiseup.wsu.ac.za\/theme\/yui_combo.php?","combine":true,"ext":false,"root":"2in3\/2.9.0\/build\/","patterns":{"yui2-":{"group":"yui2","configFn":yui1ConfigFn}}},"moodle":{"name":"moodle","base":"https:\/\/wiseup.wsu.ac.za\/theme\/yui_combo.php?m\/1779385749\/","combine":true,"comboBase":"https:\/\/wiseup.wsu.ac.za\/theme\/yui_combo.php?","ext":false,"root":"m\/1779385749\/","patterns":{"moodle-":{"group":"moodle","configFn":yui2ConfigFn}},"filter":null,"modules":{"moodle-core-handlebars":{"condition":{"trigger":"handlebars","when":"after"}},"moodle-core-event":{"requires":["event-custom"]},"moodle-core-maintenancemodetimer":{"requires":["base","node"]},"moodle-core-blocks":{"requires":["base","node","io","dom","dd","dd-scroll","moodle-core-dragdrop","moodle-core-notification"]},"moodle-core-actionmenu":{"requires":["base","event","node-event-simulate"]},"moodle-core-dragdrop":{"requires":["base","node","io","dom","dd","event-key","event-focus","moodle-core-notification"]},"moodle-core-notification":{"requires":["moodle-core-notification-dialogue","moodle-core-notification-alert","moodle-core-notification-confirm","moodle-core-notification-exception","moodle-core-notification-ajaxexception"]},"moodle-core-notification-dialogue":{"requires":["base","node","panel","escape","event-key","dd-plugin","moodle-core-widget-focusafterclose","moodle-core-lockscroll"]},"moodle-core-notification-alert":{"requires":["moodle-core-notification-dialogue"]},"moodle-core-notification-confirm":{"requires":["moodle-core-notification-dialogue"]},"moodle-core-notification-exception":{"requires":["moodle-core-notification-dialogue"]},"moodle-core-notification-ajaxexception":{"requires":["moodle-core-notification-dialogue"]},"moodle-core-chooserdialogue":{"requires":["base","panel","moodle-core-notification"]},"moodle-core-lockscroll":{"requires":["plugin","base-build"]},"moodle-core-formchangechecker":{"requires":["base","event-focus","moodle-core-event"]},"moodle-core_availability-form":{"requires":["base","node","event","event-delegate","panel","moodle-core-notification-dialogue","json"]},"moodle-backup-backupselectall":{"requires":["node","event","node-event-simulate","anim"]},"moodle-course-management":{"requires":["base","node","io-base","moodle-core-notification-exception","json-parse","dd-constrain","dd-proxy","dd-drop","dd-delegate","node-event-delegate"]},"moodle-course-categoryexpander":{"requires":["node","event-key"]},"moodle-course-dragdrop":{"requires":["base","node","io","dom","dd","dd-scroll","moodle-core-dragdrop","moodle-core-notification","moodle-course-coursebase","moodle-course-util"]},"moodle-course-util":{"requires":["node"],"use":["moodle-course-util-base"],"submodules":{"moodle-course-util-base":{},"moodle-course-util-section":{"requires":["node","moodle-course-util-base"]},"moodle-course-util-cm":{"requires":["node","moodle-course-util-base"]}}},"moodle-form-dateselector":{"requires":["base","node","overlay","calendar"]},"moodle-form-shortforms":{"requires":["node","base","selector-css3","moodle-core-event"]},"moodle-question-searchform":{"requires":["base","node"]},"moodle-question-preview":{"requires":["base","dom","event-delegate","event-key","core_question_engine"]},"moodle-question-chooser":{"requires":["moodle-core-chooserdialogue"]},"moodle-availability_completion-form":{"requires":["base","node","event","moodle-core_availability-form"]},"moodle-availability_date-form":{"requires":["base","node","event","io","moodle-core_availability-form"]},"moodle-availability_grade-form":{"requires":["base","node","event","moodle-core_availability-form"]},"moodle-availability_group-form":{"requires":["base","node","event","moodle-core_availability-form"]},"moodle-availability_grouping-form":{"requires":["base","node","event","moodle-core_availability-form"]},"moodle-availability_profile-form":{"requires":["base","node","event","moodle-core_availability-form"]},"moodle-mod_assign-history":{"requires":["node","transition"]},"moodle-mod_attendance-groupfilter":{"requires":["base","node"]},"moodle-mod_quiz-modform":{"requires":["base","node","event"]},"moodle-mod_quiz-quizbase":{"requires":["base","node"]},"moodle-mod_quiz-autosave":{"requires":["base","node","event","event-valuechange","node-event-delegate","io-form"]},"moodle-mod_quiz-dragdrop":{"requires":["base","node","io","dom","dd","dd-scroll","moodle-core-dragdrop","moodle-core-notification","moodle-mod_quiz-quizbase","moodle-mod_quiz-util-base","moodle-mod_quiz-util-page","moodle-mod_quiz-util-slot","moodle-course-util"]},"moodle-mod_quiz-toolboxes":{"requires":["base","node","event","event-key","io","moodle-mod_quiz-quizbase","moodle-mod_quiz-util-slot","moodle-core-notification-ajaxexception"]},"moodle-mod_quiz-util":{"requires":["node","moodle-core-actionmenu"],"use":["moodle-mod_quiz-util-base"],"submodules":{"moodle-mod_quiz-util-base":{},"moodle-mod_quiz-util-slot":{"requires":["node","moodle-mod_quiz-util-base"]},"moodle-mod_quiz-util-page":{"requires":["node","moodle-mod_quiz-util-base"]}}},"moodle-mod_quiz-questionchooser":{"requires":["moodle-core-chooserdialogue","moodle-mod_quiz-util","querystring-parse"]},"moodle-mod_scheduler-studentlist":{"requires":["base","node","event","io"]},"moodle-mod_scheduler-saveseen":{"requires":["base","node","event"]},"moodle-mod_scheduler-delselected":{"requires":["base","node","event"]},"moodle-message_airnotifier-toolboxes":{"requires":["base","node","io"]},"moodle-filter_glossary-autolinker":{"requires":["base","node","io-base","json-parse","event-delegate","overlay","moodle-core-event","moodle-core-notification-alert","moodle-core-notification-exception","moodle-core-notification-ajaxexception"]},"moodle-editor_atto-rangy":{"requires":[]},"moodle-editor_atto-editor":{"requires":["node","transition","io","overlay","escape","event","event-simulate","event-custom","node-event-html5","node-event-simulate","yui-throttle","moodle-core-notification-dialogue","moodle-editor_atto-rangy","handlebars","timers","querystring-stringify"]},"moodle-editor_atto-plugin":{"requires":["node","base","escape","event","event-outside","handlebars","event-custom","timers","moodle-editor_atto-menu"]},"moodle-editor_atto-menu":{"requires":["moodle-core-notification-dialogue","node","event","event-custom"]},"moodle-report_eventlist-eventfilter":{"requires":["base","event","node","node-event-delegate","datatable","autocomplete","autocomplete-filters"]},"moodle-report_loglive-fetchlogs":{"requires":["base","event","node","io","node-event-delegate"]},"moodle-gradereport_history-userselector":{"requires":["escape","event-delegate","event-key","handlebars","io-base","json-parse","moodle-core-notification-dialogue"]},"moodle-qbank_editquestion-chooser":{"requires":["moodle-core-chooserdialogue"]},"moodle-tool_lp-dragdrop-reorder":{"requires":["moodle-core-dragdrop"]},"moodle-assignfeedback_editpdf-editor":{"requires":["base","event","node","io","graphics","json","event-move","event-resize","transition","querystring-stringify-simple","moodle-core-notification-dialog","moodle-core-notification-alert","moodle-core-notification-warning","moodle-core-notification-exception","moodle-core-notification-ajaxexception"]},"moodle-atto_accessibilitychecker-button":{"requires":["color-base","moodle-editor_atto-plugin"]},"moodle-atto_accessibilityhelper-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_align-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_bold-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_charmap-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_clear-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_collapse-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_emojipicker-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_emoticon-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_equation-button":{"requires":["moodle-editor_atto-plugin","moodle-core-event","io","event-valuechange","tabview","array-extras"]},"moodle-atto_h5p-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_html-button":{"requires":["promise","moodle-editor_atto-plugin","moodle-atto_html-beautify","moodle-atto_html-codemirror","event-valuechange"]},"moodle-atto_html-codemirror":{"requires":["moodle-atto_html-codemirror-skin"]},"moodle-atto_html-beautify":{},"moodle-atto_image-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_indent-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_italic-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_link-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_managefiles-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_managefiles-usedfiles":{"requires":["node","escape"]},"moodle-atto_media-button":{"requires":["moodle-editor_atto-plugin","moodle-form-shortforms"]},"moodle-atto_noautolink-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_orderedlist-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_recordrtc-button":{"requires":["moodle-editor_atto-plugin","moodle-atto_recordrtc-recording"]},"moodle-atto_recordrtc-recording":{"requires":["moodle-atto_recordrtc-button"]},"moodle-atto_rtl-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_strike-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_subscript-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_superscript-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_table-button":{"requires":["moodle-editor_atto-plugin","moodle-editor_atto-menu","event","event-valuechange"]},"moodle-atto_teamsmeeting-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_title-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_underline-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_undo-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_unorderedlist-button":{"requires":["moodle-editor_atto-plugin"]},"moodle-atto_wiris-button":{"requires":["moodle-editor_atto-plugin","get"]}}},"gallery":{"name":"gallery","base":"https:\/\/wiseup.wsu.ac.za\/lib\/yuilib\/gallery\/","combine":true,"comboBase":"https:\/\/wiseup.wsu.ac.za\/theme\/yui_combo.php?","ext":false,"root":"gallery\/1779385749\/","patterns":{"gallery-":{"group":"gallery"}}}},"modules":{"core_filepicker":{"name":"core_filepicker","fullpath":"https:\/\/wiseup.wsu.ac.za\/lib\/javascript.php\/1779385749\/repository\/filepicker.js","requires":["base","node","node-event-simulate","json","async-queue","io-base","io-upload-iframe","io-form","yui2-treeview","panel","cookie","datatable","datatable-sort","resize-plugin","dd-plugin","escape","moodle-core_filepicker","moodle-core-notification-dialogue"]},"core_comment":{"name":"core_comment","fullpath":"https:\/\/wiseup.wsu.ac.za\/lib\/javascript.php\/1779385749\/comment\/comment.js","requires":["base","io-base","node","json","yui2-animation","overlay","escape"]}},"logInclude":[],"logExclude":[],"logLevel":null};
+M.yui.loader = {modules: {}};
+
+//]]>
+</script>
+
+<meta name="moodle-validation" content="d5b57fa6d859a9df79cf3a04534edf9a">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body  id="page-question-bank-importquestions-import" class="format-topics  path-question path-question-bank path-question-bank-importquestions chrome dir-ltr lang-en yui-skin-sam yui3-skin-sam wiseup-wsu-ac-za pagelayout-admin course-139588 context-1105074 category-102 editing theme uses-drawers">
+<div class="toast-wrapper mx-auto py-0 fixed-top" role="status" aria-live="polite"></div>
+<div id="page-wrapper" class="d-print-block">
+
+    <div>
+    <a class="sr-only sr-only-focusable" href="#maincontent">Skip to main content</a>
+</div><script src="https://wiseup.wsu.ac.za/lib/javascript.php/1779385749/lib/polyfills/polyfill.js"></script>
+<script src="https://wiseup.wsu.ac.za/theme/yui_combo.php?rollup/3.18.1/yui-moodlesimple-min.js"></script><script src="https://wiseup.wsu.ac.za/lib/javascript.php/1779385749/lib/javascript-static.js"></script>
+<script>
+//<![CDATA[
+document.body.className += ' jsenabled';
+//]]>
+</script>
+
+
+
+<!-- sanitised: navbar: primary nav, notifications popover, message toggle, user menu, edit-mode switch removed -->
+    
+
+<!-- sanitised: Boost drawers (primary, course index, blocks) removed -->
+    <div id="page" data-region="mainpage" data-usertour="scroller" class="drawers   drag-container">
+        <div id="topofscroll" class="main-inner">
+            <div class="drawer-toggles d-flex">
+                    <div class="drawer-toggler drawer-left-toggle open-nav d-print-none">
+                        <button
+                            class="btn icon-no-margin"
+                            data-toggler="drawers"
+                            data-action="toggle"
+                            data-target="theme_boost-drawers-courseindex"
+                            data-toggle="tooltip"
+                            data-placement="right"
+                            title="Open course index"
+                        >
+                            <span class="sr-only">Open course index</span>
+                            <i class="icon fa fa-list fa-fw " aria-hidden="true"  ></i>
+                        </button>
+                    </div>
+                    <div class="drawer-toggler drawer-right-toggle ml-auto d-print-none">
+                        <button
+                            class="btn icon-no-margin"
+                            data-toggler="drawers"
+                            data-action="toggle"
+                            data-target="theme_boost-drawers-blocks"
+                            data-toggle="tooltip"
+                            data-placement="right"
+                            title="Open block drawer"
+                        >
+                            <span class="sr-only">Open block drawer</span>
+                            <span class="dir-rtl-hide"><i class="icon fa fa-chevron-left fa-fw " aria-hidden="true"  ></i></span>
+                            <span class="dir-ltr-hide"><i class="icon fa fa-chevron-right fa-fw " aria-hidden="true"  ></i></span>
+                        </button>
+                    </div>
+            </div>
+            <header id="page-header" class="header-maxwidth d-print-none px-4 py-6 rounded-top" style="background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIj48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJyZ2IoMjQ4LCAxODcsIDIwOCkiIC8+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjI2LjY2NjY2NjY2NjY2NyIgaGVpZ2h0PSIyNi42NjY2NjY2NjY2NjciIGZpbGw9IiMyMjIiIGZpbGwtb3BhY2l0eT0iMC4wNjMzMzMzMzMzMzMzMzMiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PHJlY3QgeD0iMjYuNjY2NjY2NjY2NjY3IiB5PSIwIiB3aWR0aD0iMjYuNjY2NjY2NjY2NjY3IiBoZWlnaHQ9IjI2LjY2NjY2NjY2NjY2NyIgZmlsbD0iI2RkZCIgZmlsbC1vcGFjaXR5PSIwLjA3MiIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utb3BhY2l0eT0iMC4wMiIgLz48cmVjdCB4PSI1My4zMzMzMzMzMzMzMzMiIHk9IjAiIHdpZHRoPSIyNi42NjY2NjY2NjY2NjciIGhlaWdodD0iMjYuNjY2NjY2NjY2NjY3IiBmaWxsPSIjZGRkIiBmaWxsLW9wYWNpdHk9IjAuMDU0NjY2NjY2NjY2NjY3IiBzdHJva2U9IiMwMDAiIHN0cm9rZS1vcGFjaXR5PSIwLjAyIiAvPjxyZWN0IHg9IjgwIiB5PSIwIiB3aWR0aD0iMjYuNjY2NjY2NjY2NjY3IiBoZWlnaHQ9IjI2LjY2NjY2NjY2NjY2NyIgZmlsbD0iI2RkZCIgZmlsbC1vcGFjaXR5PSIwLjEwNjY2NjY2NjY2NjY3IiBzdHJva2U9IiMwMDAiIHN0cm9rZS1vcGFjaXR5PSIwLjAyIiAvPjxyZWN0IHg9IjEwNi42NjY2NjY2NjY2NyIgeT0iMCIgd2lkdGg9IjI2LjY2NjY2NjY2NjY2NyIgaGVpZ2h0PSIyNi42NjY2NjY2NjY2NjciIGZpbGw9IiNkZGQiIGZpbGwtb3BhY2l0eT0iMC4wNTQ2NjY2NjY2NjY2NjciIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PHJlY3QgeD0iMTMzLjMzMzMzMzMzMzMzIiB5PSIwIiB3aWR0aD0iMjYuNjY2NjY2NjY2NjY3IiBoZWlnaHQ9IjI2LjY2NjY2NjY2NjY2NyIgZmlsbD0iI2RkZCIgZmlsbC1vcGFjaXR5PSIwLjAzNzMzMzMzMzMzMzMzMyIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utb3BhY2l0eT0iMC4wMiIgLz48cmVjdCB4PSIwIiB5PSIyNi42NjY2NjY2NjY2NjciIHdpZHRoPSIyNi42NjY2NjY2NjY2NjciIGhlaWdodD0iMjYuNjY2NjY2NjY2NjY3IiBmaWxsPSIjMjIyIiBmaWxsLW9wYWNpdHk9IjAuMTUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PHJlY3QgeD0iMjYuNjY2NjY2NjY2NjY3IiB5PSIyNi42NjY2NjY2NjY2NjciIHdpZHRoPSIyNi42NjY2NjY2NjY2NjciIGhlaWdodD0iMjYuNjY2NjY2NjY2NjY3IiBmaWxsPSIjZGRkIiBmaWxsLW9wYWNpdHk9IjAuMTQxMzMzMzMzMzMzMzMiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PHJlY3QgeD0iNTMuMzMzMzMzMzMzMzMzIiB5PSIyNi42NjY2NjY2NjY2NjciIHdpZHRoPSIyNi42NjY2NjY2NjY2NjciIGhlaWdodD0iMjYuNjY2NjY2NjY2NjY3IiBmaWxsPSIjZGRkIiBmaWxsLW9wYWNpdHk9IjAuMDIiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PHJlY3QgeD0iODAiIHk9IjI2LjY2NjY2NjY2NjY2NyIgd2lkdGg9IjI2LjY2NjY2NjY2NjY2NyIgaGVpZ2h0PSIyNi42NjY2NjY2NjY2NjciIGZpbGw9IiMyMjIiIGZpbGwtb3BhY2l0eT0iMC4wODA2NjY2NjY2NjY2NjciIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PHJlY3QgeD0iMTA2LjY2NjY2NjY2NjY3IiB5PSIyNi42NjY2NjY2NjY2NjciIHdpZHRoPSIyNi42NjY2NjY2NjY2NjciIGhlaWdodD0iMjYuNjY2NjY2NjY2NjY3IiBmaWxsPSIjZGRkIiBmaWxsLW9wYWNpdHk9IjAuMTI0IiBzdHJva2U9IiMwMDAiIHN0cm9rZS1vcGFjaXR5PSIwLjAyIiAvPjxyZWN0IHg9IjEzMy4zMzMzMzMzMzMzMyIgeT0iMjYuNjY2NjY2NjY2NjY3IiB3aWR0aD0iMjYuNjY2NjY2NjY2NjY3IiBoZWlnaHQ9IjI2LjY2NjY2NjY2NjY2NyIgZmlsbD0iI2RkZCIgZmlsbC1vcGFjaXR5PSIwLjAyIiBzdHJva2U9IiMwMDAiIHN0cm9rZS1vcGFjaXR5PSIwLjAyIiAvPjxyZWN0IHg9IjAiIHk9IjUzLjMzMzMzMzMzMzMzMyIgd2lkdGg9IjI2LjY2NjY2NjY2NjY2NyIgaGVpZ2h0PSIyNi42NjY2NjY2NjY2NjciIGZpbGw9IiMyMjIiIGZpbGwtb3BhY2l0eT0iMC4xMzI2NjY2NjY2NjY2NyIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utb3BhY2l0eT0iMC4wMiIgLz48cmVjdCB4PSIyNi42NjY2NjY2NjY2NjciIHk9IjUzLjMzMzMzMzMzMzMzMyIgd2lkdGg9IjI2LjY2NjY2NjY2NjY2NyIgaGVpZ2h0PSIyNi42NjY2NjY2NjY2NjciIGZpbGw9IiNkZGQiIGZpbGwtb3BhY2l0eT0iMC4xMjQiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PHJlY3QgeD0iNTMuMzMzMzMzMzMzMzMzIiB5PSI1My4zMzMzMzMzMzMzMzMiIHdpZHRoPSIyNi42NjY2NjY2NjY2NjciIGhlaWdodD0iMjYuNjY2NjY2NjY2NjY3IiBmaWxsPSIjMjIyIiBmaWxsLW9wYWNpdHk9IjAuMDQ2IiBzdHJva2U9IiMwMDAiIHN0cm9rZS1vcGFjaXR5PSIwLjAyIiAvPjxyZWN0IHg9IjgwIiB5PSI1My4zMzMzMzMzMzMzMzMiIHdpZHRoPSIyNi42NjY2NjY2NjY2NjciIGhlaWdodD0iMjYuNjY2NjY2NjY2NjY3IiBmaWxsPSIjZGRkIiBmaWxsLW9wYWNpdHk9IjAuMDU0NjY2NjY2NjY2NjY3IiBzdHJva2U9IiMwMDAiIHN0cm9rZS1vcGFjaXR5PSIwLjAyIiAvPjxyZWN0IHg9IjEwNi42NjY2NjY2NjY2NyIgeT0iNTMuMzMzMzMzMzMzMzMzIiB3aWR0aD0iMjYuNjY2NjY2NjY2NjY3IiBoZWlnaHQ9IjI2LjY2NjY2NjY2NjY2NyIgZmlsbD0iIzIyMiIgZmlsbC1vcGFjaXR5PSIwLjA0NiIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utb3BhY2l0eT0iMC4wMiIgLz48cmVjdCB4PSIxMzMuMzMzMzMzMzMzMzMiIHk9IjUzLjMzMzMzMzMzMzMzMyIgd2lkdGg9IjI2LjY2NjY2NjY2NjY2NyIgaGVpZ2h0PSIyNi42NjY2NjY2NjY2NjciIGZpbGw9IiNkZGQiIGZpbGwtb3BhY2l0eT0iMC4wNzIiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PHJlY3QgeD0iMCIgeT0iODAiIHdpZHRoPSIyNi42NjY2NjY2NjY2NjciIGhlaWdodD0iMjYuNjY2NjY2NjY2NjY3IiBmaWxsPSIjZGRkIiBmaWxsLW9wYWNpdHk9IjAuMTI0IiBzdHJva2U9IiMwMDAiIHN0cm9rZS1vcGFjaXR5PSIwLjAyIiAvPjxyZWN0IHg9IjI2LjY2NjY2NjY2NjY2NyIgeT0iODAiIHdpZHRoPSIyNi42NjY2NjY2NjY2NjciIGhlaWdodD0iMjYuNjY2NjY2NjY2NjY3IiBmaWxsPSIjZGRkIiBmaWxsLW9wYWNpdHk9IjAuMDM3MzMzMzMzMzMzMzMzIiBzdHJva2U9IiMwMDAiIHN0cm9rZS1vcGFjaXR5PSIwLjAyIiAvPjxyZWN0IHg9IjUzLjMzMzMzMzMzMzMzMyIgeT0iODAiIHdpZHRoPSIyNi42NjY2NjY2NjY2NjciIGhlaWdodD0iMjYuNjY2NjY2NjY2NjY3IiBmaWxsPSIjMjIyIiBmaWxsLW9wYWNpdHk9IjAuMDk4IiBzdHJva2U9IiMwMDAiIHN0cm9rZS1vcGFjaXR5PSIwLjAyIiAvPjxyZWN0IHg9IjgwIiB5PSI4MCIgd2lkdGg9IjI2LjY2NjY2NjY2NjY2NyIgaGVpZ2h0PSIyNi42NjY2NjY2NjY2NjciIGZpbGw9IiMyMjIiIGZpbGwtb3BhY2l0eT0iMC4xNSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utb3BhY2l0eT0iMC4wMiIgLz48cmVjdCB4PSIxMDYuNjY2NjY2NjY2NjciIHk9IjgwIiB3aWR0aD0iMjYuNjY2NjY2NjY2NjY3IiBoZWlnaHQ9IjI2LjY2NjY2NjY2NjY2NyIgZmlsbD0iI2RkZCIgZmlsbC1vcGFjaXR5PSIwLjEyNCIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utb3BhY2l0eT0iMC4wMiIgLz48cmVjdCB4PSIxMzMuMzMzMzMzMzMzMzMiIHk9IjgwIiB3aWR0aD0iMjYuNjY2NjY2NjY2NjY3IiBoZWlnaHQ9IjI2LjY2NjY2NjY2NjY2NyIgZmlsbD0iIzIyMiIgZmlsbC1vcGFjaXR5PSIwLjEzMjY2NjY2NjY2NjY3IiBzdHJva2U9IiMwMDAiIHN0cm9rZS1vcGFjaXR5PSIwLjAyIiAvPjxyZWN0IHg9IjAiIHk9IjEwNi42NjY2NjY2NjY2NyIgd2lkdGg9IjI2LjY2NjY2NjY2NjY2NyIgaGVpZ2h0PSIyNi42NjY2NjY2NjY2NjciIGZpbGw9IiMyMjIiIGZpbGwtb3BhY2l0eT0iMC4xMTUzMzMzMzMzMzMzMyIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utb3BhY2l0eT0iMC4wMiIgLz48cmVjdCB4PSIyNi42NjY2NjY2NjY2NjciIHk9IjEwNi42NjY2NjY2NjY2NyIgd2lkdGg9IjI2LjY2NjY2NjY2NjY2NyIgaGVpZ2h0PSIyNi42NjY2NjY2NjY2NjciIGZpbGw9IiMyMjIiIGZpbGwtb3BhY2l0eT0iMC4xNSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utb3BhY2l0eT0iMC4wMiIgLz48cmVjdCB4PSI1My4zMzMzMzMzMzMzMzMiIHk9IjEwNi42NjY2NjY2NjY2NyIgd2lkdGg9IjI2LjY2NjY2NjY2NjY2NyIgaGVpZ2h0PSIyNi42NjY2NjY2NjY2NjciIGZpbGw9IiNkZGQiIGZpbGwtb3BhY2l0eT0iMC4xMjQiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PHJlY3QgeD0iODAiIHk9IjEwNi42NjY2NjY2NjY2NyIgd2lkdGg9IjI2LjY2NjY2NjY2NjY2NyIgaGVpZ2h0PSIyNi42NjY2NjY2NjY2NjciIGZpbGw9IiNkZGQiIGZpbGwtb3BhY2l0eT0iMC4wMzczMzMzMzMzMzMzMzMiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PHJlY3QgeD0iMTA2LjY2NjY2NjY2NjY3IiB5PSIxMDYuNjY2NjY2NjY2NjciIHdpZHRoPSIyNi42NjY2NjY2NjY2NjciIGhlaWdodD0iMjYuNjY2NjY2NjY2NjY3IiBmaWxsPSIjZGRkIiBmaWxsLW9wYWNpdHk9IjAuMTQxMzMzMzMzMzMzMzMiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PHJlY3QgeD0iMTMzLjMzMzMzMzMzMzMzIiB5PSIxMDYuNjY2NjY2NjY2NjciIHdpZHRoPSIyNi42NjY2NjY2NjY2NjciIGhlaWdodD0iMjYuNjY2NjY2NjY2NjY3IiBmaWxsPSIjMjIyIiBmaWxsLW9wYWNpdHk9IjAuMTUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PHJlY3QgeD0iMCIgeT0iMTMzLjMzMzMzMzMzMzMzIiB3aWR0aD0iMjYuNjY2NjY2NjY2NjY3IiBoZWlnaHQ9IjI2LjY2NjY2NjY2NjY2NyIgZmlsbD0iIzIyMiIgZmlsbC1vcGFjaXR5PSIwLjE1IiBzdHJva2U9IiMwMDAiIHN0cm9rZS1vcGFjaXR5PSIwLjAyIiAvPjxyZWN0IHg9IjI2LjY2NjY2NjY2NjY2NyIgeT0iMTMzLjMzMzMzMzMzMzMzIiB3aWR0aD0iMjYuNjY2NjY2NjY2NjY3IiBoZWlnaHQ9IjI2LjY2NjY2NjY2NjY2NyIgZmlsbD0iI2RkZCIgZmlsbC1vcGFjaXR5PSIwLjAzNzMzMzMzMzMzMzMzMyIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utb3BhY2l0eT0iMC4wMiIgLz48cmVjdCB4PSI1My4zMzMzMzMzMzMzMzMiIHk9IjEzMy4zMzMzMzMzMzMzMyIgd2lkdGg9IjI2LjY2NjY2NjY2NjY2NyIgaGVpZ2h0PSIyNi42NjY2NjY2NjY2NjciIGZpbGw9IiNkZGQiIGZpbGwtb3BhY2l0eT0iMC4wNzIiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PHJlY3QgeD0iODAiIHk9IjEzMy4zMzMzMzMzMzMzMyIgd2lkdGg9IjI2LjY2NjY2NjY2NjY2NyIgaGVpZ2h0PSIyNi42NjY2NjY2NjY2NjciIGZpbGw9IiNkZGQiIGZpbGwtb3BhY2l0eT0iMC4wNzIiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PHJlY3QgeD0iMTA2LjY2NjY2NjY2NjY3IiB5PSIxMzMuMzMzMzMzMzMzMzMiIHdpZHRoPSIyNi42NjY2NjY2NjY2NjciIGhlaWdodD0iMjYuNjY2NjY2NjY2NjY3IiBmaWxsPSIjMjIyIiBmaWxsLW9wYWNpdHk9IjAuMTE1MzMzMzMzMzMzMzMiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PHJlY3QgeD0iMTMzLjMzMzMzMzMzMzMzIiB5PSIxMzMuMzMzMzMzMzMzMzMiIHdpZHRoPSIyNi42NjY2NjY2NjY2NjciIGhlaWdodD0iMjYuNjY2NjY2NjY2NjY3IiBmaWxsPSIjZGRkIiBmaWxsLW9wYWNpdHk9IjAuMTQxMzMzMzMzMzMzMzMiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIC8+PC9zdmc+);">
+    <div class="w-100">
+        <div class="d-flex flex-wrap">
+            <div class="ml-auto d-flex">
+                
+            </div>
+
+            <div id="course-header">
+                
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center bg-white bg-blur p-3 rounded">
+            <div class="mr-auto">
+                    <div class="page-context-header"><div class="page-header-headings"><h1 class="h2 mb-0">TEST COURSE</h1></div></div>
+
+                    <div id="page-navbar">
+                        <nav aria-label="Navigation bar">
+    <ol class="breadcrumb"></ol>
+</nav>
+                    </div>
+            </div>
+
+            <div class="header-actions-container ml-auto" data-region="header-actions-container">
+            </div>
+        </div>
+    </div>
+</header>
+<!-- sanitised: secondary navigation removed -->
+            <div id="page-content" class="pb-3 d-print-block">
+                <div id="region-main-box">
+                    <section id="region-main" aria-label="Content">
+
+                        <span class="notifications mx-4" id="user-notifications"></span>
+                        <div role="main"><span id="maincontent"></span><div class="container-fluid tertiary-navigation">
+    <div class="row">
+            <div class="navitem">
+                <div class="urlselect">
+                    <form method="post" action="https://wiseup.wsu.ac.za/course/jumpto.php" class="form-inline" id="questionbankaction">
+                        <input type="hidden" name="sesskey" value="XXXXXXXXXX">
+                            <label for="url_select6ad76a5a5042e7" class="accesshide">
+                                Question bank tertiary navigation
+                            </label>
+                        <select  id="url_select6ad76a5a5042e7" class="custom-select urlselect" name="jump"
+                                 >
+                                    <option value="/question/edit.php?courseid=139588" >Questions</option>
+                                    <option value="/question/bank/exportquestions/export.php?courseid=139588" >Export</option>
+                                    <option value="/question/bank/importquestions/import.php?courseid=139588" selected>Import</option>
+                                    <option value="/question/bank/managecategories/category.php?courseid=139588" >Categories</option>
+                        </select>
+                            <noscript>
+                                <input type="submit" class="btn btn-secondary ml-1" value="Go">
+                            </noscript>
+                    </form>
+                </div>
+            </div>
+    </div>
+</div><h2>Import questions from file<a class="btn btn-link p-0" role="button"
+    data-container="body" data-toggle="popover"
+    data-placement="right" data-content="&lt;div class=&quot;no-overflow&quot;&gt;&lt;p&gt;This function enables questions in a variety of formats to be imported via text file. Note that the file must use UTF-8 encoding.&lt;/p&gt;
+&lt;/div&gt; &lt;div class=&quot;helpdoclink&quot;&gt;&lt;a href=&quot;https://docs.moodle.org/403/en/question/import&quot;&gt;&lt;i class=&quot;icon fa fa-book fa-fw iconhelp icon-pre&quot; aria-hidden=&quot;true&quot;  &gt;&lt;/i&gt;More help&lt;/a&gt;&lt;/div&gt;"
+    data-html="true" tabindex="0" data-trigger="focus" aria-label="Help">
+  <i class="icon fa fa-question-circle text-info fa-fw "  title="Help with Import questions from file" role="img" aria-label="Help with Import questions from file"></i>
+</a></h2>
+<form autocomplete="off" action="https://wiseup.wsu.ac.za/question/bank/importquestions/import.php" method="post" accept-charset="utf-8" id="mform1_BLVZH0d4WMJgezk" class="mform">
+	<div style="display: none;"><input type="hidden" name="courseid" value="139588" />
+<input name="sesskey" type="hidden" value="XXXXXXXXXX" />
+<input name="_qf__qbank_importquestions_form_question_import_form" type="hidden" value="1" />
+<input name="mform_isexpanded_id_fileformat" type="hidden" value="1" />
+<input name="mform_isexpanded_id_general" type="hidden" value="0" />
+<input name="mform_isexpanded_id_importfileupload" type="hidden" value="1" />
+</div>
+<div class="collapsible-actions">
+    <a id="collapsesections6ad76a5a66f596ad76a5a5042e8" href="#" aria-expanded="false" class="btn btn-link p-1 collapseexpand collapsemenu collapsed" role="button">
+        <span class="collapseall">Collapse all</span>
+        <span class="expandall">Expand all</span>
+    </a>
+</div>
+
+	<fieldset class="clearfix collapsible"  id="id_fileformat"><legend class="sr-only">File format</legend>
+<div class="d-flex align-items-center mb-2">
+    <div class="position-relative d-flex ftoggler align-items-center position-relative mr-1">
+            <a data-toggle="collapse"
+               href="#id_fileformatcontainer"
+               role="button"
+               aria-expanded="true"
+               aria-controls="id_fileformatcontainer"
+               class="btn btn-icon mr-1 icons-collapse-expand stretched-link fheader "
+            >
+                <span class="expanded-icon icon-no-margin p-2" title="Collapse">
+                    <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"  ></i>
+                </span>
+                <span class="collapsed-icon icon-no-margin p-2" title="Expand">
+                    <span class="dir-rtl-hide"><i class="icon fa fa-chevron-right fa-fw " aria-hidden="true"  ></i></span>
+                    <span class="dir-ltr-hide"><i class="icon fa fa-chevron-left fa-fw " aria-hidden="true"  ></i></span>
+                </span>
+                <span class="sr-only">File format</span>
+            </a>
+        <h3 class="d-flex align-self-stretch align-items-center mb-0" aria-hidden="true">
+            File format
+        </h3>
+    </div>
+    
+</div>
+<div id="id_fileformatcontainer" class="fcontainer collapseable collapse  show"><div id="fgroup_id_formatchoices" class="form-group row  fitem femptylabel   " data-groupname="formatchoices">
+    <div class="col-md-3 col-form-label d-flex pb-0 pr-md-0">
+        
+        <div class="form-label-addon d-flex align-items-center align-self-start">
+                <div class="text-danger" title="Required">
+                <i class="icon fa fa-exclamation-circle text-danger fa-fw "  title="Required" role="img" aria-label="Required"></i>
+                </div>
+            
+        </div>
+    </div>
+    <div class="col-md-9 form-inline align-items-start felement" data-fieldtype="group">
+        <fieldset class="w-100 m-0 p-0 border-0">
+            <div class="d-flex flex-wrap align-items-center">
+                
+                <label class="form-check-inline form-check-label  fitem  ">
+
+<input type="radio" class="form-check-input " name="format"
+    id="id_format_aiken" value="aiken"
+    
+    
+     >
+    Aiken format
+</label>
+
+<span class="form-control-feedback invalid-feedback" id="id_error_format_aiken" >
+    
+</span>
+                <a class="btn btn-link p-0" role="button"
+    data-container="body" data-toggle="popover"
+    data-placement="right" data-content="&lt;div class=&quot;no-overflow&quot;&gt;&lt;p&gt;This is a simple format for importing multiple choice questions from a text file.&lt;/p&gt;
+&lt;/div&gt; &lt;div class=&quot;helpdoclink&quot;&gt;&lt;a href=&quot;https://docs.moodle.org/403/en/qformat/aiken&quot;&gt;&lt;i class=&quot;icon fa fa-book fa-fw iconhelp icon-pre&quot; aria-hidden=&quot;true&quot;  &gt;&lt;/i&gt;More help&lt;/a&gt;&lt;/div&gt;"
+    data-html="true" tabindex="0" data-trigger="focus" aria-label="Help">
+  <i class="icon fa fa-question-circle text-info fa-fw "  title="Help with Aiken format" role="img" aria-label="Help with Aiken format"></i>
+</a><div class="w-100"></div>
+                <label class="form-check-inline form-check-label  fitem  ">
+
+<input type="radio" class="form-check-input " name="format"
+    id="id_format_blackboard_six" value="blackboard_six"
+    
+    
+     >
+    Blackboard
+</label>
+
+<span class="form-control-feedback invalid-feedback" id="id_error_format_blackboard_six" >
+    
+</span>
+                <a class="btn btn-link p-0" role="button"
+    data-container="body" data-toggle="popover"
+    data-placement="right" data-content="&lt;div class=&quot;no-overflow&quot;&gt;&lt;p&gt;Blackboard format enables questions saved in all Blackboard export formats to be imported via a dat or zip file. For zip files, images import is supported.&lt;/p&gt;
+&lt;/div&gt; "
+    data-html="true" tabindex="0" data-trigger="focus" aria-label="Help">
+  <i class="icon fa fa-question-circle text-info fa-fw "  title="Help with Blackboard" role="img" aria-label="Help with Blackboard"></i>
+</a><div class="w-100"></div>
+                <label class="form-check-inline form-check-label  fitem  ">
+
+<input type="radio" class="form-check-input " name="format"
+    id="id_format_multianswer" value="multianswer"
+    
+    
+     >
+    Embedded answers (Cloze)
+</label>
+
+<span class="form-control-feedback invalid-feedback" id="id_error_format_multianswer" >
+    
+</span>
+                <a class="btn btn-link p-0" role="button"
+    data-container="body" data-toggle="popover"
+    data-placement="right" data-content="&lt;div class=&quot;no-overflow&quot;&gt;&lt;p&gt;Embedded answers (Cloze) format enables the import of a passage of text with questions such as multiple-choice and short answer embedded within it.&lt;/p&gt;
+&lt;/div&gt; &lt;div class=&quot;helpdoclink&quot;&gt;&lt;a href=&quot;https://docs.moodle.org/403/en/question/type/multianswer&quot;&gt;&lt;i class=&quot;icon fa fa-book fa-fw iconhelp icon-pre&quot; aria-hidden=&quot;true&quot;  &gt;&lt;/i&gt;More help&lt;/a&gt;&lt;/div&gt;"
+    data-html="true" tabindex="0" data-trigger="focus" aria-label="Help">
+  <i class="icon fa fa-question-circle text-info fa-fw "  title="Help with Embedded answers (Cloze)" role="img" aria-label="Help with Embedded answers (Cloze)"></i>
+</a><div class="w-100"></div>
+                <label class="form-check-inline form-check-label  fitem  ">
+
+<input type="radio" class="form-check-input " name="format"
+    id="id_format_gift" value="gift"
+    
+    
+     >
+    GIFT format
+</label>
+
+<span class="form-control-feedback invalid-feedback" id="id_error_format_gift" >
+    
+</span>
+                <a class="btn btn-link p-0" role="button"
+    data-container="body" data-toggle="popover"
+    data-placement="right" data-content="&lt;div class=&quot;no-overflow&quot;&gt;&lt;p&gt;GIFT format enables multiple choice, true/false, short answer, matching, missing word, numerical and essay questions to be imported or exported via text file.&lt;/p&gt;
+&lt;/div&gt; &lt;div class=&quot;helpdoclink&quot;&gt;&lt;a href=&quot;https://docs.moodle.org/403/en/qformat/gift&quot;&gt;&lt;i class=&quot;icon fa fa-book fa-fw iconhelp icon-pre&quot; aria-hidden=&quot;true&quot;  &gt;&lt;/i&gt;More help&lt;/a&gt;&lt;/div&gt;"
+    data-html="true" tabindex="0" data-trigger="focus" aria-label="Help">
+  <i class="icon fa fa-question-circle text-info fa-fw "  title="Help with GIFT format" role="img" aria-label="Help with GIFT format"></i>
+</a><div class="w-100"></div>
+                <label class="form-check-inline form-check-label  fitem  ">
+
+<input type="radio" class="form-check-input " name="format"
+    id="id_format_missingword" value="missingword"
+    
+    
+     >
+    Missing word format
+</label>
+
+<span class="form-control-feedback invalid-feedback" id="id_error_format_missingword" >
+    
+</span>
+                <a class="btn btn-link p-0" role="button"
+    data-container="body" data-toggle="popover"
+    data-placement="right" data-content="&lt;div class=&quot;no-overflow&quot;&gt;&lt;p&gt;Missing word format enables questions to be imported via text file.&lt;/p&gt;
+&lt;/div&gt; &lt;div class=&quot;helpdoclink&quot;&gt;&lt;a href=&quot;https://docs.moodle.org/403/en/qformat/missingword&quot;&gt;&lt;i class=&quot;icon fa fa-book fa-fw iconhelp icon-pre&quot; aria-hidden=&quot;true&quot;  &gt;&lt;/i&gt;More help&lt;/a&gt;&lt;/div&gt;"
+    data-html="true" tabindex="0" data-trigger="focus" aria-label="Help">
+  <i class="icon fa fa-question-circle text-info fa-fw "  title="Help with Missing word format" role="img" aria-label="Help with Missing word format"></i>
+</a><div class="w-100"></div>
+                <label class="form-check-inline form-check-label  fitem  ">
+
+<input type="radio" class="form-check-input " name="format"
+    id="id_format_xml" value="xml"
+    
+    
+     >
+    Moodle XML format
+</label>
+
+<span class="form-control-feedback invalid-feedback" id="id_error_format_xml" >
+    
+</span>
+                <a class="btn btn-link p-0" role="button"
+    data-container="body" data-toggle="popover"
+    data-placement="right" data-content="&lt;div class=&quot;no-overflow&quot;&gt;&lt;p&gt;This is a Moodle-specific format for importing and exporting questions.&lt;/p&gt;
+&lt;/div&gt; &lt;div class=&quot;helpdoclink&quot;&gt;&lt;a href=&quot;https://docs.moodle.org/403/en/qformat/xml&quot;&gt;&lt;i class=&quot;icon fa fa-book fa-fw iconhelp icon-pre&quot; aria-hidden=&quot;true&quot;  &gt;&lt;/i&gt;More help&lt;/a&gt;&lt;/div&gt;"
+    data-html="true" tabindex="0" data-trigger="focus" aria-label="Help">
+  <i class="icon fa fa-question-circle text-info fa-fw "  title="Help with Moodle XML format" role="img" aria-label="Help with Moodle XML format"></i>
+</a><div class="w-100"></div>
+                
+            </div>
+        </fieldset>
+        <div class="form-control-feedback invalid-feedback" id="fgroup_id_error_formatchoices" >
+            
+        </div>
+    </div>
+</div>
+		</div></fieldset>
+	<fieldset class="clearfix collapsible collapsed"  id="id_general"><legend class="sr-only">General</legend>
+<div class="d-flex align-items-center mb-2">
+    <div class="position-relative d-flex ftoggler align-items-center position-relative mr-1">
+            <a data-toggle="collapse"
+               href="#id_generalcontainer"
+               role="button"
+               aria-expanded="false"
+               aria-controls="id_generalcontainer"
+               class="btn btn-icon mr-1 icons-collapse-expand stretched-link fheader collapsed"
+            >
+                <span class="expanded-icon icon-no-margin p-2" title="Collapse">
+                    <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"  ></i>
+                </span>
+                <span class="collapsed-icon icon-no-margin p-2" title="Expand">
+                    <span class="dir-rtl-hide"><i class="icon fa fa-chevron-right fa-fw " aria-hidden="true"  ></i></span>
+                    <span class="dir-ltr-hide"><i class="icon fa fa-chevron-left fa-fw " aria-hidden="true"  ></i></span>
+                </span>
+                <span class="sr-only">General</span>
+            </a>
+        <h3 class="d-flex align-self-stretch align-items-center mb-0" aria-hidden="true">
+            General
+        </h3>
+    </div>
+    
+</div>
+<div id="id_generalcontainer" class="fcontainer collapseable collapse  "><div id="fitem_id_category" class="form-group row  fitem    " >
+    <div class="col-md-3 col-form-label d-flex pb-0 pr-md-0">
+        
+                <label id="id_category_label" class="d-inline word-break " for="id_category">
+                    Import category
+                </label>
+        
+        <div class="form-label-addon d-flex align-items-center align-self-start">
+            <a class="btn btn-link p-0" role="button"
+    data-container="body" data-toggle="popover"
+    data-placement="right" data-content="&lt;div class=&quot;no-overflow&quot;&gt;&lt;p&gt;This setting determines the category into which the imported questions will go.&lt;/p&gt;
+
+&lt;p&gt;Certain import formats, such as GIFT and Moodle XML, may include category and context data in the import file. To make use of this data, rather than the selected category, the appropriate checkboxes should be ticked. If categories specified in the import file do not exist, they will be created.&lt;/p&gt;
+&lt;/div&gt; "
+    data-html="true" tabindex="0" data-trigger="focus" aria-label="Help">
+  <i class="icon fa fa-question-circle text-info fa-fw "  title="Help with Import category" role="img" aria-label="Help with Import category"></i>
+</a>
+        </div>
+    </div>
+    <div class="col-md-9 form-inline align-items-start felement" data-fieldtype="questioncategory">
+        <select class="form-control custom-select " name="category"
+            id="id_category"
+            
+            
+             >
+            <optgroup label="Course: TEST101">
+            <option value="1001,1105074" selected  >Default for TEST101 (3)</option>
+            <option value="1002,1105074"   >&nbsp;&nbsp;&nbsp;Fake category A (2)</option>
+            <option value="1003,1105074"   >&nbsp;&nbsp;&nbsp;Fake category B &amp; C (1)</option>
+        </select>
+        <div class="form-control-feedback invalid-feedback" id="id_error_category" >
+            
+        </div>
+    </div>
+</div><div id="fgroup_id_categorygroup" class="form-group row  fitem femptylabel   " data-groupname="categorygroup">
+    <div class="col-md-3 col-form-label d-flex pb-0 pr-md-0">
+        
+        <div class="form-label-addon d-flex align-items-center align-self-start">
+            
+        </div>
+    </div>
+    <div class="col-md-9 form-inline align-items-start felement" data-fieldtype="group">
+        <fieldset class="w-100 m-0 p-0 border-0">
+            <div class="d-flex flex-wrap align-items-center">
+                
+                <label data-fieldtype="checkbox" class="form-check  fitem  ">
+<input type="checkbox" name="catfromfile" class="form-check-input "
+    id="id_catfromfile"
+        value="1"
+    checked
+     >
+    Get category from file
+</label>
+
+<span class="form-control-feedback invalid-feedback" id="id_error_catfromfile" >
+    
+</span>
+                
+                <label data-fieldtype="checkbox" class="form-check  fitem  ">
+<input type="checkbox" name="contextfromfile" class="form-check-input "
+    id="id_contextfromfile"
+        value="1"
+    checked
+     >
+    Get context from file
+</label>
+
+<span class="form-control-feedback invalid-feedback" id="id_error_contextfromfile" >
+    
+</span>
+            </div>
+        </fieldset>
+        <div class="form-control-feedback invalid-feedback" id="fgroup_id_error_categorygroup" >
+            
+        </div>
+    </div>
+</div><div id="fitem_id_matchgrades" class="form-group row  fitem    " >
+    <div class="col-md-3 col-form-label d-flex pb-0 pr-md-0">
+        
+                <label id="id_matchgrades_label" class="d-inline word-break " for="id_matchgrades">
+                    Match grades
+                </label>
+        
+        <div class="form-label-addon d-flex align-items-center align-self-start">
+            <a class="btn btn-link p-0" role="button"
+    data-container="body" data-toggle="popover"
+    data-placement="right" data-content="&lt;div class=&quot;no-overflow&quot;&gt;&lt;p&gt;Imported grades must match one of the fixed list of valid grades - 100, 90, 80, 75, 70, 66.666, 60, 50, 40, 33.333, 30, 25, 20, 16.666, 14.2857, 12.5, 11.111, 10, 5, 0 (also negative values). If not, there are two options:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Error if grade not listed - If a question contains any grades not found in the list an error is displayed and that question will not be imported&lt;/li&gt;
+&lt;li&gt;Nearest grade if not listed - If a grade is found that does not match a value in the list, the grade is changed to the closest matching value in the list&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt; "
+    data-html="true" tabindex="0" data-trigger="focus" aria-label="Help">
+  <i class="icon fa fa-question-circle text-info fa-fw "  title="Help with Match grades" role="img" aria-label="Help with Match grades"></i>
+</a>
+        </div>
+    </div>
+    <div class="col-md-9 form-inline align-items-start felement" data-fieldtype="select">
+        <select class="custom-select
+                       
+                       "
+            name="matchgrades"
+            id="id_matchgrades"
+            
+            
+             >
+            <option value="error" selected 
+                >Error if grade not listed</option>
+            <option value="nearest"  
+                >Nearest grade if not listed</option>
+        </select>
+        <div class="form-control-feedback invalid-feedback" id="id_error_matchgrades" >
+            
+        </div>
+    </div>
+</div><div id="fitem_id_stoponerror" class="form-group row  fitem    " >
+    <div class="col-md-3 col-form-label d-flex pb-0 pr-md-0">
+        
+                <label id="id_stoponerror_label" class="d-inline word-break " for="id_stoponerror">
+                    Stop on error
+                </label>
+        
+        <div class="form-label-addon d-flex align-items-center align-self-start">
+            <a class="btn btn-link p-0" role="button"
+    data-container="body" data-toggle="popover"
+    data-placement="right" data-content="&lt;div class=&quot;no-overflow&quot;&gt;&lt;p&gt;This setting determines whether the import process stops when an error is detected, resulting in no questions being imported, or whether any questions containing errors are ignored and any valid questions are imported.&lt;/p&gt;
+&lt;/div&gt; "
+    data-html="true" tabindex="0" data-trigger="focus" aria-label="Help">
+  <i class="icon fa fa-question-circle text-info fa-fw "  title="Help with Stop on error" role="img" aria-label="Help with Stop on error"></i>
+</a>
+        </div>
+    </div>
+    <div class="col-md-9 form-inline align-items-start felement" data-fieldtype="selectyesno">
+        <select class="custom-select
+                       
+                       "
+            name="stoponerror"
+            id="id_stoponerror"
+            
+            
+             >
+            <option value="0"  
+                >No</option>
+            <option value="1" selected 
+                >Yes</option>
+        </select>
+        <div class="form-control-feedback invalid-feedback" id="id_error_stoponerror" >
+            
+        </div>
+    </div>
+</div>
+		</div></fieldset>
+	<fieldset class="clearfix collapsible"  id="id_importfileupload"><legend class="sr-only">Import questions from file</legend>
+<div class="d-flex align-items-center mb-2">
+    <div class="position-relative d-flex ftoggler align-items-center position-relative mr-1">
+            <a data-toggle="collapse"
+               href="#id_importfileuploadcontainer"
+               role="button"
+               aria-expanded="true"
+               aria-controls="id_importfileuploadcontainer"
+               class="btn btn-icon mr-1 icons-collapse-expand stretched-link fheader "
+            >
+                <span class="expanded-icon icon-no-margin p-2" title="Collapse">
+                    <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"  ></i>
+                </span>
+                <span class="collapsed-icon icon-no-margin p-2" title="Expand">
+                    <span class="dir-rtl-hide"><i class="icon fa fa-chevron-right fa-fw " aria-hidden="true"  ></i></span>
+                    <span class="dir-ltr-hide"><i class="icon fa fa-chevron-left fa-fw " aria-hidden="true"  ></i></span>
+                </span>
+                <span class="sr-only">Import questions from file</span>
+            </a>
+        <h3 class="d-flex align-self-stretch align-items-center mb-0" aria-hidden="true">
+            Import questions from file
+        </h3>
+    </div>
+    
+</div>
+<div id="id_importfileuploadcontainer" class="fcontainer collapseable collapse  show"><div id="fitem_id_newfile" class="form-group row  fitem    " >
+    <div class="col-md-3 col-form-label d-flex pb-0 pr-md-0">
+                    <p id="id_newfile_label" class="mb-0 d-inline" aria-hidden="true">
+                Import
+            </p>
+
+        <div class="form-label-addon d-flex align-items-center align-self-start">
+                <div class="text-danger" title="Required">
+                <i class="icon fa fa-exclamation-circle text-danger fa-fw "  title="Required" role="img" aria-label="Required"></i>
+                </div>
+            
+        </div>
+    </div>
+    <div class="col-md-9 form-inline align-items-start felement" data-fieldtype="filepicker">
+        <fieldset class="w-100 m-0 p-0 border-0" id="id_newfile_fieldset">
+            <legend class="sr-only">Import</legend>
+            <div class="filemanager-loading mdl-align" id='filepicker-loading-6ad76a5a67f4c'>
+<i class="icon fa fa-circle-o-notch fa-spin fa-fw "  title="Loading..." role="img" aria-label="Loading..."></i>
+</div>
+<div id="filepicker-wrapper-6ad76a5a67f4c" class="mdl-left w-100" style="display:none">
+    <div>
+        <input type="button" class="btn btn-secondary fp-btn-choose" id="filepicker-button-6ad76a5a67f4c" value="Choose a file..." name="newfilechoose"/>
+        <span> Maximum size for new files: 1000 MB </span>
+    </div>    <div id="file_info_6ad76a5a67f4c" class="mdl-left filepicker-filelist" style="position: relative">
+    <div class="filepicker-filename">
+        <div class="filepicker-container">
+            <div class="dndupload-message">You can drag and drop files here to add them. <br/>
+                <div class="dndupload-arrow d-flex"><i class="fa fa-arrow-circle-o-down fa-3x m-auto"></i></div>
+            </div>
+        </div>
+        <div class="dndupload-progressbars"></div>
+    </div>
+    <div>
+        <div class="dndupload-target">Drop files here to upload<br/>
+            <div class="dndupload-arrow d-flex"><i class="fa fa-arrow-circle-o-down fa-3x m-auto"></i></div>
+        </div>
+    </div>
+    </div></div><input type="hidden" name="newfile" id="id_newfile" value="492111000" class="filepickerhidden"/><noscript><div><object type='text/html' data='https://wiseup.wsu.ac.za/repository/draftfiles_manager.php?env=filepicker&amp;action=browse&amp;itemid=492111000&amp;subdirs=0&amp;maxbytes=1048576000&amp;maxfiles=1&amp;ctx_id=1105074&amp;course=139588&amp;sesskey=XXXXXXXXXX' height='160' width='600' style='border:1px solid #000'></object></div></noscript>
+        </fieldset>
+        <div class="form-control-feedback invalid-feedback" id="id_error_newfile" >
+            
+        </div>
+    </div>
+</div><div id="fitem_id_submitbutton" class="form-group row  fitem femptylabel   " >
+    <div class="col-md-3 col-form-label d-flex pb-0 pr-md-0">
+        
+        <div class="form-label-addon d-flex align-items-center align-self-start">
+            
+        </div>
+    </div>
+    <div class="col-md-9 form-inline align-items-start felement" data-fieldtype="submit">
+            <input type="submit"
+                class="btn
+                        btn-primary
+                        
+                    
+                    
+                    "
+                name="submitbutton"
+                id="id_submitbutton"
+                value="Import"
+                 >
+        <div class="form-control-feedback invalid-feedback" id="id_error_submitbutton" >
+            
+        </div>
+    </div>
+</div>
+		<div class="fdescription required"><i class="icon fa fa-exclamation-circle text-danger fa-fw "  title="Required field" role="img" aria-label="Required field"></i> Required</div>
+		</div></fieldset>
+</form>
+<script>var skipClientValidation = false;</script></div>
+                        
+                        
+
+                    </section>
+                </div>
+            </div>
+        </div>
+        <footer id="page-footer" class="footer-popover bg-white">
+            <div data-region="footer-container-popover">
+        
+                <button class="btn btn-icon bg-secondary icon-no-margin btn-footer-popover" data-action="footer-popover" aria-label="Show footer">
+                    <i class="icon fa fa-question fa-fw " aria-hidden="true"  ></i>
+                </button>
+            </div>
+        
+            <div class="footer-content-popover container" data-region="footer-content-popover">
+                <div class="footer-section p-3 border-bottom">
+<!-- sanitised: footer login info / data-privacy / mobile-app links removed -->
+                    
+<script src="https://chat.wsu.ac.za/chat/widget/embed.js" defer></script><script>
+//<![CDATA[
+var require = {
+    baseUrl : 'https://wiseup.wsu.ac.za/lib/requirejs.php/1779385749/',
+    // We only support AMD modules with an explicit define() statement.
+    enforceDefine: true,
+    skipDataMain: true,
+    waitSeconds : 0,
+
+    paths: {
+        jquery: 'https://wiseup.wsu.ac.za/lib/javascript.php/1779385749/lib/jquery/jquery-3.7.1.min',
+        jqueryui: 'https://wiseup.wsu.ac.za/lib/javascript.php/1779385749/lib/jquery/ui-1.13.2/jquery-ui.min',
+        jqueryprivate: 'https://wiseup.wsu.ac.za/lib/javascript.php/1779385749/lib/requirejs/jquery-private'
+    },
+
+    // Custom jquery config map.
+    map: {
+      // '*' means all modules will get 'jqueryprivate'
+      // for their 'jquery' dependency.
+      '*': { jquery: 'jqueryprivate' },
+      // Stub module for 'process'. This is a workaround for a bug in MathJax (see MDL-60458).
+      '*': { process: 'core/first' },
+
+      // 'jquery-private' wants the real jQuery module
+      // though. If this line was not here, there would
+      // be an unresolvable cyclic dependency.
+      jqueryprivate: { jquery: 'jquery' }
+    }
+};
+
+//]]>
+</script>
+<script src="https://wiseup.wsu.ac.za/lib/javascript.php/1779385749/lib/requirejs/require.min.js"></script>
+<script>
+//<![CDATA[
+M.util.js_pending("core/first");
+require(['core/first'], function() {
+require(['core/prefetch'])
+;
+M.util.js_pending('filter_mathjaxloader/loader'); require(['filter_mathjaxloader/loader'], function(amd) {amd.configure({"mathjaxconfig":"\nMathJax.Hub.Config({\n    config: [\"Accessible.js\", \"Safe.js\"],\n    errorSettings: { message: [\"!\"] },\n    skipStartupTypeset: true,\n    messageStyle: \"none\"\n});\n","lang":"en"}); M.util.js_complete('filter_mathjaxloader/loader');});;
+require(["media_videojs/loader"], function(loader) {
+    loader.setUp('en');
+});;
+
+    // Initialise the JS for the modal window which displays the blocks available to add.
+    require(['core_block/add_modal'], function(addBlockModal) {
+        addBlockModal.init(null, 'd42708b8036370f0d5bd5b8e90cc03ef');
+    });
+;
+M.util.js_pending('core_courseformat/courseeditor'); require(['core_courseformat/courseeditor'], function(amd) {amd.setViewFormat("139588", {"editing":true,"supportscomponents":true,"statekey":"1789448972_1792502344","overriddenStrings":[{"component":"format_topics","key":"sectionavailability_title"},{"component":"format_topics","key":"sectiondelete_title"},{"component":"format_topics","key":"sectionsdelete_title"},{"component":"format_topics","key":"sectionsdelete_info"},{"component":"format_topics","key":"sectionmove_title"},{"component":"format_topics","key":"sectionsavailability_title"},{"component":"format_topics","key":"sectionsmove_title"},{"component":"format_topics","key":"sectionsmove_info"},{"component":"format_topics","key":"selectsection"}]}); M.util.js_complete('core_courseformat/courseeditor');});;
+
+require(['core_courseformat/local/courseindex/placeholder'], function(component) {
+    component.init('course-index-placeholder');
+});
+;
+
+require(['core_courseformat/local/courseindex/drawer'], function(component) {
+    component.init('courseindex');
+});
+;
+M.util.js_pending('core/moodlenet/mutations'); require(['core/moodlenet/mutations'], function(amd) {amd.init(); M.util.js_complete('core/moodlenet/mutations');});;
+M.util.js_pending('core_block/edit'); require(['core_block/edit'], function(amd) {amd.init("f315cfd83b756dc32f3ad250142e5624"); M.util.js_complete('core_block/edit');});;
+
+    require(['core/moremenu'], function(moremenu) {
+        moremenu(document.querySelector('#moremenu-6ad76a5a5eef1-navbar-nav'));
+    });
+;
+
+require(['jquery', 'message_popup/notification_popover_controller'], function($, Controller) {
+    var container = $('#nav-notification-popover-container');
+    var controller = new Controller(container);
+    controller.registerEventListeners();
+    controller.registerListNavigationEventListeners();
+});
+;
+
+require(
+[
+    'jquery',
+    'core_message/message_popover'
+],
+function(
+    $,
+    Popover
+) {
+    var toggle = $('#message-drawer-toggle-6ad76a5a61b236ad76a5a5042e4');
+    Popover.init(toggle);
+});
+;
+
+    require(['core/usermenu'], function(UserMenu) {
+        UserMenu.init();
+    });
+;
+
+require(['core/edit_switch'], function(editSwitch) {
+    editSwitch.init('6ad76a5a620906ad76a5a5042e5-editingswitch');
+});
+;
+
+require(['theme_boost/drawers']);
+;
+
+    require(['theme_boost/courseindexdrawercontrols'], function(component) {
+    component.init('courseindexdrawercontrols');
+    });
+;
+
+require(['theme_boost/drawers']);
+;
+
+require(['theme_boost/drawers']);
+;
+
+    require(['core/moremenu'], function(moremenu) {
+        moremenu(document.querySelector('#moremenu-6ad76a5a5ea97-nav-tabs'));
+    });
+;
+
+require(['theme_boost/footer-popover'], function(FooterPopover) {
+    FooterPopover.init();
+});
+;
+
+require(['jquery', 'core_message/message_drawer'], function($, MessageDrawer) {
+    var root = $('#message-drawer-6ad76a5a640216ad76a5a5042e6');
+    MessageDrawer.init(root, '6ad76a5a640216ad76a5a5042e6', false);
+});
+;
+
+M.util.js_pending('theme_boost/loader');
+require(['theme_boost/loader', 'theme_boost/drawer'], function(Loader, Drawer) {
+    Drawer.init();
+    M.util.js_complete('theme_boost/loader');
+});
+;
+
+        require(['jquery', 'core/custom_interaction_events'], function($, CustomEvents) {
+            CustomEvents.define('#url_select6ad76a5a5042e7', [CustomEvents.events.accessibleChange]);
+            $('#url_select6ad76a5a5042e7').on(CustomEvents.events.accessibleChange, function() {
+                if ($(this).val()) {
+                    $('#questionbankaction').submit();
+                }
+            });
+        });
+    ;
+M.util.js_pending('core_form/changechecker'); require(['core_form/changechecker'], function(amd) {amd.watchFormById("mform1_BLVZH0d4WMJgezk"); M.util.js_complete('core_form/changechecker');});;
+
+require(['core_form/collapsesections'], function(Collapsesections) {
+    Collapsesections.init('#collapsesections6ad76a5a66f596ad76a5a5042e8');
+});
+;
+
+require(['theme_boost/form-display-errors'], function(module) {
+    module.enhance("id_format_aiken");
+});
+;
+
+require(['theme_boost/form-display-errors'], function(module) {
+    module.enhance("id_format_blackboard_six");
+});
+;
+
+require(['theme_boost/form-display-errors'], function(module) {
+    module.enhance("id_format_multianswer");
+});
+;
+
+require(['theme_boost/form-display-errors'], function(module) {
+    module.enhance("id_format_gift");
+});
+;
+
+require(['theme_boost/form-display-errors'], function(module) {
+    module.enhance("id_format_missingword");
+});
+;
+
+require(['theme_boost/form-display-errors'], function(module) {
+    module.enhance("id_format_xml");
+});
+;
+
+require(['theme_boost/form-display-errors'], function(module) {
+    module.enhance("fgroup_id_formatchoices");
+});
+;
+
+require(['jquery'], function($) {
+    $('#fgroup_id_formatchoices_label').css('cursor', 'default');
+    $('#fgroup_id_formatchoices_label').click(function() {
+        $('#fgroup_id_formatchoices')
+            .find('button, a, input:not([type="hidden"]), select, textarea, [tabindex]')
+            .filter(':not([disabled]):not([tabindex="0"]):not([tabindex="-1"])')
+            .first().focus();
+    });
+});
+;
+
+require(['theme_boost/form-display-errors'], function(module) {
+    module.enhance("id_category");
+});
+;
+
+require(['theme_boost/form-display-errors'], function(module) {
+    module.enhance("id_catfromfile");
+});
+;
+
+require(['theme_boost/form-display-errors'], function(module) {
+    module.enhance("id_contextfromfile");
+});
+;
+
+require(['theme_boost/form-display-errors'], function(module) {
+    module.enhance("fgroup_id_categorygroup");
+});
+;
+
+require(['jquery'], function($) {
+    $('#fgroup_id_categorygroup_label').css('cursor', 'default');
+    $('#fgroup_id_categorygroup_label').click(function() {
+        $('#fgroup_id_categorygroup')
+            .find('button, a, input:not([type="hidden"]), select, textarea, [tabindex]')
+            .filter(':not([disabled]):not([tabindex="0"]):not([tabindex="-1"])')
+            .first().focus();
+    });
+});
+;
+
+require(['theme_boost/form-display-errors'], function(module) {
+    module.enhance("id_matchgrades");
+});
+;
+
+require(['theme_boost/form-display-errors'], function(module) {
+    module.enhance("id_stoponerror");
+});
+;
+
+require(['theme_boost/form-display-errors'], function(module) {
+    module.enhance("id_newfile");
+});
+;
+
+(function() {
+    var label = document.getElementById('id_newfile_label');
+    if (label) {
+        label.style.cursor = 'default';
+        label.addEventListener('click', function() {
+            document.querySelectorAll('#id_newfile_fieldset .fp-btn-choose')[0].focus();
+        });
+    }
+})();
+;
+
+require(['theme_boost/form-display-errors'], function(module) {
+    module.enhance("id_submitbutton");
+});
+;
+
+        require(['core_form/submit'], function(Submit) {
+            Submit.init("id_submitbutton");
+        });
+;
+
+
+require([
+    "core_form/events",
+    "jquery",
+], function(
+    FormEvents,
+    $
+) {
+
+    function qf_errorHandler(element, _qfMsg, escapedName) {
+        const event = FormEvents.notifyFieldValidationFailure(element, _qfMsg);
+        if (event.defaultPrevented) {
+            return _qfMsg == '';
+        } else {
+            // Legacy mforms.
+            var div = element.parentNode;
+
+            if ((div == undefined) || (element.name == undefined)) {
+                // No checking can be done for undefined elements so let server handle it.
+                return true;
+            }
+
+            if (_qfMsg != '') {
+                var errorSpan = document.getElementById('id_error_' + escapedName);
+                if (!errorSpan) {
+                    errorSpan = document.createElement("span");
+                    errorSpan.id = 'id_error_' + escapedName;
+                    errorSpan.className = "error";
+                    element.parentNode.insertBefore(errorSpan, element.parentNode.firstChild);
+                    document.getElementById(errorSpan.id).setAttribute('TabIndex', '0');
+                    document.getElementById(errorSpan.id).focus();
+                }
+
+                while (errorSpan.firstChild) {
+                    errorSpan.removeChild(errorSpan.firstChild);
+                }
+
+                errorSpan.appendChild(document.createTextNode(_qfMsg.substring(3)));
+
+                if (div.className.substr(div.className.length - 6, 6) != " error"
+                        && div.className != "error") {
+                    div.className += " error";
+                    linebreak = document.createElement("br");
+                    linebreak.className = "error";
+                    linebreak.id = 'id_error_break_' + escapedName;
+                    errorSpan.parentNode.insertBefore(linebreak, errorSpan.nextSibling);
+                }
+
+                return false;
+            } else {
+                var errorSpan = document.getElementById('id_error_' + escapedName);
+                if (errorSpan) {
+                    errorSpan.parentNode.removeChild(errorSpan);
+                }
+                var linebreak = document.getElementById('id_error_break_' + escapedName);
+                if (linebreak) {
+                    linebreak.parentNode.removeChild(linebreak);
+                }
+
+                if (div.className.substr(div.className.length - 6, 6) == " error") {
+                    div.className = div.className.substr(0, div.className.length - 6);
+                } else if (div.className == "error") {
+                    div.className = "";
+                }
+
+                return true;
+            } // End if.
+        } // End if.
+    } // End function.
+    
+    function validate_qbank_importquestions_form_question_import_form_formatchoices(element, escapedName) {
+      if (undefined == element) {
+         //required element was not found, then let form be submitted without client side validation
+         return true;
+      }
+      var value = '';
+      var errFlag = new Array();
+      var _qfGroups = {};
+      var _qfMsg = '';
+      var frm = element.parentNode;
+      if ((undefined != element.name) && (frm != undefined)) {
+          while (frm && frm.nodeName.toUpperCase() != "FORM") {
+            frm = frm.parentNode;
+          }
+          _qfGroups['formatchoices'] = {'format': true, 'format': true, 'format': true, 'format': true, 'format': true, 'format': true, 'makelasthelpiconshowup': true};
+  value = new Array();
+  var valueIdx = 0;
+  for (var i = 0; i < frm.elements.length; i++) {
+    var _element = frm.elements[i];
+    if (_element.name in _qfGroups['formatchoices']) {
+      switch (_element.type) {
+        case 'checkbox':
+        case 'radio':
+          if (_element.checked) {
+            value[valueIdx++] = _element.value;
+          }
+          break;
+        case 'select-one':
+          if (-1 != _element.selectedIndex) {
+            value[valueIdx++] = _element.options[_element.selectedIndex].value;
+          }
+          break;
+        case 'select-multiple':
+          var tmpVal = new Array();
+          var tmpIdx = 0;
+          for (var j = 0; j < _element.options.length; j++) {
+            if (_element.options[j].selected) {
+              tmpVal[tmpIdx++] = _element.options[j].value;
+            }
+          }
+          if (tmpIdx > 0) {
+            value[valueIdx++] = tmpVal;
+          }
+          break;
+        default:
+          value[valueIdx++] = _element.value;
+      }
+    }
+  }
+
+  if (value == '' && !errFlag['formatchoices']) {
+    errFlag['formatchoices'] = true;
+    _qfMsg = _qfMsg + '\n - You must supply a value here.';
+  }
+
+          return qf_errorHandler(element, _qfMsg, escapedName);
+      } else {
+        //element name should be defined else error msg will not be displayed.
+        return true;
+      }
+    }
+
+    document.getElementById('fgroup_id_formatchoices').addEventListener('blur', function(ev) {
+        validate_qbank_importquestions_form_question_import_form_formatchoices(ev.target, 'formatchoices')
+    });
+    document.getElementById('fgroup_id_formatchoices').addEventListener('change', function(ev) {
+        validate_qbank_importquestions_form_question_import_form_formatchoices(ev.target, 'formatchoices')
+    });
+
+    function validate_qbank_importquestions_form_question_import_form_newfile(element, escapedName) {
+      if (undefined == element) {
+         //required element was not found, then let form be submitted without client side validation
+         return true;
+      }
+      var value = '';
+      var errFlag = new Array();
+      var _qfGroups = {};
+      var _qfMsg = '';
+      var frm = element.parentNode;
+      if ((undefined != element.name) && (frm != undefined)) {
+          while (frm && frm.nodeName.toUpperCase() != "FORM") {
+            frm = frm.parentNode;
+          }
+          value = frm.elements['newfile'].value;
+  if (value == '' && !errFlag['newfile']) {
+    errFlag['newfile'] = true;
+    _qfMsg = _qfMsg + '\n - You must supply a value here.';
+  }
+
+          return qf_errorHandler(element, _qfMsg, escapedName);
+      } else {
+        //element name should be defined else error msg will not be displayed.
+        return true;
+      }
+    }
+
+    document.getElementById('id_newfile').addEventListener('blur', function(ev) {
+        validate_qbank_importquestions_form_question_import_form_newfile(ev.target, 'newfile')
+    });
+    document.getElementById('id_newfile').addEventListener('change', function(ev) {
+        validate_qbank_importquestions_form_question_import_form_newfile(ev.target, 'newfile')
+    });
+
+
+    function validate_qbank_importquestions_form_question_import_form() {
+      if (skipClientValidation) {
+         return true;
+      }
+      var ret = true;
+
+      var frm = document.getElementById('mform1_BLVZH0d4WMJgezk')
+      var first_focus = false;
+    
+      ret = validate_qbank_importquestions_form_question_import_form_formatchoices(frm.elements['formatchoices'], 'formatchoices') && ret;
+      if (!ret && !first_focus) {
+        first_focus = true;
+        const element = document.getElementById("fgroup_id_formatchoices");
+        if (element) {
+          FormEvents.notifyFormError(element);
+          element.focus();
+        }
+      }
+
+      ret = validate_qbank_importquestions_form_question_import_form_newfile(frm.elements['newfile'], 'newfile') && ret;
+      if (!ret && !first_focus) {
+        first_focus = true;
+        const element = document.getElementById("id_error_newfile");
+        if (element) {
+          FormEvents.notifyFormError(element);
+          element.focus();
+        }
+      }
+;
+      return ret;
+    }
+
+    var form = document.getElementById('mform1_BLVZH0d4WMJgezk').closest('form');
+    form.addEventListener(FormEvents.eventTypes.formSubmittedByJavascript, () => {
+        try {
+            var myValidator = validate_qbank_importquestions_form_question_import_form;
+        } catch(e) {
+            return;
+        }
+        if (myValidator) {
+            myValidator();
+        }
+    });
+
+    document.getElementById('mform1_BLVZH0d4WMJgezk').addEventListener('submit', function(ev) {
+        try {
+            var myValidator = validate_qbank_importquestions_form_question_import_form;
+        } catch(e) {
+            return true;
+        }
+        if (typeof window.tinyMCE !== 'undefined') {
+            window.tinyMCE.triggerSave();
+        }
+        if (!myValidator()) {
+            ev.preventDefault();
+        }
+    });
+
+});
+;
+M.util.js_pending('core/notification'); require(['core/notification'], function(amd) {amd.init(1105074, []); M.util.js_complete('core/notification');});;
+M.util.js_pending('core/log'); require(['core/log'], function(amd) {amd.setConfig({"level":"warn"}); M.util.js_complete('core/log');});;
+M.util.js_pending('core/page_global'); require(['core/page_global'], function(amd) {amd.init(); M.util.js_complete('core/page_global');});;
+M.util.js_pending('core/utility'); require(['core/utility'], function(amd) {M.util.js_complete('core/utility');});
+    M.util.js_complete("core/first");
+});
+//]]>
+</script>
+<script>
+//<![CDATA[
+M.yui.add_module({"core_filepicker":{"name":"core_filepicker","fullpath":"https:\/\/wiseup.wsu.ac.za\/lib\/javascript.php\/1779385749\/repository\/filepicker.js","requires":["base","node","node-event-simulate","json","async-queue","io-base","io-upload-iframe","io-form","yui2-treeview","panel","cookie","datatable","datatable-sort","resize-plugin","dd-plugin","escape","moodle-core_filepicker","moodle-core-notification-dialogue"]},"core_dndupload":{"name":"core_dndupload","fullpath":"https:\/\/wiseup.wsu.ac.za\/lib\/javascript.php\/1779385749\/lib\/form\/dndupload.js","requires":["node","event","json","core_filepicker"]},"form_filepicker":{"name":"form_filepicker","fullpath":"https:\/\/wiseup.wsu.ac.za\/lib\/javascript.php\/1779385749\/lib\/form\/filepicker.js","requires":["core_filepicker","node","node-event-simulate","core_dndupload"]},"mform":{"name":"mform","fullpath":"https:\/\/wiseup.wsu.ac.za\/lib\/javascript.php\/1779385749\/lib\/form\/form.js","requires":["base","node"]}});
+
+//]]>
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?delayStartupUntil=configured"></script>
+<script>
+//<![CDATA[
+M.str = {"moodle":{"lastmodified":"Last modified","name":"Name","error":"Error","info":"Information","yes":"Yes","no":"No","cancel":"Cancel","movecontent":"Move {$a}","tocontent":"To item \"{$a}\"","emptydragdropregion":"empty region","uploadformlimit":"Uploaded file {$a} exceeded the maximum size limit set by the form","droptoupload":"Drop files here to upload","maxfilesreached":"You are allowed to attach a maximum of {$a} file(s) to this item","dndenabled_inbox":"You can drag and drop files here to add them.","fileexists":"There is already a file called {$a}","sizegb":"GB","sizemb":"MB","sizekb":"KB","sizeb":"bytes","maxareabytesreached":"The file (or the total size of several files) is larger than the space remaining in this area.","changesmadereallygoaway":"You have made changes. Are you sure you want to navigate away and lose your changes?","complete":"Complete","confirm":"Confirm","areyousure":"Are you sure?","closebuttontitle":"Close","unknownerror":"Unknown error","file":"File","url":"URL","collapseall":"Collapse all","expandall":"Expand all"},"repository":{"type":"Type","size":"Size","invalidjson":"Invalid JSON string","nofilesattached":"No files attached","filepicker":"File picker","logout":"Logout","nofilesavailable":"No files available","norepositoriesavailable":"Sorry, none of your current repositories can return files in the required format.","fileexistsdialogheader":"File exists","fileexistsdialog_editor":"A file with that name has already been attached to the text you are editing.","fileexistsdialog_filemanager":"A file with that name has already been attached","renameto":"Rename to \"{$a}\"","referencesexist":"There are {$a} links to this file","select":"Select"},"admin":{"confirmdeletecomments":"Are you sure you want to delete the selected comment(s)?","confirmation":"Confirmation"},"error":{"maxbytesfile":"The file {$a->file} is too large. The maximum size you can upload is {$a->size}.","serverconnection":"Error connecting to the server"},"debug":{"debuginfo":"Debug info","line":"Line","stacktrace":"Stack trace"},"langconfig":{"labelsep":": "}};
+//]]>
+</script>
+<script>
+//<![CDATA[
+(function() {M.util.help_popups.setup(Y);
+Y.on('domready', function() { Y.use("moodle-core-blocks",function() {M.core_blocks.init_dragdrop({"regions":["side-pre"],"pagehash":"f315cfd83b756dc32f3ad250142e5624"});
+}); });
+Y.use("moodle-form-shortforms",function() {M.form.shortforms({"formid":"mform1_BLVZH0d4WMJgezk"});
+});
+ M.util.js_pending('random6ad76a5a5042e11'); Y.on('domready', function() {  M.util.js_pending('random6ad76a5a5042e11'); Y.use('core_filepicker', function(Y) { M.core_filepicker.set_templates(Y, {"generallayout":"<div class=\"container\">\n    <div tabindex=\"0\" class=\"file-picker fp-generallayout row\" role=\"dialog\" aria-live=\"assertive\">\n        <div class=\"fp-repo-area col-md-3 pr-2 nav nav-pills flex-column\" role=\"tablist\">\n                <div class=\"fp-repo nav-item\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">\n                    <a href=\"#\" class=\"nav-link\" tabindex=\"-1\"><img class=\"fp-repo-icon\" alt=\" \" width=\"16\" height=\"16\" \/>&nbsp;<span class=\"fp-repo-name\"><\/span><\/a>\n                <\/div>\n\n        <\/div>\n        <div class=\"col-md-9 p-0\">\n            <div class=\"fp-repo-items\" tabindex=\"0\">\n                <div class=\"fp-navbar bg-faded card mb-0 clearfix icon-no-spacing\">\n                    <div>\n                        <div class=\"fp-toolbar\">\n                            <div class=\"fp-tb-back\">\n                                <a href=\"#\" class=\"btn btn-secondary btn-sm\">Back<\/a>\n                            <\/div>\n                            <div class=\"fp-tb-search\">\n                                <form><\/form>\n                            <\/div>\n                            <div class=\"fp-tb-refresh\">\n                                <a title=\"Refresh\" class=\"btn btn-secondary btn-sm\" href=\"#\">\n                                    <i class=\"icon fa fa-refresh fa-fw \" aria-hidden=\"true\"  ><\/i>\n                                <\/a>\n                            <\/div>\n                            <div class=\"fp-tb-logout\">\n                                <a title=\"Logout\" class=\"btn btn-secondary btn-sm\" href=\"#\">\n                                    <i class=\"icon fa fa-sign-out fa-fw \" aria-hidden=\"true\"  ><\/i>\n                                <\/a>\n                            <\/div>\n                            <div class=\"fp-tb-manage\">\n                                <a title=\"Manage\" class=\"btn btn-secondary btn-sm\" href=\"#\">\n                                    <i class=\"icon fa fa-cog fa-fw \" aria-hidden=\"true\"  ><\/i>\n                                <\/a>\n                            <\/div>\n                            <div class=\"fp-tb-help\">\n                                <a title=\"Help\" class=\"btn btn-secondary btn-sm\" href=\"#\">\n                                    <i class=\"icon fa fa-question-circle text-info fa-fw \" aria-hidden=\"true\"  ><\/i>\n                                <\/a>\n                            <\/div>\n                            <div class=\"fp-tb-message\"><\/div>\n                        <\/div>\n                        <div class=\"fp-viewbar btn-group float-sm-right\">\n                            <a role=\"button\" title=\"Display folder with file icons\" class=\"fp-vb-icons btn btn-secondary btn-sm\" href=\"#\">\n                                <i class=\"icon fa fa-th fa-fw \" aria-hidden=\"true\"  ><\/i>\n                            <\/a>\n                            <a role=\"button\" title=\"Display folder with file details\" class=\"fp-vb-details btn btn-secondary btn-sm\" href=\"#\">\n                                <i class=\"icon fa fa-list fa-fw \" aria-hidden=\"true\"  ><\/i>\n                            <\/a>\n                            <a role=\"button\" title=\"Display folder as file tree\" class=\"fp-vb-tree btn btn-secondary btn-sm\" href=\"#\">\n                                <i class=\"icon fa fa-folder fa-fw \" aria-hidden=\"true\"  ><\/i>\n                            <\/a>\n                        <\/div>\n                        <div class=\"fp-clear-left\"><\/div>\n                    <\/div>\n                    <div class=\"fp-pathbar\">\n                        <span class=\"fp-path-folder\"><a class=\"fp-path-folder-name aalink\" href=\"#\"><\/a><\/span>\n                    <\/div>\n                <\/div>\n                <div class=\"fp-content card\"><\/div>\n            <\/div>\n        <\/div>\n    <\/div>\n<\/div>","iconfilename":"\n<a class=\"fp-file\" href=\"#\" >\n    <div style=\"position:relative;\">\n        <div class=\"fp-thumbnail\"><\/div>\n        <div class=\"fp-reficons1\"><\/div>\n        <div class=\"fp-reficons2\"><\/div>\n    <\/div>\n    <div class=\"fp-filename-field\">\n        <p class=\"fp-filename text-truncate\"><\/p>\n    <\/div>\n<\/a>","listfilename":"\n<span class=\"fp-filename-icon\">\n    <a href=\"#\">\n        <span class=\"fp-icon\"><\/span>\n        <span class=\"fp-filename\"><\/span>\n    <\/a>\n<\/span>","nextpage":"\n<div class=\"fp-nextpage\">\n    <div class=\"fp-nextpage-link\"><a href=\"#\">more<\/a><\/div>\n    <div class=\"fp-nextpage-loading\">\n        <i class=\"icon fa fa-circle-o-notch fa-spin fa-fw \" aria-hidden=\"true\"  ><\/i>\n    <\/div>\n<\/div>","selectlayout":"<div class=\"file-picker fp-select\">\n    <div class=\"fp-select-loading\">\n        <span class=\"sr-only\">Loading...<\/span>\n        <i class=\"icon fa fa-circle-o-notch fa-spin fa-fw \" aria-hidden=\"true\"  ><\/i>\n    <\/div>\n    <div class=\"container\">\n        <form>\n            <fieldset class=\"form-group row flex-column\">\n                <div class=\"form-check fp-linktype-2\">\n                    <label class=\"form-check-label\">\n                        <input class=\"form-check-input\" type=\"radio\">\n                        Make a copy of the file\n                    <\/label>\n                <\/div>\n                <div class=\"form-check fp-linktype-1\">\n                    <label class=\"form-check-label\">\n                        <input class=\"form-check-input\" type=\"radio\">\n                        Link to the external file\n                    <\/label>\n                <\/div>\n                <div class=\"form-check fp-linktype-4\">\n                    <label class=\"form-check-label\">\n                        <input class=\"form-check-input\" type=\"radio\">\n                        Link to the file\n                    <\/label>\n                <\/div>\n                <div class=\"form-check fp-linktype-8\">\n                    <label class=\"form-check-label\">\n                        <input class=\"form-check-input\" type=\"radio\">\n                        Create an access controlled link to the file\n                    <\/label>\n                <\/div>\n            <\/fieldset>\n            <div class=\"fp-saveas form-group row\">\n                <label class=\"col-form-label\">Save as<\/label>\n                <input class=\"form-control\" type=\"text\">\n            <\/div>\n            <div class=\"fp-setauthor form-group row\">\n                <label class=\"col-form-label\">Author<\/label>\n                <input class=\"form-control\" type=\"text\">\n            <\/div>\n            <div class=\"fp-setlicense form-group row\">\n                <div class=\"col-form-label form-control-label px-0 \">\n                    <label for=\"choose-license-6ad76a5a6a3876ad76a5a5042e9\">\n                        Choose licence\n                    <\/label>\n                    <a class=\"btn btn-link p-0\" role=\"button\"\n    data-container=\"body\" data-toggle=\"popover\"\n    data-placement=\"left\" data-content=\"&lt;p class=&quot;mb-1&quot;&gt;\n    Follow these links for further information on the available licence options:\n&lt;\/p&gt;\n&lt;ul&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/en.wikipedia.org\/wiki\/All_rights_reserved&quot; target=&quot;_blank&quot;&gt;All rights reserved&lt;\/a&gt;\n    &lt;\/li&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/en.wikipedia.org\/wiki\/Public_domain&quot; target=&quot;_blank&quot;&gt;Public domain&lt;\/a&gt;\n    &lt;\/li&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/creativecommons.org\/licenses\/by\/4.0\/&quot; target=&quot;_blank&quot;&gt;Creative Commons - 4.0 International&lt;\/a&gt;\n    &lt;\/li&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/creativecommons.org\/licenses\/by-nd\/4.0\/&quot; target=&quot;_blank&quot;&gt;Creative Commons - NoDerivatives 4.0 International&lt;\/a&gt;\n    &lt;\/li&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/creativecommons.org\/licenses\/by-nc-nd\/4.0\/&quot; target=&quot;_blank&quot;&gt;Creative Commons - NonCommercial-NoDerivatives 4.0 International&lt;\/a&gt;\n    &lt;\/li&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/creativecommons.org\/licenses\/by-nc\/4.0\/&quot; target=&quot;_blank&quot;&gt;Creative Commons - NonCommercial 4.0 International&lt;\/a&gt;\n    &lt;\/li&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/creativecommons.org\/licenses\/by-nc-sa\/4.0\/&quot; target=&quot;_blank&quot;&gt;Creative Commons - NonCommercial-ShareAlike 4.0 International&lt;\/a&gt;\n    &lt;\/li&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/creativecommons.org\/licenses\/by-sa\/4.0\/&quot; target=&quot;_blank&quot;&gt;Creative Commons - ShareAlike 4.0 International&lt;\/a&gt;\n    &lt;\/li&gt;\n&lt;\/ul&gt; \"\n    data-html=\"true\" tabindex=\"0\" data-trigger=\"focus\" aria-label=\"Help\">\n  <i class=\"icon fa fa-question-circle text-info fa-fw \"  title=\"Help with Choose licence\" role=\"img\" aria-label=\"Help with Choose licence\"><\/i>\n<\/a>\n\n                <\/div>\n                <div >\n                    <select id=\"choose-license-6ad76a5a6a3876ad76a5a5042e9\" class=\"form-control\"><\/select>\n                <\/div>\n            <\/div>\n            <div class=\"form-group row\">\n                <div class=\"fp-select-buttons\">\n                    <button class=\"fp-select-confirm btn-primary btn\">Select this file<\/button>\n                    <button class=\"fp-select-cancel btn-secondary btn\">Cancel<\/button>\n                <\/div>\n            <\/div>\n        <\/form>\n    <\/div>\n    <div class=\"fp-info clearfix\">\n        <hr>\n        <p class=\"fp-thumbnail\"><\/p>\n        <div class=\"fp-fileinfo\">\n            <div class=\"fp-datemodified\">Last modified<span class=\"fp-value\"><\/span><\/div>\n            <div class=\"fp-datecreated\">Created<span class=\"fp-value\"><\/span><\/div>\n            <div class=\"fp-size\">Size<span class=\"fp-value\"><\/span><\/div>\n            <div class=\"fp-license\">Licence<span class=\"fp-value\"><\/span><\/div>\n            <div class=\"fp-author\">Author<span class=\"fp-value\"><\/span><\/div>\n            <div class=\"fp-dimensions\">Dimensions<span class=\"fp-value\" dir=\"ltr\"><\/span><\/div>\n        <\/div>\n    <\/div>\n<\/div>","uploadform":"<div class=\"fp-upload-form\">\n    <div class=\"fp-content-center\">\n        <form enctype=\"multipart\/form-data\" method=\"POST\" class=\"form\">\n            <div class=\"fp-formset\">\n                <div class=\"fp-file form-group\">\n                    <label>Attachment<\/label>\n                    <div class=\"px-3\">\n                        <input  type=\"file\"\/>\n                    <\/div>\n                <\/div>\n                <div class=\"fp-saveas form-group\">\n                    <label>Save as<\/label>\n                    <input type=\"text\" class=\"form-control\"\/>\n                <\/div>\n                <div class=\"fp-setauthor form-group\">\n                    <label>Author<\/label>\n                    <input type=\"text\" class=\"form-control\"\/>\n                <\/div>\n                <div class=\"fp-setlicense form-group\">\n                    <div class=\"col-form-label form-control-label px-0 \">\n                        <label for=\"choose-license-6ad76a5a6a6156ad76a5a5042e10\">\n                            Choose licence\n                        <\/label>\n                        <a class=\"btn btn-link p-0\" role=\"button\"\n    data-container=\"body\" data-toggle=\"popover\"\n    data-placement=\"left\" data-content=\"&lt;p class=&quot;mb-1&quot;&gt;\n    Follow these links for further information on the available licence options:\n&lt;\/p&gt;\n&lt;ul&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/en.wikipedia.org\/wiki\/All_rights_reserved&quot; target=&quot;_blank&quot;&gt;All rights reserved&lt;\/a&gt;\n    &lt;\/li&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/en.wikipedia.org\/wiki\/Public_domain&quot; target=&quot;_blank&quot;&gt;Public domain&lt;\/a&gt;\n    &lt;\/li&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/creativecommons.org\/licenses\/by\/4.0\/&quot; target=&quot;_blank&quot;&gt;Creative Commons - 4.0 International&lt;\/a&gt;\n    &lt;\/li&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/creativecommons.org\/licenses\/by-nd\/4.0\/&quot; target=&quot;_blank&quot;&gt;Creative Commons - NoDerivatives 4.0 International&lt;\/a&gt;\n    &lt;\/li&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/creativecommons.org\/licenses\/by-nc-nd\/4.0\/&quot; target=&quot;_blank&quot;&gt;Creative Commons - NonCommercial-NoDerivatives 4.0 International&lt;\/a&gt;\n    &lt;\/li&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/creativecommons.org\/licenses\/by-nc\/4.0\/&quot; target=&quot;_blank&quot;&gt;Creative Commons - NonCommercial 4.0 International&lt;\/a&gt;\n    &lt;\/li&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/creativecommons.org\/licenses\/by-nc-sa\/4.0\/&quot; target=&quot;_blank&quot;&gt;Creative Commons - NonCommercial-ShareAlike 4.0 International&lt;\/a&gt;\n    &lt;\/li&gt;\n    &lt;li&gt;\n        &lt;a href=&quot;https:\/\/creativecommons.org\/licenses\/by-sa\/4.0\/&quot; target=&quot;_blank&quot;&gt;Creative Commons - ShareAlike 4.0 International&lt;\/a&gt;\n    &lt;\/li&gt;\n&lt;\/ul&gt; \"\n    data-html=\"true\" tabindex=\"0\" data-trigger=\"focus\" aria-label=\"Help\">\n  <i class=\"icon fa fa-question-circle text-info fa-fw \"  title=\"Help with Choose licence\" role=\"img\" aria-label=\"Help with Choose licence\"><\/i>\n<\/a>\n\n                    <\/div>\n                    <div >\n                        <select id=\"choose-license-6ad76a5a6a6156ad76a5a5042e10\" class=\"form-control\"><\/select>\n                    <\/div>\n                <\/div>\n            <\/div>\n        <\/form>\n        <div class=\"mdl-align\">\n            <button class=\"fp-upload-btn btn-primary btn\">Upload this file<\/button>\n        <\/div>\n    <\/div>\n<\/div>","loading":"\n<div class=\"fp-content-loading\">\n    <div class=\"fp-content-center\">\n        <i class=\"icon fa fa-circle-o-notch fa-spin fa-fw \" aria-hidden=\"true\"  ><\/i>\n    <\/div>\n<\/div>","error":"\n<div class=\"fp-content-error\" ><div class=\"fp-error\"><\/div><\/div>","message":"\n<div class=\"file-picker fp-msg\" role=\"alertdialog\" aria-live=\"assertive\" aria-labelledby=\"fp-msg-labelledby\">\n    <p class=\"fp-msg-text\" id=\"fp-msg-labelledby\"><\/p>\n    <button class=\"fp-msg-butok btn-primary btn\">OK<\/button>\n<\/div>","processexistingfile":"<div class=\"file-picker fp-dlg\">\n    <p class=\"fp-dlg-text\"><\/p>\n    <div class=\"fp-dlg-buttons\">\n        <button class=\"fp-dlg-butoverwrite btn btn-primary mb-1\">Overwrite<\/button>\n        <button class=\"fp-dlg-butrename btn btn-primary mb-1\"><\/button>\n        <button class=\"fp-dlg-butcancel btn btn-secondary mb-1\">Cancel<\/button>\n    <\/div>\n<\/div>","processexistingfilemultiple":"<div class=\"file-picker fp-dlg\">\n    <p class=\"fp-dlg-text\"><\/p>\n    <a class=\"fp-dlg-butoverwrite btn btn-primary\" href=\"#\">Overwrite<\/a>\n    <a class=\"fp-dlg-butrename btn btn-primary\" href=\"#\"><\/a>\n    <a class=\"fp-dlg-butcancel btn btn-secondary\" href=\"#\">Cancel<\/a>\n    <br\/>\n    <a class=\"fp-dlg-butoverwriteall btn btn-primary\" href=\"#\">Overwrite all<\/a>\n    <a class=\"fp-dlg-butrenameall btn btn-primary\" href=\"#\">Rename all<\/a>\n<\/div>","loginform":"<div class=\"fp-login-form\">\n    <div class=\"fp-content-center\">\n        <form class=\"form\">\n            <div class=\"fp-formset\">\n                <div class=\"fp-login-popup form-group\">\n                    <div class=\"fp-popup\">\n                        <p class=\"mdl-align\">\n                            <button class=\"fp-login-popup-but btn-primary btn\">Log in to your account<\/button>\n                        <\/p>\n                    <\/div>\n                <\/div>\n                <div class=\"fp-login-textarea form-group\">\n                    <textarea class=\"form-control\"><\/textarea>\n                <\/div>\n                <div class=\"fp-login-select form-group\">\n                    <label class=\"form-control-label\"><\/label>\n                    <select class=\"custom-select\"><\/select>\n                <\/div>\n                <div class=\"fp-login-input form-group\">\n                    <label class=\"form-control-label\"><\/label>\n                    <input class=\"form-control\"\/>\n                <\/div>\n                <div class=\"fp-login-radiogroup form-group\">\n                    <label class=\"form-control-label\"><\/label>\n                    <div class=\"fp-login-radio\"><input class=\"form-control\" \/> <label><\/label><\/div>\n                <\/div>\n                <div class=\"fp-login-checkbox form-group form-inline\">\n                    <label class=\"form-control-label\"><\/label>\n                    <input class=\"form-control\"\/>\n                <\/div>\n            <\/div>\n            <p class=\"mdl-align\"><button class=\"fp-login-submit btn-primary btn\">Submit<\/button><\/p>\n        <\/form>\n    <\/div>\n<\/div>"});  M.util.js_complete('random6ad76a5a5042e11'); });  M.util.js_complete('random6ad76a5a5042e11'); });
+ M.util.js_pending('random6ad76a5a5042e12'); Y.on('domready', function() {  M.util.js_pending('random6ad76a5a5042e12'); Y.use('form_filepicker', function(Y) { M.form_filepicker.init(Y, {"defaultlicense":"allrightsreserved","licenses":{"unknown":{"id":"1","shortname":"unknown","fullname":"Licence not specified","source":"","enabled":"1","version":"2010033100","custom":"0","sortorder":"1"},"allrightsreserved":{"id":"2","shortname":"allrightsreserved","fullname":"All rights reserved","source":"https:\/\/en.wikipedia.org\/wiki\/All_rights_reserved","enabled":"1","version":"2010033100","custom":"0","sortorder":"2"},"public":{"id":"3","shortname":"public","fullname":"Public domain","source":"https:\/\/en.wikipedia.org\/wiki\/Public_domain","enabled":"1","version":"2010033100","custom":"0","sortorder":"3"},"cc":{"id":"4","shortname":"cc","fullname":"Creative Commons - 3.0 International","source":"https:\/\/creativecommons.org\/licenses\/by\/3.0\/","enabled":"0","version":"2010033100","custom":"0","sortorder":"4"},"cc-nd":{"id":"5","shortname":"cc-nd","fullname":"Creative Commons - NoDerivatives 3.0 International","source":"https:\/\/creativecommons.org\/licenses\/by-nd\/3.0\/","enabled":"0","version":"2010033100","custom":"0","sortorder":"5"},"cc-nc-nd":{"id":"6","shortname":"cc-nc-nd","fullname":"Creative Commons - NonCommercial-NoDerivatives 3.0 International","source":"https:\/\/creativecommons.org\/licenses\/by-nc-nd\/3.0\/","enabled":"0","version":"2010033100","custom":"0","sortorder":"6"},"cc-nc":{"id":"7","shortname":"cc-nc","fullname":"Creative Commons - NonCommercial 3.0 International","source":"https:\/\/creativecommons.org\/licenses\/by-nc\/3.0\/","enabled":"0","version":"2010033100","custom":"0","sortorder":"7"},"cc-nc-sa":{"id":"8","shortname":"cc-nc-sa","fullname":"Creative Commons - NonCommercial-ShareAlike 3.0 International","source":"https:\/\/creativecommons.org\/licenses\/by-nc-sa\/3.0\/","enabled":"0","version":"2010033100","custom":"0","sortorder":"8"},"cc-sa":{"id":"9","shortname":"cc-sa","fullname":"Creative Commons - ShareAlike 3.0 International","source":"https:\/\/creativecommons.org\/licenses\/by-sa\/3.0\/","enabled":"0","version":"2010033100","custom":"0","sortorder":"9"},"cc-4.0":{"id":"10","shortname":"cc-4.0","fullname":"Creative Commons - 4.0 International","source":"https:\/\/creativecommons.org\/licenses\/by\/4.0\/","enabled":"1","version":"2022120100","custom":"0","sortorder":"10"},"cc-nd-4.0":{"id":"12","shortname":"cc-nd-4.0","fullname":"Creative Commons - NoDerivatives 4.0 International","source":"https:\/\/creativecommons.org\/licenses\/by-nd\/4.0\/","enabled":"1","version":"2022120100","custom":"0","sortorder":"11"},"cc-nc-nd-4.0":{"id":"13","shortname":"cc-nc-nd-4.0","fullname":"Creative Commons - NonCommercial-NoDerivatives 4.0 International","source":"https:\/\/creativecommons.org\/licenses\/by-nc-nd\/4.0\/","enabled":"1","version":"2022120100","custom":"0","sortorder":"12"},"cc-nc-4.0":{"id":"11","shortname":"cc-nc-4.0","fullname":"Creative Commons - NonCommercial 4.0 International","source":"https:\/\/creativecommons.org\/licenses\/by-nc\/4.0\/","enabled":"1","version":"2022120100","custom":"0","sortorder":"13"},"cc-nc-sa-4.0":{"id":"14","shortname":"cc-nc-sa-4.0","fullname":"Creative Commons - NonCommercial-ShareAlike 4.0 International","source":"https:\/\/creativecommons.org\/licenses\/by-nc-sa\/4.0\/","enabled":"1","version":"2022120100","custom":"0","sortorder":"14"},"cc-sa-4.0":{"id":"15","shortname":"cc-sa-4.0","fullname":"Creative Commons - ShareAlike 4.0 International","source":"https:\/\/creativecommons.org\/licenses\/by-sa\/4.0\/","enabled":"1","version":"2022120100","custom":"0","sortorder":"15"}},"author":"Test Lecturer","repositories":{"2":{"id":"2","name":"Server files","type":"local","icon":"https:\/\/wiseup.wsu.ac.za\/theme\/image.php\/wsu\/repository_local\/1779385749\/icon","supported_types":[],"return_types":6,"defaultreturntype":2,"sortorder":2},"3":{"id":"3","name":"Recent files","type":"recent","icon":"https:\/\/wiseup.wsu.ac.za\/theme\/image.php\/wsu\/repository_recent\/1779385749\/icon","supported_types":[],"return_types":2,"defaultreturntype":2,"sortorder":3},"4":{"id":"4","name":"Upload a file","type":"upload","icon":"https:\/\/wiseup.wsu.ac.za\/theme\/image.php\/wsu\/repository_upload\/1779385749\/icon","supported_types":[],"return_types":2,"defaultreturntype":2,"sortorder":4},"5":{"id":"5","name":"URL downloader","type":"url","icon":"https:\/\/wiseup.wsu.ac.za\/theme\/image.php\/wsu\/repository_url\/1779385749\/icon","supported_types":[".gif",".jpe",".jpeg",".jpg",".png",".svg",".svgz"],"return_types":3,"defaultreturntype":2,"sortorder":5},"6":{"id":"6","name":"Private files","type":"user","icon":"https:\/\/wiseup.wsu.ac.za\/theme\/image.php\/wsu\/repository_user\/1779385749\/icon","supported_types":[],"return_types":6,"defaultreturntype":2,"sortorder":6},"7":{"id":"7","name":"Wikimedia","type":"wikimedia","icon":"https:\/\/wiseup.wsu.ac.za\/theme\/image.php\/wsu\/repository_wikimedia\/1779385749\/icon","supported_types":[],"return_types":3,"defaultreturntype":2,"sortorder":7}},"externallink":true,"rememberuserlicensepref":true,"userprefs":{"recentrepository":"4","recentlicense":"unknown","recentviewmode":""},"accepted_types":[],"return_types":2,"itemid":492111000,"maxbytes":"1048576000","context":{"id":1105074,"contextlevel":50,"instanceid":"139588","path":"\/1\/1098784\/1103340\/1105074","depth":"4","locked":false},"buttonname":"newfilechoose","elementid":"id_newfile","env":"filepicker","client_id":"6ad76a5a67f4c","maxfiles":1,"currentfile":""});  M.util.js_complete('random6ad76a5a5042e12'); });  M.util.js_complete('random6ad76a5a5042e12'); });
+ M.util.js_pending('random6ad76a5a5042e13'); Y.on('domready', function() {  M.util.js_pending('random6ad76a5a5042e13'); Y.use('mform', function(Y) { M.form.initFormDependencies(Y, "mform1_BLVZH0d4WMJgezk", {"catfromfile":{"notchecked":{"1":[["contextfromfile"]]}}});  M.util.js_complete('random6ad76a5a5042e13'); });  M.util.js_complete('random6ad76a5a5042e13'); });
+ M.util.js_pending('random6ad76a5a5042e14'); Y.on('domready', function() { M.util.js_complete("init");  M.util.js_complete('random6ad76a5a5042e14'); });
+})();
+//]]>
+</script>
+
+                </div>
+            </div>
+        
+            <div class="footer-content-debugging footer-dark bg-dark text-light">
+                <div class="container-fluid footer-dark-inner">
+                    
+                </div>
+            </div>
+        </footer>
+        
+    </div>
+<!-- sanitised: message drawer removed -->
+</div>
+
+
+</body></html>

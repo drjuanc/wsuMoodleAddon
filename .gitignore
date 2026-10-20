@@ -3,3 +3,6 @@ web-ext-artifacts/
 *.xpi
 *.zip
 .DS_Store
+
+# Raw captures (may contain sesskeys, names, exam items)
+test/private/
