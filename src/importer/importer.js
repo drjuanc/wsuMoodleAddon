@@ -44,12 +44,16 @@
     });
   }
 
+  const TYPE_NAMES = { multichoice: "MCQ", matching: "Matching" };
+
   function previewRow(q) {
-    const correct = q.options.filter((o) => o.correct).map((o) => o.letter).join(", ");
+    const options = q.options || [];
+    const correct = options.filter((o) => o.correct).map((o) => o.letter).join(", ");
     const reasons = q.flags.filter((f) => f.blocking).map((f) => f.message);
     const warnings = q.flags.filter((f) => !f.blocking).map((f) => f.message);
-    if (q.type !== "multichoice") reasons.unshift("Unsupported question type");
-    const excluded = q.excluded || q.type !== "multichoice";
+    const supported = q.type in TYPE_NAMES;
+    if (!supported) reasons.unshift("Unsupported question type");
+    const excluded = q.excluded || !supported;
 
     const notes = el("td");
     if (excluded) notes.append(el("div", { className: "font-weight-bold", textContent: `Excluded: ${reasons.join("; ")}` }));
@@ -57,8 +61,13 @@
 
     const row = el("tr", {},
       el("td", { textContent: `Q${q.number}` }),
-      el("td", { textContent: q.stemText }),
-      el("td", {}, ...q.options.map((o) => el("div", { textContent: `${o.letter}. ${o.text}` }))),
+      el("td", { textContent: TYPE_NAMES[q.type] || q.type }),
+      el("td", {},
+        el("div", { textContent: q.stemText }),
+        ...(q.pairs || []).map((p) => el("div", { className: "ml-3", textContent: `${p.text} → ${p.answer}` })),
+        ...(q.extras || []).map((t) => el("div", { className: "ml-3", textContent: `extra: ${t}` }))
+      ),
+      el("td", {}, ...options.map((o) => el("div", { textContent: `${o.letter}. ${o.text}` }))),
       el("td", { textContent: correct ? `Right answer: ${correct}` : "" }),
       el("td", { textContent: q.tags.length ? `Tags: ${q.tags.join("; ")}` : "" }),
       notes

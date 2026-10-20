@@ -2,6 +2,8 @@ node_modules/
 web-ext-artifacts/
 *.xpi
 *.zip
+# Word lock files
+~$*
 .DS_Store
 
 # Raw captures (may contain sesskeys, names, exam items)

@@ -103,14 +103,24 @@ numbering):
   option.
 - After the options, add a small table with `Marks:` and, if you want
   tags, `Topic:`, `Task:` and `Bloom:` (one `Label: value` per cell).
-- Only single-answer multiple-choice questions are imported. Questions with
-  pictures or equations are left out.
+- **Matching questions:** write the question text, then a table with three
+  columns: descriptions on the left, the answer letter in the middle and the
+  terms on the right. A header row is optional. Number the terms with
+  lettered numbering (or type `A.`, `B.`, …); each letter points at a term
+  by its position, so `C` is the third term. Extra terms that no letter
+  points at become distractors. The answer letters need not be red. Put the
+  `Marks:` table after the three-column table, as for multiple-choice.
+- Only single-answer multiple-choice and matching questions are imported.
+  Questions with pictures or equations are left out. Answers are never
+  shuffled.
 
 **Importing**
 1. In your course, open **Question bank → Import**.
 2. In the **Import Word document** box, choose the .docx.
 3. Check the preview. Each question shows its options, right answer and
-   tags; questions that will be left out are greyed out with the reason.
+   tags (matching questions show each description → term pair and the
+   distractors); questions that will be left out are greyed out with the
+   reason.
 4. Leave **Import questions into the category 'From MS Word'** ticked to
    put them in that category (Moodle creates it if needed), or untick it to
    use the category selected in Moodle's General section.

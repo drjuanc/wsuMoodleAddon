@@ -50,6 +50,21 @@ the sanitised versions described here may be committed.
 - **Status:** committed. Dummy items (no real exam content), safe to
   publish.
 
+## `mock-matching.docx`
+
+- **Source:** mock test written in Microsoft Word (16.0) in the planned
+  input format: 2 matching questions (Q1 and Q4, unnumbered stems,
+  three-column grids with header rows) and 2 single-answer MCQs (Q2, Q3).
+  Q1 has three distractors, one of them a duplicate "Sino-Atrial Node";
+  its Marks value is "4 marks", Q4's is "4".
+- **Captured:** 20 October 2026.
+- **Moodle:** n/a (input document); its target is Moodle 4.3.3+.
+- **Redacted:** `dc:creator`, `cp:lastModifiedBy` and `Company` are empty.
+  `docProps/custom.xml` keeps a `GrammarlyDocumentId` (an opaque id, not
+  personal).
+- **Status:** committed. Dummy items (no real exam content), safe to
+  publish.
+
 ## `paste-test.html`
 
 Already committed before this file existed (v1.4 paste cleaner). Not

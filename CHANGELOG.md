@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+- New: the Word importer also imports matching questions, written as a
+  three-column table (description, answer letter, term) after the question
+  text. Extra terms become distractors; the preview shows a Type column, the
+  pairs and the distractors, and flags missing, extra or out-of-range
+  letters.
+
 ## 2.0 — WiSeUp Toolkit
 - New name: WiSeUp Toolkit (was WSU Moodle Helper). The university is now
   named iYunivesithi Walter Sisulu (IWS).
