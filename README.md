@@ -1,7 +1,8 @@
-# WSU Moodle Helper
+# WiSeUp Toolkit
 
-A small Chrome extension for Walter Sisulu University's Moodle (version 1.4).
-It does two things, and you can switch each one on or off separately:
+WiSeUp Toolkit is a small Chrome extension for iYunivesithi Walter Sisulu's
+Moodle (version 2.0).
+It does three things, and you can switch each one on or off separately:
 
 1. **Hides the "Chat to Wale" widget.** The floating chat button can cover
    buttons on the page, such as those in the gradebook.
@@ -9,20 +10,26 @@ It does two things, and you can switch each one on or off separately:
    editor on WiSeUp, Word's hidden formatting (fonts, colours, spacing, empty
    paragraphs) is removed. The text keeps its simple structure: paragraphs,
    bold, italics, lists, links and tables.
+3. **Imports multiple-choice questions from a Word document.** On the
+   question bank's Import page, choose a .docx, check the preview, then
+   click **Import N questions**. The questions go into the category
+   "From MS Word" unless you untick that box, in which case they go into the
+   category selected on the page.
 
 ## Switching features on and off
 Click the extension's icon in the Chrome toolbar. A small window opens with
-two switches:
+three switches:
 - **Hide 'Chat to Wale' widget**
 - **Clean text pasted from Word**
+- **Import questions from Word**
 
 Changes take effect at once in every open Moodle tab and are remembered when
-you restart Chrome. Both switches are on by default.
+you restart Chrome. All switches are on by default.
 
 The toolbar icon shows what is on:
-- green **2** badge: both features on;
-- amber **1** badge: one feature on;
-- greyed-out icon with a grey **OFF** badge: both features off.
+- green **3** badge: all features on;
+- amber **1** or **2** badge: some features on;
+- greyed-out icon with a grey **OFF** badge: all features off.
 
 Hover over the icon to see which features are on. A feature that is off
 does not touch the page at all.
@@ -102,8 +109,8 @@ your computer.
 
 **Updating to a new version**
 1. Copy the new `src` folder over the old one in the same Windows folder.
-2. In `chrome://extensions`, click the reload button (↻) on the WSU Moodle
-   Helper card.
+2. In `chrome://extensions`, click the reload button (↻) on the WiSeUp
+   Toolkit card.
 3. Close any Moodle tabs that are open and open them again. Tabs that were
    already open keep running the old version.
 
@@ -128,7 +135,7 @@ installed. It has:
 
 ## Developer
 Dr Juan Carlos Garcia-Alonso, Department of Family Medicine and Rural Health,
-Walter Sisulu University.
+iYunivesithi Walter Sisulu.
 
 Issues and suggestions are welcome via
 [GitHub Issues](https://github.com/drjuanc/wsuMoodleAddon/issues).

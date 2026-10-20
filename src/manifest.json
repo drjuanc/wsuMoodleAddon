@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "WSU Moodle Helper",
-  "version": "1.4",
-  "description": "Hides the 'Chat to Wale' widget and cleans text pasted from MS Word into Moodle editors at WSU. Each feature can be switched on or off from the toolbar popup.",
+  "name": "WiSeUp Toolkit",
+  "version": "2.0",
+  "description": "Hides the 'Chat to Wale' widget, cleans text pasted from MS Word and imports MCQs from Word documents on IWS's WiSeUp Moodle.",
   "author": "Dr Juan Carlos Garcia-Alonso",
   "homepage_url": "https://github.com/drjuanc/wsuMoodleAddon",
   "icons": {
@@ -11,7 +11,7 @@
   },
   "permissions": ["storage"],
   "action": {
-    "default_title": "WSU Moodle Helper",
+    "default_title": "WiSeUp Toolkit",
     "default_popup": "popup.html",
     "default_icon": {
       "48": "icons/icon-48.png",
@@ -19,7 +19,8 @@
     }
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
   },
   "content_scripts": [
     {
@@ -33,6 +34,25 @@
       "run_at": "document_start",
       "all_frames": true,
       "match_origin_as_fallback": true
+    },
+    {
+      "matches": ["https://wiseup.wsu.ac.za/question/bank/importquestions/import.php*"],
+      "js": ["lib/jszip.min.js", "importer/docx-parse.js", "importer/moodle-xml.js", "importer/importer.js"],
+      "run_at": "document_idle",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": ["https://wiseup.wsu.ac.za/question/bank/importquestions/import.php*"],
+      "js": ["importer/dropper.js"],
+      "run_at": "document_idle",
+      "world": "MAIN"
     }
-  ]
+  ],
+  "minimum_chrome_version": "121",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "wsu-moodle-helper@drjuanc.github.io",
+      "strict_min_version": "128.0"
+    }
+  }
 }
