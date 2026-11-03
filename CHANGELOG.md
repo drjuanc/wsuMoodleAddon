@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.4 — 3 November 2026
+- New: in the quiz's "Add from the question bank" window, a counter above
+  the list shows "N questions listed · M selected". It stays in view while
+  the list scrolls and updates when boxes are ticked, select-all is used or
+  the filter, sorting or category changes. Part of the "Show all questions"
+  switch.
+- README rewritten for lecturers: every feature, the switches, installing,
+  privacy and known limitations.
+
+## 2.3 — 3 November 2026
+- New: the quiz's "Add from the question bank" window lists up to 1000
+  questions on one page instead of 20, so a whole category can be selected
+  at once. Moodle's page links hide themselves; filters, sorting and the
+  category menu work as usual.
+- New popup switch, "Show all questions in the quiz question bank", on by
+  default. Turning it off applies the next time the list loads, without
+  reloading the page.
+
 ## 2.2 — 20 October 2026
 - New: the Word importer also imports essay questions: a numbered question
   with no lettered options. The red memo after it goes into Moodle's

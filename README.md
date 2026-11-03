@@ -1,247 +1,270 @@
+<img src="src/icons/icon-128.png" alt="" width="64" align="right">
+
 # WiSeUp Toolkit
 
-WiSeUp Toolkit is a small Chrome extension for iYunivesithi Walter Sisulu's
-Moodle (version 2.4).
-It does four things, and you can switch each one on or off separately:
+WiSeUp Toolkit is a free browser extension for Chrome and Firefox that makes
+everyday work on WiSeUp, the Moodle site of iYunivesithi Walter Sisulu (IWS),
+easier. It hides the chat widget, cleans text you paste from Word, imports
+questions from a Word document into the question bank, and shows all
+questions at once when you add them to a quiz. Each feature has its own
+on/off switch.
 
-1. **Hides the "Chat to Wale" widget.** The floating chat button can cover
-   buttons on the page, such as those in the gradebook.
-2. **Cleans text you paste from MS Word.** When you paste into a Moodle text
-   editor on WiSeUp, Word's hidden formatting (fonts, colours, spacing, empty
-   paragraphs) is removed. The text keeps its simple structure: paragraphs,
-   bold, italics, lists, links and tables.
-3. **Imports multiple-choice, matching and essay questions from a Word document.** On the
-   question bank's Import page, choose a .docx, check the preview, then
-   click **Import N questions**. The questions go into the category
-   "From MS Word" unless you untick that box, in which case they go into the
-   category selected on the page. See "Importing questions from Word" below.
-4. **Shows all questions in the quiz question bank.** When you add questions
-   to a quiz with **Add → from question bank**, the window lists every
-   question in the category on one page instead of 20 at a time. See
-   "Showing all questions" below.
+Current version: **2.4**.
 
-## Switching features on and off
-Click the extension's icon in the Chrome toolbar. A small window opens with
-four switches:
-- **Hide 'Chat to Wale' widget**
-- **Clean text pasted from Word**
-- **Import questions from Word**
-- **Show all questions in the quiz question bank**
+## Features
 
-Changes take effect at once in every open Moodle tab and are remembered when
-you restart Chrome. All switches are on by default.
+### Hide the "Chat to Wale" widget
+The floating "Chat to Wale" button can cover Moodle's own buttons, for
+example in the gradebook. The extension hides it. Nothing else on the page
+is hidden.
 
-The toolbar icon shows what is on:
-- green **4** badge: all features on;
-- amber **1**, **2** or **3** badge: some features on;
-- greyed-out icon with a grey **OFF** badge: all features off.
+**Where:** every page on wsu.ac.za, including WiSeUp.
 
-Hover over the icon to see which features are on. A feature that is off
-does not touch the page at all.
+### Clean Word pastes into the editor
+When you paste from Word into a Moodle text editor, Word's hidden
+formatting comes along: fonts, colours, sizes, spacing and empty
+paragraphs. The extension removes it and keeps the simple structure.
 
-## What happens when you paste
-The cleaner works only in Moodle's rich-text editors (question text, answer
-options, feedback, page content and so on). Plain text boxes, such as a
-question name, are left alone.
+- **Kept:** paragraphs, line breaks, bold, italics, underline, subscript,
+  superscript, bulleted and numbered lists, web and email links, and tables
+  (including merged cells).
+- **Changed:** headings become normal paragraphs. Runs of spaces become one
+  space. A single paragraph joins the line you are typing in. Links to
+  places inside the Word document become plain text.
+- **Removed:** fonts, colours, styles, comments, empty paragraphs, extra
+  blank lines, text boxes, shapes, equations, videos and form fields.
+- **Question numbers and option letters:** Moodle numbers questions and
+  letters options itself, so Word's automatic `1.`, `3)`, `A.`, `(b)` are
+  removed. Roman numerals (`i.`, `ii)`, `(iv)`) and bullets are kept, so an
+  option like "i and iii only" still makes sense. If you paste a single
+  paragraph, a typed number, letter or bullet at its start is removed too.
+  If you paste several paragraphs, only the first loses a typed number or
+  letter.
+- **Pictures:** screenshots and pictures copied on their own paste as
+  normal. Word text with **one** picture is cleaned and the picture is kept.
+  Word text with **several** pictures is left to Moodle untouched, because
+  Word does not hand the separate pictures to the browser; paste them one at
+  a time instead.
 
-**Kept:** paragraphs, line breaks, **bold**, *italics*, underline,
-subscript and superscript, bulleted and numbered lists, links to web pages,
-email addresses and phone numbers, and tables (including merged cells).
+Plain text boxes, such as a question name, are left alone.
 
-**Converted:**
-- Headings and other Word blocks become normal paragraphs.
-- Non-breaking spaces become normal spaces, and runs of spaces become one.
-- A single paragraph is pasted into the line you are typing in, rather than
-  starting a new paragraph.
-- Links to a place inside the Word document (bookmarks, cross-references)
-  become plain text.
+**Where:** rich-text editors on WiSeUp (question text, options, feedback,
+page content and so on).
 
-**Removed:** fonts, colours, sizes, styles, Word's hidden markup and
-comments, empty paragraphs, extra blank lines, text boxes, shapes,
-equations, embedded videos and form fields.
+### Import questions from Word
+On the question bank's **Import** page the extension adds an **Import Word
+document** box. Choose a .docx, check the preview, and click **Import N
+questions**. It imports three types: single-answer multiple choice (MCQ),
+matching and essay.
 
-## Pictures
-- **Screenshots**, and pictures you copy on their own, are pasted by
-  Moodle's editor as normal.
-- **Text and one picture from Word:** if what you copy from Word contains
-  exactly one picture, the text is cleaned and the picture is embedded in it
-  (stored inside the text, like Moodle's editor does).
-- **Text and several pictures from Word:** Word does not give the browser
-  the separate pictures, so the paste is left to Moodle's editor, untouched.
-  To keep the pictures, paste them one at a time.
-- **Text only:** when you copy plain text, Word may also put a picture of
-  that text on the clipboard. The cleaner recognises this, ignores the
-  picture and pastes the cleaned text.
-- Pictures already on the web (addresses starting `http:` or `https:`, e.g.
-  copied from another Moodle page) and embedded PNG, JPEG, GIF and WebP
-  pictures are kept. All other pictures are removed: Word's local copies
-  that cannot be embedded, SVG drawings, and pictures stored in any other
-  way.
+**Everything happens in your browser.** The document is read and converted
+on your computer. It is not uploaded to any third party, and no AI is used.
+The only upload is the usual one: Moodle's own file picker sends the
+finished question file to WiSeUp, exactly as if you had imported it by hand.
 
-## Question numbers and option letters
-Moodle numbers questions and letters answer options itself, so the numbers
-Word adds would appear twice. The cleaner therefore removes:
-- Word's **automatic numbering** when it is a number or letter: `3.`, `3)`,
-  `(3)`, `A.`, `b)`, `(c)`.
+#### Formatting the Word document
+**All question types**
+- Number the questions with Word's numbered list (`1.`, `2.`, …). Typed
+  `1.` or `1)` also works.
+- After each question, add a small **metadata table** with one
+  `Label: value` per cell. `Marks:` is required (`2` or `2 marks`).
+  `Topic:`, `Task:`, `Bloom's:`, `SubT:` and `Module:` are optional and
+  become tags. A value such as `-` is not turned into a tag. Labels are not
+  case-sensitive and need not be bold.
+- **Scenarios:** a paragraph directly above a question, with no empty line
+  in between, is put in front of that question (for example
+  "Scenario: A 45-year-old man…"). Above question 1, only a paragraph that
+  starts with "Scenario" or "Case" counts. Other text above question 1
+  (title, instructions) is ignored, and the preview says how many lines.
+- "Red" means red or dark red font colour. At least half of the text must
+  be red.
 
-It keeps:
-- **roman numerals** `i` to `x` (e.g. `i.`, `ii)`, `(iv)`), so an option
-  such as "i and iii only" still makes sense. In a lettered list, `I`, `V`
-  and `X` are treated as roman numerals and kept too;
-- **bullets**.
+**Multiple choice (one correct answer)**
+- Put the options in a lettered list (`A.`, `B.`, … or `a.`, `b.`, …).
+  Typed `A.` to `H.` also works.
+- Colour the correct option **red**. Exactly one option must be red.
+- If your letters are lower case, Moodle shows them as a, b, c.
 
-Numbers and letters you **typed** yourself (not Word's automatic
-numbering):
-- If you paste a **single paragraph**, any number, letter, roman numeral or
-  bullet at its start is removed (`A.`, `a)`, `(a)`, `1.`, `3)`, `(3)`,
-  `i.`, `•`).
-- If you paste **more than one paragraph**, only the **first** paragraph
-  loses a number or letter at its start (not a roman numeral). The other
-  paragraphs are left as they are.
+**Matching**
+- Write the question text, then a table with **three columns**:
+  description on the left, the answer letter in the middle, the term on the
+  right. A header row is optional.
+- Letters point at the terms by their position: `C` is the third term.
+  Terms may be lettered (`A. Term`), but the position is what counts.
+- Extra terms that no letter points at become distractors.
+- The letters do not need to be red.
+- Put the metadata table after the three-column table.
 
-## Importing questions from Word
-**Preparing the document**
-- Number the questions with Word's numbering (`1.`, `2.`, …) and the
-  options with lettered numbering (`A.`, `B.`, … or `a.`, `b.`, …). Typed
-  `1.` and `A.` also work.
-- Colour the right answer **red**. Each question needs exactly one red
-  option.
-- After the options, add a small table with `Marks:` and, if you want
-  tags, `Topic:`, `Task:` and `Bloom:` (one `Label: value` per cell).
-- **Matching questions:** write the question text, then a table with three
-  columns: descriptions on the left, the answer letter in the middle and the
-  terms on the right. A header row is optional. The terms may be lettered
-  (Word's lettered numbering or typed `A.`, `B.`, …), but each letter points
-  at a term by its position, so `C` is the third term. Extra terms that no letter
-  points at become distractors. The answer letters need not be red. Put the
-  `Marks:` table after the three-column table, as for multiple-choice.
-- **Essay questions:** a numbered question with no lettered options. Put
-  the model answer (memo) in **red** after the question; it goes into
-  Moodle's "Information for graders". Bulleted memos stay bulleted. If the
-  memo is a table, the students get that table, with the red answers
-  blanked out, in their answer box to fill in. A question without a memo is fine. Keep "(3 marks)" in the question
-  if you like; the marks still come from the table.
-- **Scenarios:** a paragraph such as "Scenario: …" directly above a
-  question (no empty line in between) is put in front of that question.
-  Other text above question 1 (title, instructions) is ignored.
-- The table may also have `SubT:` and `Module:`; they become tags too.
-- Only single-answer multiple-choice, matching and essay questions are imported.
-  Questions with pictures or equations are left out. Answers are never
-  shuffled.
+**Essay**
+- A numbered question with no lettered options is an essay.
+- Put the model answer (memo) in **red** after the question. It goes into
+  Moodle's "Information for graders". Bullet lists stay bullet lists. A
+  question with no memo is fine.
+- **Response template:** if you put a table after the question, students
+  get that table in their answer box, with the red answers blanked out. The
+  full table, with the red answers, goes to the graders.
+- You can keep "(3 marks)" in the question text; the marks still come from
+  the metadata table.
+- Students answer in Moodle's online text editor; file uploads are off.
 
-**Importing**
+#### The preview
+After you choose the file, a table shows every question it found: number,
+type, question text, options, correct answer, marks, tags and notes.
+Matching questions list each description beside its term, then the
+distractors. Essays show the memo and the response template.
+
+Questions that cannot be imported are greyed out, with the reason (for
+example "No option is marked in red"). Warnings, such as text that will be
+left out, are shown in the Notes column but do not stop the import.
+
+#### Importing
 1. In your course, open **Question bank → Import**.
-2. In the **Import Word document** box, choose the .docx.
-3. Check the preview. Each question shows its stem, options, right answer,
-   marks and tags (matching questions show the numbered descriptions beside
-   their terms, then the distractors; essays show the memo); questions that will be left out are
-   greyed out with the reason.
-4. Leave **Import questions into the category 'From MS Word'** ticked to
-   put them in that category (Moodle creates it if needed), or untick it to
-   use the category selected in Moodle's General section.
-5. Click **Import N questions**. The extension attaches the file and
-   clicks Moodle's Import button for you; Moodle then shows its usual
-   import summary.
+2. In the **Import Word document** box, choose your .docx.
+3. Check the preview.
+4. Choose the category. Leave **Import questions into the category 'From
+   MS Word'** ticked to use that category (Moodle creates it if needed).
+   Untick it to use the category selected in Moodle's General section; the
+   box then shows "Questions will go to: …".
+5. Click **Import N questions**. The extension attaches the file and clicks
+   Moodle's Import button for you. Moodle then shows its usual summary.
 
 While the preview is shown, Moodle's own file box and Import button are
-hidden. They come back if anything goes wrong, so you can always import an
-XML file the normal way. The document never leaves your computer: it is
-read and converted inside the browser.
+hidden. They come back if anything goes wrong, so you can always import a
+file the normal way.
 
-## Showing all questions
+**Where:** the question bank Import page on WiSeUp.
+
+### Show all questions in "Add from the question bank"
 On a quiz's **Questions** page, **Add → from question bank** opens a window
-that Moodle splits into pages of 20 questions. With this switch on, the
-extension asks Moodle for up to 1000 questions at a time, so the whole
-category fits on one page and you can tick them all at once. Moodle's page
-links disappear by themselves; they only come back for a category with more
-than 1000 questions. Filters, sorting and the category menu work as usual.
+that shows 20 questions per page. With this feature on, the window lists up
+to 1000 questions at once, so a whole category fits on one page and you can
+select them all in one go. Moodle's page links disappear by themselves.
+Filters, sorting and the category menu work as usual.
 
-Just above the list, a small counter shows how many questions are listed and
-how many you have ticked, e.g. "97 questions listed · 5 selected". It stays
-in view while you scroll the list, and updates as you tick boxes, use the
-select-all box, or change the filter, sorting or category.
+**Where:** the quiz Questions page on WiSeUp.
 
-Switching it off takes effect the next time the window loads its list (open
-it again or click **Apply filters**); you do not need to reload the page.
+### Listed and selected counter
+Just above the question list in the same window, a small line shows how
+many questions are listed and how many you have ticked, for example
+"97 questions listed · 5 selected". It stays in view while you scroll, and
+updates when you tick boxes, use select-all, or change the filter, sorting
+or category. It is part of the "Show all questions" switch.
 
-## Installing and updating
-The extension is not in the Chrome Web Store. It is loaded from a folder on
-your computer.
+## The popup switches
+Click the extension's icon in the toolbar to open the switches. Changes
+apply at once in every open WiSeUp tab and are remembered.
 
-**First install**
-1. Download this repository and copy its `src` folder to a folder on
-   Windows, e.g. `C:\Users\<you>\wale-ext`.
-2. In Chrome, go to `chrome://extensions` and switch on **Developer mode**
-   (top right).
-3. Click **Load unpacked** and choose that folder.
-4. Pin the extension (puzzle-piece icon → pin) so the switches are always
-   to hand.
+| Switch | What it controls | Default |
+| --- | --- | --- |
+| Hide 'Chat to Wale' widget | Hides the floating chat button | On |
+| Clean text pasted from Word | Cleans Word pastes in Moodle editors | On |
+| Import questions from Word | The "Import Word document" box on the Import page | On |
+| Show all questions in the quiz question bank | Up to 1000 questions per page, plus the counter | On |
 
-**Updating to a new version**
-1. Copy the new `src` folder over the old one in the same Windows folder.
-2. In `chrome://extensions`, click the reload button (↻) on the WiSeUp
-   Toolkit card.
-3. Close any Moodle tabs that are open and open them again. Tabs that were
-   already open keep running the old version.
+The "Show all questions" switch takes effect the next time the window loads
+its list (open it again or click **Apply filters**).
 
-If you are upgrading from 1.3, your previous on/off choice is copied to
-the chat and paste switches; the importer switch starts on.
+The badge on the toolbar icon shows how many switches are on:
+- green **4**: all features on;
+- amber **1**, **2** or **3**: some features on;
+- grey **OFF**, with a faded icon: all features off.
 
-Works in Chrome, Edge and Brave (version 121 or later), and in Firefox (see
-below). The extension
-collects no data and needs only permission to store its four settings.
+Hover over the icon to see which features are on. A feature that is off
+does not touch the page.
 
-## Installing in Firefox
-Needs Firefox 128 or later.
+## Installing
+The extension is not in the Chrome Web Store or on Firefox Add-ons. You load
+it from a folder on your computer.
 
-**For a quick try (temporary):**
-1. Download this repository.
-2. In Firefox, go to `about:debugging`, then **This Firefox**.
+### Chrome (version 121 or later)
+1. Download this repository (green **Code** button → **Download ZIP**) and
+   unzip it.
+2. Go to `chrome://extensions` and switch on **Developer mode** (top right).
+3. Click **Load unpacked** and choose the `src` folder.
+4. Pin the extension (puzzle-piece icon → pin) so the switches are to hand.
+
+Other Chromium browsers, such as Edge and Brave, may work but have not been
+tested.
+
+**To update:** replace the `src` folder with the new one, click ↻ on the
+WiSeUp Toolkit card in `chrome://extensions`, then reload any open WiSeUp
+tabs.
+
+### Firefox (version 128 or later)
+1. Download and unzip this repository.
+2. Go to `about:debugging`, then **This Firefox**.
 3. Click **Load Temporary Add-on…** and choose `manifest.json` inside the
    `src` folder.
 
-A temporary add-on is removed when Firefox restarts, so you have to load it
-again each time.
+A temporary add-on is **removed when Firefox restarts**, so you need to load
+it again each time. A permanent install needs a version signed by Mozilla,
+which does not exist yet.
 
-**Permanent install:** Firefox only installs add-ons permanently if they are
-signed by Mozilla. That needs a signed `.xpi` file from
-addons.mozilla.org (AMO); there is none yet.
+## Privacy
+- **What it stores:** only your four switch settings, in the browser's own
+  extension storage on your computer.
+- **Where it runs:** only on `wiseup.wsu.ac.za`, plus the chat-widget hider
+  on other `wsu.ac.za` pages. It asks for no other permissions.
+- **What it sends:** nothing. It has no server, no analytics and no AI. It
+  loads no code from the internet. Your Word documents are read inside the
+  browser. The only things that reach WiSeUp are what Moodle itself sends:
+  the imported question file, and Moodle's own request for the question
+  list, which the extension changes to ask for up to 1000 questions instead
+  of 20.
+
+## Known limitations
+- **Question types:** only single-answer multiple choice, matching and
+  essay. True/false, short answer, multiple-response (several correct
+  answers), numerical and other types are not imported.
+- **Pictures and equations:** questions that contain them are left out of
+  the import.
+- **File type:** .docx only. Not .doc or PDF.
+- **No feedback:** feedback for options or questions is not imported; add it
+  in Moodle afterwards.
+- **No shuffling:** MCQ options and matching answers are imported in Word's
+  order and not shuffled, because options often refer to each other ("Both
+  A and B"). Turn shuffling on in Moodle if you want it.
+- **Question names** are the first 80 or so characters of the question text,
+  including any scenario in front of it, so several questions under one
+  scenario can get similar names.
+- **Options without letters:** if an MCQ's options are plain paragraphs,
+  with no lettered list and no typed `A.`, the question is imported as an
+  essay. Check the Type column in the preview.
+- **Several pictures in one paste:** Word text with more than one picture is
+  not cleaned (see above).
+- **Show all questions:** a category with more than 1000 questions still
+  gets page links.
+- **Firefox:** temporary install only, for now.
 
 ## For developers
-**Deploying while developing:** after changes, copy `src` to the Windows
-folder Chrome loads the extension from, then click ↻ on the extension's card
-in `chrome://extensions`:
 ```
-cp -r ~/wsuMoodleAddon/src/. "/mnt/c/Users/drjua/OneDrive - Walter Sisulu University/Dev/Extensions/WiSeUp Toolkit/"
+src/            the extension (load this folder)
+  manifest.json, background.js (toolbar badge), popup.html/.js (switches)
+  content.js    chat hider; passes the show-all switch to the page
+  paste-clean.js  Word paste cleaner
+  importer/     .docx parser, Moodle XML writer, preview, file attach
+  qbank/        show-all request rewrite and the counter
+  lib/          bundled JSZip
+docs/           importer spec and .docx findings
+test/           offline tests and test pages
 ```
 
-**Show all questions:** `src/qbank/qbank-showall.js` runs in the page's
-world and rewrites `qperpage`/`qpage` in Moodle's `core_get_fragment`
-requests (`mod_quiz` `quiz_question_bank` and `question_data`). `content.js`
-sets `<html data-wiseup-showall="on|off">` from the switch. To trace the
-requests, set `DEBUG = true` at the top of the script; it never logs the
-sesskey. `src/qbank/qbank-counter.js` (isolated world) adds the counter and
-watches the modal with a MutationObserver.
+- `npm install` once, then `npm test` for the importer tests.
+- Open `test/paste-test.html` in Chrome to try the paste cleaner.
+- After changes, copy `src` to the folder Chrome loads, then click ↻ on the
+  extension's card:
+  ```
+  cp -r ~/wsuMoodleAddon/src/. "/mnt/c/Users/drjua/OneDrive - Walter Sisulu University/Dev/Extensions/WiSeUp Toolkit/"
+  ```
 
-**Question importer:** run `npm install` once, then `npm test` for the
-offline tests of the .docx parser and Moodle XML generator
-(`test/importer.test.js`). The rules are in `docs/importer-spec.md`.
+See [CLAUDE.md](CLAUDE.md) for the project rules and technical details, and
+[docs/importer-spec.md](docs/importer-spec.md) for the importer's rules.
 
-**Paste cleaner:** open `test/paste-test.html` in Chrome; the extension does not need to be
-installed. It has:
-- two editors (TinyMCE-style iframe and Atto-style editable box): paste into
-  either to see the raw and cleaned HTML;
-- **Run samples**: runs the built-in samples (real and made-up Word pastes)
-  and shows pass/fail for each. Add `?auto` to the address to run them on
-  load, e.g. headless with `--dump-dom --virtual-time-budget=10000`, then
-  check the `summary` element;
-- **Copy raw clipboard**: copies everything your last paste contained (types,
-  files, `text/html`, `text/plain`) as JSON, for reporting a paste that was
-  not cleaned properly or turning it into a new sample.
+## Author
+Dr Juan Carlos Garcia-Alonso, Department of Family Medicine and Rural
+Health, iYunivesithi Walter Sisulu.
 
-## Developer
-Dr Juan Carlos Garcia-Alonso, Department of Family Medicine and Rural Health,
-iYunivesithi Walter Sisulu.
+Source code, issues and suggestions:
+[github.com/drjuanc/wsuMoodleAddon](https://github.com/drjuanc/wsuMoodleAddon)
 
-Issues and suggestions are welcome via
-[GitHub Issues](https://github.com/drjuanc/wsuMoodleAddon/issues).
+WiSeUp Toolkit is a personal project. It is not an official IWS product.
