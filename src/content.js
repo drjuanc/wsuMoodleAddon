@@ -26,3 +26,19 @@
     }
   });
 })();
+
+// "Show all questions": qbank/qbank-showall.js runs in the page's world and
+// cannot read storage, so it reads this flag on <html> at request time
+(() => {
+  if (location.hostname !== "wiseup.wsu.ac.za" || location.pathname !== "/mod/quiz/edit.php") return;
+  const setFlag = (on) => { document.documentElement.dataset.wiseupShowall = on ? "on" : "off"; };
+
+  chrome.storage.local.get("showAllQuestions")
+    .then(({ showAllQuestions }) => setFlag(showAllQuestions ?? true));
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && "showAllQuestions" in changes) {
+      setFlag(changes.showAllQuestions.newValue !== false);
+    }
+  });
+})();

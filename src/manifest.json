@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "WiSeUp Toolkit",
-  "version": "2.2",
-  "description": "Hides the 'Chat to Wale' widget, cleans Word pastes and imports MCQ, matching and essay questions from Word on IWS's WiSeUp Moodle.",
+  "version": "2.3",
+  "description": "Hides 'Chat to Wale', cleans Word pastes, imports questions from Word and shows all quiz question bank questions on IWS's WiSeUp.",
   "author": "Dr Juan Carlos Garcia-Alonso",
   "homepage_url": "https://github.com/drjuanc/wsuMoodleAddon",
   "icons": {
@@ -45,6 +45,12 @@
       "matches": ["https://wiseup.wsu.ac.za/question/bank/importquestions/import.php*"],
       "js": ["importer/dropper.js"],
       "run_at": "document_idle",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://wiseup.wsu.ac.za/mod/quiz/edit.php*"],
+      "js": ["qbank/qbank-showall.js"],
+      "run_at": "document_start",
       "world": "MAIN"
     }
   ],

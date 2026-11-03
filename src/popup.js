@@ -1,4 +1,4 @@
-const KEYS = ["hideChat", "cleanPaste", "importDocx"];
+const KEYS = ["hideChat", "cleanPaste", "importDocx", "showAllQuestions"];
 
 const { name, version } = chrome.runtime.getManifest();
 document.getElementById("name").textContent = name;

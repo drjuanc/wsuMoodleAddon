@@ -28,22 +28,22 @@ async function loadIcons() {
 const NAME = "WiSeUp Toolkit";
 
 async function getState() {
-  const { hideChat = true, cleanPaste = true, importDocx = true } =
-    await chrome.storage.local.get(["hideChat", "cleanPaste", "importDocx"]);
-  return { hideChat, cleanPaste, importDocx };
+  const { hideChat = true, cleanPaste = true, importDocx = true, showAllQuestions = true } =
+    await chrome.storage.local.get(["hideChat", "cleanPaste", "importDocx", "showAllQuestions"]);
+  return { hideChat, cleanPaste, importDocx, showAllQuestions };
 }
 
 // Colour icon if at least one feature is on; badge shows how many
 async function render() {
-  const { hideChat, cleanPaste, importDocx } = await getState();
-  const count = hideChat + cleanPaste + importDocx;
+  const { hideChat, cleanPaste, importDocx, showAllQuestions } = await getState();
+  const count = hideChat + cleanPaste + importDocx + showAllQuestions;
   const { on, off } = await loadIcons();
   const active = [hideChat && "chat widget hidden", cleanPaste && "Word paste cleaning",
-    importDocx && "Word question import"].filter(Boolean);
+    importDocx && "Word question import", showAllQuestions && "all questions on one page"].filter(Boolean);
   await chrome.action.setIcon({ imageData: count ? on : off });
   await chrome.action.setBadgeText({ text: count ? String(count) : "OFF" });
   await chrome.action.setBadgeBackgroundColor({
-    color: count === 3 ? "#2e7d32" : count ? "#f59e0b" : "#757575"
+    color: count === 4 ? "#2e7d32" : count ? "#f59e0b" : "#757575"
   });
   await chrome.action.setTitle({
     title: count ? `${NAME}\nOn: ${active.join(", ")}` : `${NAME}\nAll features are off`
@@ -66,5 +66,6 @@ chrome.runtime.onStartup.addListener(render);
 
 // The popup writes to storage; keep the icon in step
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === "local" && ("hideChat" in changes || "cleanPaste" in changes || "importDocx" in changes)) render();
+  if (area === "local" && ("hideChat" in changes || "cleanPaste" in changes || "importDocx" in changes ||
+    "showAllQuestions" in changes)) render();
 });

@@ -6,5 +6,6 @@ web-ext-artifacts/
 ~$*
 .DS_Store
 
+
 # Raw captures (may contain sesskeys, names, exam items)
 test/private/

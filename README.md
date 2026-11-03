@@ -1,8 +1,8 @@
 # WiSeUp Toolkit
 
 WiSeUp Toolkit is a small Chrome extension for iYunivesithi Walter Sisulu's
-Moodle (version 2.2).
-It does three things, and you can switch each one on or off separately:
+Moodle (version 2.3).
+It does four things, and you can switch each one on or off separately:
 
 1. **Hides the "Chat to Wale" widget.** The floating chat button can cover
    buttons on the page, such as those in the gradebook.
@@ -15,20 +15,25 @@ It does three things, and you can switch each one on or off separately:
    click **Import N questions**. The questions go into the category
    "From MS Word" unless you untick that box, in which case they go into the
    category selected on the page. See "Importing questions from Word" below.
+4. **Shows all questions in the quiz question bank.** When you add questions
+   to a quiz with **Add → from question bank**, the window lists every
+   question in the category on one page instead of 20 at a time. See
+   "Showing all questions" below.
 
 ## Switching features on and off
 Click the extension's icon in the Chrome toolbar. A small window opens with
-three switches:
+four switches:
 - **Hide 'Chat to Wale' widget**
 - **Clean text pasted from Word**
 - **Import questions from Word**
+- **Show all questions in the quiz question bank**
 
 Changes take effect at once in every open Moodle tab and are remembered when
 you restart Chrome. All switches are on by default.
 
 The toolbar icon shows what is on:
-- green **3** badge: all features on;
-- amber **1** or **2** badge: some features on;
+- green **4** badge: all features on;
+- amber **1**, **2** or **3** badge: some features on;
 - greyed-out icon with a grey **OFF** badge: all features off.
 
 Hover over the icon to see which features are on. A feature that is off
@@ -143,6 +148,17 @@ hidden. They come back if anything goes wrong, so you can always import an
 XML file the normal way. The document never leaves your computer: it is
 read and converted inside the browser.
 
+## Showing all questions
+On a quiz's **Questions** page, **Add → from question bank** opens a window
+that Moodle splits into pages of 20 questions. With this switch on, the
+extension asks Moodle for up to 1000 questions at a time, so the whole
+category fits on one page and you can tick them all at once. Moodle's page
+links disappear by themselves; they only come back for a category with more
+than 1000 questions. Filters, sorting and the category menu work as usual.
+
+Switching it off takes effect the next time the window loads its list (open
+it again or click **Apply filters**); you do not need to reload the page.
+
 ## Installing and updating
 The extension is not in the Chrome Web Store. It is loaded from a folder on
 your computer.
@@ -168,7 +184,7 @@ the chat and paste switches; the importer switch starts on.
 
 Works in Chrome, Edge and Brave (version 121 or later), and in Firefox (see
 below). The extension
-collects no data and needs only permission to store its three settings.
+collects no data and needs only permission to store its four settings.
 
 ## Installing in Firefox
 Needs Firefox 128 or later.
@@ -187,6 +203,20 @@ signed by Mozilla. That needs a signed `.xpi` file from
 addons.mozilla.org (AMO); there is none yet.
 
 ## For developers
+**Deploying while developing:** after changes, copy `src` to the Windows
+folder Chrome loads the extension from, then click ↻ on the extension's card
+in `chrome://extensions`:
+```
+cp -r ~/wsuMoodleAddon/src/. "/mnt/c/Users/drjua/OneDrive - Walter Sisulu University/Dev/Extensions/WiSeUp Toolkit/"
+```
+
+**Show all questions:** `src/qbank/qbank-showall.js` runs in the page's
+world and rewrites `qperpage`/`qpage` in Moodle's `core_get_fragment`
+requests (`mod_quiz` `quiz_question_bank` and `question_data`). `content.js`
+sets `<html data-wiseup-showall="on|off">` from the switch. To trace the
+requests, set `DEBUG = true` at the top of the script; it never logs the
+sesskey.
+
 **Question importer:** run `npm install` once, then `npm test` for the
 offline tests of the .docx parser and Moodle XML generator
 (`test/importer.test.js`). The rules are in `docs/importer-spec.md`.
