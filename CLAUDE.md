@@ -27,6 +27,7 @@ then reload the extension in Chrome (chrome://extensions, ↻).
 - Moodle 4.3 honours qperpage in both; custom_view's DEFAULT_PAGE_SIZE (20) is only a default. The pager hides itself when everything fits, so no CSS.
 - Switch: storage key `showAllQuestions` (default on). content.js mirrors it to `<html data-wiseup-showall="on|off">` on edit.php only; the MAIN script reads it per request.
 - Debug logging sits behind `DEBUG` (false). Never log the sesskey or full service.php URLs.
+- Counter: src/qbank/qbank-counter.js (ISOLATED, document_idle) puts "N questions listed · M selected" just before `#categoryquestions`, inside div#question_table, as a Bootstrap `sticky-top bg-white` div (the only overflow rule is on the table itself, so sticky works); same showAllQuestions switch. Rows = `#categoryquestions tbody` checkboxes with data-toggle="slave" data-togglegroup="qbank"; select-all is #qbheadercheckbox (master). A MutationObserver catches re-renders; select-all sets .checked without events, so clicks/changes recount after a tick. Real modal HTML: test/private/qbank-modal.html.
 
 ## Read when relevant
 - Importer spec (before any importer work): docs/importer-spec.md

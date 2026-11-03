@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "WiSeUp Toolkit",
-  "version": "2.3",
+  "version": "2.4",
   "description": "Hides 'Chat to Wale', cleans Word pastes, imports questions from Word and shows all quiz question bank questions on IWS's WiSeUp.",
   "author": "Dr Juan Carlos Garcia-Alonso",
   "homepage_url": "https://github.com/drjuanc/wsuMoodleAddon",
@@ -52,6 +52,12 @@
       "js": ["qbank/qbank-showall.js"],
       "run_at": "document_start",
       "world": "MAIN"
+    },
+    {
+      "matches": ["https://wiseup.wsu.ac.za/mod/quiz/edit.php*"],
+      "js": ["qbank/qbank-counter.js"],
+      "run_at": "document_idle",
+      "world": "ISOLATED"
     }
   ],
   "minimum_chrome_version": "121",

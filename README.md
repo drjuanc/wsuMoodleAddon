@@ -1,7 +1,7 @@
 # WiSeUp Toolkit
 
 WiSeUp Toolkit is a small Chrome extension for iYunivesithi Walter Sisulu's
-Moodle (version 2.3).
+Moodle (version 2.4).
 It does four things, and you can switch each one on or off separately:
 
 1. **Hides the "Chat to Wale" widget.** The floating chat button can cover
@@ -156,6 +156,11 @@ category fits on one page and you can tick them all at once. Moodle's page
 links disappear by themselves; they only come back for a category with more
 than 1000 questions. Filters, sorting and the category menu work as usual.
 
+Just above the list, a small counter shows how many questions are listed and
+how many you have ticked, e.g. "97 questions listed · 5 selected". It stays
+in view while you scroll the list, and updates as you tick boxes, use the
+select-all box, or change the filter, sorting or category.
+
 Switching it off takes effect the next time the window loads its list (open
 it again or click **Apply filters**); you do not need to reload the page.
 
@@ -215,7 +220,8 @@ world and rewrites `qperpage`/`qpage` in Moodle's `core_get_fragment`
 requests (`mod_quiz` `quiz_question_bank` and `question_data`). `content.js`
 sets `<html data-wiseup-showall="on|off">` from the switch. To trace the
 requests, set `DEBUG = true` at the top of the script; it never logs the
-sesskey.
+sesskey. `src/qbank/qbank-counter.js` (isolated world) adds the counter and
+watches the modal with a MutationObserver.
 
 **Question importer:** run `npm install` once, then `npm test` for the
 offline tests of the .docx parser and Moodle XML generator
